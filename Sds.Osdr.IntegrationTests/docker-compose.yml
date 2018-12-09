@@ -1,0 +1,196 @@
+version: '3.4'
+
+services:
+  eventstore:
+    image: eventstore/eventstore:release-4.0.2
+    ports:
+      - "2113:2113"
+      - "1113:1113"
+    environment:
+      - RUN_PROJECTIONS = All
+    networks:
+      - osdr-test
+
+  redis:
+    image: redis:4-alpine
+    command: redis-server --appendonly yes
+    # ports:
+    #   - "6379:6379"
+    networks:
+      - osdr-test
+
+  rabbitmq:
+    image: docker.your-company.com/osdr-rabbitmq:3.6
+    hostname: "rabbitmq-test"
+    environment:
+      - RABBITMQ_DEFAULT_VHOST=osdr_test
+    # ports:
+    #   - "18282:15672"
+    #   - "5672:5672"
+    networks:
+      - osdr-test
+
+  mongo:
+    image: mongo:3.6
+    # ports:
+    #   - "27017:27017"
+    networks:
+      - osdr-test
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+      POSTGRES_DATABASE: keycloak
+      POSTGRES_ROOT_PASSWORD: keycloak
+      pgdata: data-pstgresql
+    networks:
+      - osdr-test
+
+  keycloak:
+    build: KeyCloak
+    environment:
+      DB_VENDOR: POSTGRES
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+      POSTGRES_PORT_5432_TCP_ADDR: postgres
+      POSTGRES_DATABASE: keycloak
+      JDBC_PARAMS: 'connectTimeout=30'
+    # ports:
+    #   - '8080:8080'
+    networks:
+      - osdr-test
+    depends_on:
+      - postgres
+
+  osdr-service-backend:
+    container_name: osdr-service-backend
+    image: docker.your-company.com/osdr-service-backend:ci-${BUILD_NUMBER}
+    entrypoint: /bin/bash
+    environment:
+      - OSDR_LOG_FOLDER=/logs
+      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
+      - OSDR_REDIS=redis
+      - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
+    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./Sds.Osdr.Domain.BackEnd
+    volumes:
+      - ${OSDR_LOG_FOLDER}:/logs
+    networks:
+      - osdr-test
+    depends_on:
+      - rabbitmq
+      - eventstore
+      - redis
+      - mongo
+
+  osdr-service-frontend:
+    container_name: osdr-service-frontend
+    image: docker.your-company.com/osdr-service-frontend:ci-${BUILD_NUMBER}
+    entrypoint: /bin/bash
+    environment:
+      - OSDR_LOG_FOLDER=/logs
+      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
+      - OSDR_REDIS=redis
+      - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
+    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./Sds.Osdr.Domain.FrontEnd
+    volumes:
+      - ${OSDR_LOG_FOLDER}:/logs
+    networks:
+      - osdr-test
+    depends_on:
+      - rabbitmq
+      - eventstore
+      - redis
+      - mongo
+
+  osdr-service-sagahost:
+    container_name: osdr-service-sagahost
+    image: docker.your-company.com/osdr-service-sagahost:ci-${BUILD_NUMBER}
+    entrypoint: /bin/bash
+    environment:
+      - OSDR_LOG_FOLDER=/logs
+      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
+    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./Sds.Osdr.Domain.SagaHost
+    volumes:
+      - ${OSDR_LOG_FOLDER}:/logs
+    networks:
+      - osdr-test
+    depends_on:
+      - rabbitmq
+      - mongo
+
+  osdr-service-persistence:
+    container_name: osdr-service-persistence
+    image: docker.your-company.com/osdr-service-persistence:ci-${BUILD_NUMBER}
+    entrypoint: /bin/bash
+    environment:
+      - OSDR_LOG_FOLDER=/logs
+      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
+    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./Sds.Osdr.Persistence
+    volumes:
+      - ${OSDR_LOG_FOLDER}:/logs
+    networks:
+      - osdr-test
+    depends_on:
+      - rabbitmq
+      - mongo
+
+  blob-storage-api:
+    container_name: osdr-blob-storage-api
+    image: docker.your-company.com/blob-storage-webapi:latest
+    entrypoint: /bin/bash
+    environment:
+      - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
+      - OSDR_LOG_FOLDER=/logs
+      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - SWAGGER_BASEPATH=/blob/v1
+    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./wait-for-it.sh keycloak:8080 -t 30 -- ./Sds.Storage.Blob.WebApi
+    volumes:
+      - ${OSDR_LOG_FOLDER}:/logs
+    networks:
+      - osdr-test
+    # ports:
+    #   - "18006:18006"
+    depends_on:
+      - keycloak
+
+  integration:
+    container_name: osdr-integration-tests
+    image: docker.your-company.com/osdr-service-integration:ci-${BUILD_NUMBER}
+    entrypoint: /bin/bash
+    environment:
+      - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
+    #  - OSDR_REDIS=redis
+      - OSDR_LOG_FOLDER=/logs
+      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_GRID_FS=mongodb://mongo:27017/osdr_dev
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
+    #command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./wait-for-it.sh http://blob-storage-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.IntegrationTests.dll /logger:console;verbosity="normal"
+    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./wait-for-it.sh http://blob-storage-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.IntegrationTests.dll /logger:"trx;LogFileName=integrationtests-results-${BUILD_NUMBER}.xml" /ResultsDirectory:/results
+    volumes:
+      - ${OSDR_LOG_FOLDER}:/logs
+      - ${OSDR_LOG_FOLDER}:/results
+    networks:
+      - osdr-test
+    depends_on:
+      - blob-storage-api
+      - osdr-service-backend
+      - osdr-service-frontend
+      - osdr-service-sagahost
+      - osdr-service-persistence
+ 
+networks:
+    osdr-test:

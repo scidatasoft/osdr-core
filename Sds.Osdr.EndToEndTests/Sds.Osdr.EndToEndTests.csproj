@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Tests\Crystals\InvalidCifProcessing.cs" />
+    <Compile Remove="Tests\Crystals\ValidCifProcessing.cs" />
+    <Compile Remove="Tests\Reactions\InvalidRnxProcessing.cs" />
+    <Compile Remove="Tests\Reactions\ValidRnxProcessing.cs" />
+    <Compile Remove="Tests\Spectra\InvalidJdxProcessing.cs" />
+    <Compile Remove="Tests\Spectra\ValidJdxProcessing.cs" />
+    <Compile Remove="Tests\Substances\InvalidMolProcessing.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Tests\Crystals\InvalidCifProcessing.cs" />
+    <None Include="Tests\Crystals\ValidCifProcessing.cs" />
+    <None Include="Tests\Reactions\InvalidRnxProcessing.cs" />
+    <None Include="Tests\Reactions\ValidRnxProcessing.cs" />
+    <None Include="Tests\Spectra\InvalidJdxProcessing.cs" />
+    <None Include="Tests\Spectra\ValidJdxProcessing.cs" />
+    <None Include="Tests\Substances\InvalidMolProcessing.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sds.Osdr.IntegrationTests\Sds.Osdr.IntegrationTests.csproj" />
+    <ProjectReference Include="..\Sds.Osdr.WebApi.IntegrationTests\Sds.Osdr.WebApi.IntegrationTests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update=".dockerignore">
+      <DependentUpon>Dockerfile</DependentUpon>
+    </None>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

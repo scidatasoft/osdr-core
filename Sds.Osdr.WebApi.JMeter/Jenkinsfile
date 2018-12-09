@@ -1,0 +1,29 @@
+pipeline {
+    agent { node { label 'linux-node' } }
+    environment { 
+        WORKDIR = 'Source/Services/OsdrService/Sds.Osdr.WebApi.JMeter'
+        BRANCH = 'jenkins'
+    }
+
+    triggers {
+        pollSCM 'H/10 * * * *'
+    }
+
+    stages {
+        stage('SCM') {
+            steps {
+                script {
+                    env.PATH='/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+                }
+                sh "cd ${WORKSPACE}"
+                git poll: true, branch: env.BRANCH, credentialsId: 'sds_rickz', url: 'https://bitbucket.org/your-company/osdr'
+            }
+        }
+        stage('Build & Test') {
+            steps {
+                sh "cd " + env.WORKDIR +" && ls -lh &&  chmod +x run_linux.sh && ./run_linux.sh "
+            }
+        }
+
+    }
+}
