@@ -6,6 +6,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Persistence\EventHandlers\User\CountersEventHandlers\FilesCountersEventHandlers.cs" />
+    <Compile Remove="Persistence\EventHandlers\User\CountersEventHandlers\Records\CrystalsCounterEventHandlers.cs" />
+    <Compile Remove="Persistence\EventHandlers\User\CountersEventHandlers\Records\ReactionsCounterEventHandlers.cs" />
+    <Compile Remove="Persistence\EventHandlers\User\CountersEventHandlers\Records\RecordDeletedEventHandler.cs" />
+    <Compile Remove="Persistence\EventHandlers\User\CountersEventHandlers\Records\SpectraCounterEventHandlers.cs" />
+    <Compile Remove="Persistence\EventHandlers\User\CountersEventHandlers\Records\StructuresCounterEventHandlers.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Persistence\EventHandlers\User\CountersEventHandlers\FilesCountersEventHandlers.cs" />
+    <None Include="Persistence\EventHandlers\User\CountersEventHandlers\Records\CrystalsCounterEventHandlers.cs" />
+    <None Include="Persistence\EventHandlers\User\CountersEventHandlers\Records\ReactionsCounterEventHandlers.cs" />
+    <None Include="Persistence\EventHandlers\User\CountersEventHandlers\Records\RecordDeletedEventHandler.cs" />
+    <None Include="Persistence\EventHandlers\User\CountersEventHandlers\Records\SpectraCounterEventHandlers.cs" />
+    <None Include="Persistence\EventHandlers\User\CountersEventHandlers\Records\StructuresCounterEventHandlers.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Sds.Osdr.Generic\Sds.Osdr.Generic.csproj" />
     <ProjectReference Include="..\Sds.Osdr.Reactions\Sds.Osdr.Reactions.csproj" />
   </ItemGroup>

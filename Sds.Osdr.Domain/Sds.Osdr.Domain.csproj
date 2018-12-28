@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Sds.CqrsLite" Version="2.0.0" />
+    <PackageReference Include="Sds.CqrsLite" Version="2.0.2" />
     <PackageReference Include="Sds.CqrsLite.MassTransit" Version="3.0.1" />
     <PackageReference Include="Sds.Domain" Version="1.13.3" />
     <PackageReference Include="Sds.MassTransit" Version="3.0.3" />
