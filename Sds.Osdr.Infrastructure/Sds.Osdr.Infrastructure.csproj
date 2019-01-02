@@ -3,6 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Configurations>Debug;Release;Dev</Configurations>
+    <Product>Open Science Data Repository</Product>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Company>Science Data Software</Company>
+    <Authors>Science Data Software</Authors>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
   </PropertyGroup>
 
   <ItemGroup>

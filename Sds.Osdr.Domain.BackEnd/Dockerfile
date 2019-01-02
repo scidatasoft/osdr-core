@@ -45,7 +45,7 @@ RUN dotnet publish Sds.Osdr.Domain.BackEnd/Sds.Osdr.Domain.BackEnd.csproj -r $RI
 # Build runtime image
 FROM microsoft/dotnet:2.1-runtime-deps
 
-LABEL maintainer="pshenichnov@gmail.com"
+LABEL maintainer="info@arqisoft.com"
 
 WORKDIR /app
 

@@ -20,7 +20,7 @@ services:
       - osdr-test
 
   rabbitmq:
-    image: docker.your-company.com/osdr-rabbitmq:3.6
+    image: leanda/rabbitmq
     hostname: "rabbitmq-test"
     environment:
       - RABBITMQ_DEFAULT_VHOST=osdr_test
@@ -68,7 +68,7 @@ services:
 
   osdr-service-backend:
     container_name: osdr-service-backend
-    image: docker.your-company.com/osdr-service-backend:ci-${BUILD_NUMBER}
+    image: leanda/core-backend:latest
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -90,7 +90,7 @@ services:
 
   osdr-service-frontend:
     container_name: osdr-service-frontend
-    image: docker.your-company.com/osdr-service-frontend:ci-${BUILD_NUMBER}
+    image: leanda/core-frontend:latest
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -112,7 +112,7 @@ services:
 
   osdr-service-sagahost:
     container_name: osdr-service-sagahost
-    image: docker.your-company.com/osdr-service-sagahost:ci-${BUILD_NUMBER}
+    image: leanda/core-sagahost:latest
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -130,7 +130,7 @@ services:
 
   osdr-service-persistence:
     container_name: osdr-service-persistence
-    image: docker.your-company.com/osdr-service-persistence:ci-${BUILD_NUMBER}
+    image: leanda/core-persistence:latest
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -148,7 +148,7 @@ services:
 
   osdr-service-web-api:
     container_name: osdr-service-web-api
-    image: docker.your-company.com/osdr-service-web-api:ci-${BUILD_NUMBER}
+    image: leanda/core-web-api:latest
     entrypoint: /bin/bash
     environment:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
@@ -165,8 +165,8 @@ services:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
       - osdr-test
-    # ports:
-    #   - "28611:18006"
+    ports:
+      - "28611:18006"
     depends_on:
       - keycloak
       - rabbitmq
@@ -176,7 +176,7 @@ services:
 
   blob-storage-api:
     container_name: osdr-blob-storage-api
-    image: docker.your-company.com/blob-storage-webapi:latest
+    image: leanda/blob-storage-webapi:latest
     entrypoint: /bin/bash
     environment:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
@@ -192,32 +192,32 @@ services:
     # ports:
     #   - "18006:18006"
 
-  integration:
-    container_name: osdr-webapi-integration-tests
-    image: docker.your-company.com/osdr-service-webapi-integration:ci-${BUILD_NUMBER}
-    entrypoint: /bin/bash
-    environment:
-      - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
-      - OSDR_REDIS=redis
-      - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-      - OSDR_GRID_FS=mongodb://mongo:27017/osdr_dev
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
-      - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
-      - OSDR_WEB_API=http://osdr-service-web-api:18006
-    #command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console;verbosity="normal"
-    command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:"trx;LogFileName=webapi-integrationtests-results-${BUILD_NUMBER}.xml" /ResultsDirectory:/results
-    volumes:
-      - ${OSDR_LOG_FOLDER}:/logs
-      - /results:/results
-    networks:
-      - osdr-test
-    depends_on:
-      - osdr-service-backend
-      - osdr-service-frontend
-      - osdr-service-sagahost
-      - osdr-service-persistence
-      - osdr-service-web-api
+  # integration:
+  #   container_name: osdr-webapi-integration-tests
+  #   image: docker.your-company.com/osdr-service-webapi-integration:ci-${BUILD_NUMBER}
+  #   entrypoint: /bin/bash
+  #   environment:
+  #     - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
+  #     - OSDR_REDIS=redis
+  #     - OSDR_LOG_FOLDER=/logs
+  #     - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+  #     - OSDR_GRID_FS=mongodb://mongo:27017/osdr_dev
+  #     - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+  #     - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
+  #     - OSDR_WEB_API=http://osdr-service-web-api:18006
+  #   #command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console;verbosity="normal"
+  #   command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:"trx;LogFileName=webapi-integrationtests-results-${BUILD_NUMBER}.xml" /ResultsDirectory:/results
+  #   volumes:
+  #     - ${OSDR_LOG_FOLDER}:/logs
+  #     - /results:/results
+  #   networks:
+  #     - osdr-test
+  #   depends_on:
+  #     - osdr-service-backend
+  #     - osdr-service-frontend
+  #     - osdr-service-sagahost
+  #     - osdr-service-persistence
+  #     - osdr-service-web-api
 
 networks:
   osdr-test:
