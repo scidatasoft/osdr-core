@@ -9,7 +9,7 @@ services:
     environment:
       - RUN_PROJECTIONS = All
     networks:
-      - osdr-test
+      - leanda-net
 
   redis:
     image: redis:4-alpine
@@ -17,25 +17,25 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - osdr-test
+      - leanda-net
 
   rabbitmq:
     image: leanda/rabbitmq
-    hostname: "rabbitmq-test"
+    hostname: "leanda"
     environment:
-      - RABBITMQ_DEFAULT_VHOST=osdr_test
+      - RABBITMQ_DEFAULT_VHOST=leanda
     ports:
       - "8282:15672"
       - "5672:5672"
     networks:
-      - osdr-test
+      - leanda-net
 
   mongo:
     image: mongo:3.6
     ports:
       - "27017:27017"
     networks:
-      - osdr-test
+      - leanda-net
 
   postgres:
     image: postgres
@@ -46,7 +46,7 @@ services:
       POSTGRES_ROOT_PASSWORD: keycloak
       pgdata: data-pstgresql
     networks:
-      - osdr-test
+      - leanda-net
 
   keycloak:
     build: KeyCloak
@@ -62,7 +62,7 @@ services:
     ports:
       - '8080:8080'
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - postgres
 
@@ -73,7 +73,7 @@ services:
     environment:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_REDIS=redis
       - OSDR_LOG_LEVEL=Error
@@ -81,7 +81,7 @@ services:
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - rabbitmq
       - eventstore
@@ -95,7 +95,7 @@ services:
     environment:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_REDIS=redis
       - OSDR_LOG_LEVEL=Error
@@ -103,7 +103,7 @@ services:
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - rabbitmq
       - eventstore
@@ -117,13 +117,13 @@ services:
     environment:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_LOG_LEVEL=Error
     command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./Sds.Osdr.Domain.SagaHost
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - rabbitmq
       - mongo
@@ -135,13 +135,13 @@ services:
     environment:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_LOG_LEVEL=Error
     command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./Sds.Osdr.Persistence
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - rabbitmq
       - mongo
@@ -155,7 +155,7 @@ services:
       - OSDR_REDIS=redis
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       #- OSDR_ES=http://elasticsearch:9200
       - SWAGGER_BASEPATH=/osdr/v1
@@ -164,7 +164,7 @@ services:
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     ports:
       - "28611:18006"
     depends_on:
@@ -182,45 +182,45 @@ services:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - SWAGGER_BASEPATH=/blob/v1
     command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./wait-for-it.sh keycloak:8080 -t 30 -- ./Sds.Storage.Blob.WebApi
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     ports:
       - "18006:18006"
 
-  # integration:
-  #   container_name: osdr-webapi-integration-tests
-  #   image: docker.your-company.com/osdr-service-webapi-integration:ci-${BUILD_NUMBER}
-  #   entrypoint: /bin/bash
-  #   environment:
-  #     - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
-  #     - OSDR_REDIS=redis
-  #     - OSDR_LOG_FOLDER=/logs
-  #     - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-  #     - OSDR_GRID_FS=mongodb://mongo:27017/osdr_dev
-  #     - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
-  #     - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
-  #     - OSDR_WEB_API=http://osdr-service-web-api:18006
-  #   #command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console;verbosity="normal"
-  #   command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:"trx;LogFileName=webapi-integrationtests-results-${BUILD_NUMBER}.xml" /ResultsDirectory:/results
-  #   volumes:
-  #     - ${OSDR_LOG_FOLDER}:/logs
-  #     - /results:/results
-  #   networks:
-  #     - osdr-test
-  #   depends_on:
-  #     - osdr-service-backend
-  #     - osdr-service-frontend
-  #     - osdr-service-sagahost
-  #     - osdr-service-persistence
-  #     - osdr-service-web-api
+  integration:
+    container_name: webapi-integration
+    image: leanda/webapi-integration:${TAG_VERSION-latest}
+    entrypoint: /bin/bash
+    environment:
+      - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
+      - OSDR_REDIS=redis
+      - OSDR_LOG_FOLDER=/logs
+      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_GRID_FS=mongodb://mongo:27017/osdr_dev
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
+      - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
+      - OSDR_WEB_API=http://core-web-api:18006
+    #command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console;verbosity="normal"
+    command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:"trx;LogFileName=webapi-integrationtests-results-${BUILD_NUMBER}.xml" /ResultsDirectory:/results
+    volumes:
+      - ${OSDR_LOG_FOLDER}:/logs
+      - /results:/results
+    networks:
+      - leanda-net
+    depends_on:
+      - core-backend
+      - core-frontend
+      - core-sagahost
+      - core-persistence
+      - core-web-api
 
 networks:
-  osdr-test:
+  leanda-net:
 
 #volumes:
 #  test-results:
