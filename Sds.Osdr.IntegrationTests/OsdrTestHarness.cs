@@ -103,9 +103,7 @@ namespace Sds.Osdr.IntegrationTests
 
             services.AddSingleton<IConsumerScopeProvider, DependencyInjectionConsumerScopeProvider>();
 
-            var integrationTestsAssembly = Assembly.LoadFrom("Sds.Osdr.IntegrationTests.dll");
-
-            services.AddAllConsumers(integrationTestsAssembly);
+            OnInit(services);
 
             services.AddSingleton(container => Bus.Factory.CreateUsingRabbitMq(x =>
             {
@@ -113,22 +111,7 @@ namespace Sds.Osdr.IntegrationTests
 
                 IRabbitMqHost host = x.Host(new Uri(Environment.ExpandEnvironmentVariables(mtSettings.ConnectionString)), h => { });
 
-                x.RegisterConsumers(host, container, e =>
-                {
-                    e.UseDelayedRedelivery(r =>
-                    {
-                        r.Interval(mtSettings.RedeliveryCount, TimeSpan.FromMilliseconds(mtSettings.RedeliveryInterval));
-                        r.Handle<ConcurrencyException>();
-                    });
-                    e.UseMessageRetry(r =>
-                    {
-                        r.Interval(mtSettings.RetryCount, TimeSpan.FromMilliseconds(mtSettings.RetryInterval));
-                        r.Handle<ConcurrencyException>();
-                    });
-
-                    e.PrefetchCount = mtSettings.PrefetchCount;
-                    e.UseInMemoryOutbox();
-                }, integrationTestsAssembly);
+                OnBusCreation(x, host, container);
 
                 x.ReceiveEndpoint(host, "processing_fault_queue", e =>
                 {
@@ -223,6 +206,37 @@ namespace Sds.Osdr.IntegrationTests
                 .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 10000)).WhenTypeIs<DateTime>()
                 .Using<DateTimeOffset>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 10000)).WhenTypeIs<DateTimeOffset>()
             );
+        }
+
+        protected virtual void OnInit(IServiceCollection services)
+        {
+            var integrationTestsAssembly = Assembly.LoadFrom("Sds.Osdr.IntegrationTests.dll");
+
+            services.AddAllConsumers(integrationTestsAssembly);
+        }
+
+        protected virtual void OnBusCreation(IRabbitMqBusFactoryConfigurator config, IRabbitMqHost host, IServiceProvider container)
+        {
+            var integrationTestsAssembly = Assembly.LoadFrom("Sds.Osdr.IntegrationTests.dll");
+
+            var mtSettings = container.GetService<IOptions<MassTransitSettings>>().Value;
+
+            config.RegisterConsumers(host, container, e =>
+            {
+                e.UseDelayedRedelivery(r =>
+                {
+                    r.Interval(mtSettings.RedeliveryCount, TimeSpan.FromMilliseconds(mtSettings.RedeliveryInterval));
+                    r.Handle<ConcurrencyException>();
+                });
+                e.UseMessageRetry(r =>
+                {
+                    r.Interval(mtSettings.RetryCount, TimeSpan.FromMilliseconds(mtSettings.RetryInterval));
+                    r.Handle<ConcurrencyException>();
+                });
+
+                e.PrefetchCount = mtSettings.PrefetchCount;
+                e.UseInMemoryOutbox();
+            }, integrationTestsAssembly);
         }
 
         protected void Seed()

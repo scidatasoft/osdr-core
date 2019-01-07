@@ -20,7 +20,7 @@ services:
       - osdr-test
 
   rabbitmq:
-    image: docker.your-company.com/osdr-rabbitmq:3.6
+    image: leanda/rabbitmq
     hostname: "rabbitmq-test"
     environment:
       - RABBITMQ_DEFAULT_VHOST=osdr_test
@@ -66,24 +66,9 @@ services:
     depends_on:
       - postgres
 
-  # imaging-persistence:
-  #   container_name: imaging-persistence
-  #   image: docker.your-company.com/imaging-persistence:${TAG_VERSION-latest}
-  #   environment:
-  #     - OSDR_LOG_FOLDER=/logs
-  #     - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-  #     - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
-  #   volumes:
-  #     - ${OSDR_LOG_FOLDER}:/logs
-  #   networks:
-  #     - osdr-test
-  #   depends_on:
-  #     - rabbitmq
-  #     - mongo
-
-  metadata-storage-processing:
-    container_name: metadata-storage-processing
-    image: docker.your-company.com/metadata-storage-processing:${TAG_VERSION-latest}
+  metadata-processing:
+    container_name: metadata-processing
+    image: leanda/metadata-processing:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -99,8 +84,8 @@ services:
       - mongo
 
   osdr-indexing:
-    container_name: osdr-indexing
-    image: docker.your-company.com/indexing:${TAG_VERSION-latest}
+    container_name: indexing
+    image: leanda/indexing:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -115,9 +100,9 @@ services:
     depends_on:
       - rabbitmq
 
-  imaging-service:
-    container_name: osdr-imaging-service
-    image: docker.your-company.com/sds/osdr-imaging-service:${TAG_VERSION-latest}
+  imaging:
+    container_name: imaging
+    image: leanda/imaging:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -202,9 +187,9 @@ services:
   #     - rabbitmq
   #     - mongo
 
-  chemical-file-parser-service:
-    container_name: chemical-file-parser-service
-    image: docker.your-company.com/sds/chemical-file-parser-service:${TAG_VERSION-latest}
+  chemical-file-parser:
+    container_name: chemical-file-parser
+    image: leanda/chemical-file-parser:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - TZ=EST
@@ -224,9 +209,9 @@ services:
       - rabbitmq
       - mongo
 
-  chemical-properties-service:
-    container_name: chemical-properties-service
-    image: docker.your-company.com/sds/chemical-properties-service:${TAG_VERSION-latest}
+  chemical-properties:
+    container_name: chemical-properties
+    image: leanda/chemical-properties:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - TZ=EST
@@ -246,9 +231,9 @@ services:
       - rabbitmq
       - mongo
 
-  osdr-service-backend:
-    container_name: osdr-service-backend
-    image: docker.your-company.com/osdr-service-backend:${TAG_VERSION-latest}
+  core-backend:
+    container_name: core-backend
+    image: leanda/core-backend:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -268,9 +253,9 @@ services:
       - redis
       - mongo
 
-  osdr-service-frontend:
-    container_name: osdr-service-frontend
-    image: docker.your-company.com/osdr-service-frontend:${TAG_VERSION-latest}
+  core-frontend:
+    container_name: core-frontend
+    image: leanda/core-frontend:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -290,9 +275,9 @@ services:
       - redis
       - mongo
 
-  osdr-service-sagahost:
-    container_name: osdr-service-sagahost
-    image: docker.your-company.com/osdr-service-sagahost:${TAG_VERSION-latest}
+  core-sagahost:
+    container_name: core-sagahost
+    image: leanda/core-sagahost:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -308,9 +293,9 @@ services:
       - rabbitmq
       - mongo
 
-  osdr-service-persistence:
-    container_name: osdr-service-persistence
-    image: docker.your-company.com/osdr-service-persistence:${TAG_VERSION-latest}
+  core-persistence:
+    container_name: core-persistence
+    image: leanda/core-persistence:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -326,9 +311,9 @@ services:
       - rabbitmq
       - mongo
 
-  osdr-service-web-api:
-    container_name: osdr-service-web-api
-    image: docker.your-company.com/osdr-service-web-api:${TAG_VERSION-latest}
+  core-web-api:
+    container_name: core-web-api
+    image: leanda/core-web-api:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
@@ -355,8 +340,8 @@ services:
       - mongo
 
   blob-storage-api:
-    container_name: osdr-blob-storage-api
-    image: docker.your-company.com/blob-storage-webapi:${TAG_VERSION-latest}
+    container_name: blob-storage-api
+    image: leanda/blob-storage-webapi:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR

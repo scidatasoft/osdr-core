@@ -14,8 +14,8 @@ services:
   redis:
     image: redis:4-alpine
     command: redis-server --appendonly yes
-    # ports:
-    #   - "6379:6379"
+    ports:
+      - "6379:6379"
     networks:
       - osdr-test
 
@@ -24,16 +24,16 @@ services:
     hostname: "rabbitmq-test"
     environment:
       - RABBITMQ_DEFAULT_VHOST=osdr_test
-    # ports:
-    #   - "18282:15672"
-    #   - "5672:5672"
+    ports:
+      - "8282:15672"
+      - "5672:5672"
     networks:
       - osdr-test
 
   mongo:
     image: mongo:3.6
-    # ports:
-    #   - "27017:27017"
+    ports:
+      - "27017:27017"
     networks:
       - osdr-test
 
@@ -59,16 +59,16 @@ services:
       POSTGRES_PORT_5432_TCP_ADDR: postgres
       POSTGRES_DATABASE: keycloak
       JDBC_PARAMS: 'connectTimeout=30'
-    # ports:
-    #   - '8080:8080'
+    ports:
+      - '8080:8080'
     networks:
       - osdr-test
     depends_on:
       - postgres
 
-  osdr-service-backend:
+  core-backend:
     container_name: leanda-backend
-    image: leanda/core-backend:latest
+    image: leanda/core-backend:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -88,9 +88,9 @@ services:
       - redis
       - mongo
 
-  osdr-service-frontend:
+  core-frontend:
     container_name: leanda-frontend
-    image: leanda/core-frontend:latest
+    image: leanda/core-frontend:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -110,9 +110,9 @@ services:
       - redis
       - mongo
 
-  osdr-service-sagahost:
+  core-sagahost:
     container_name: leanda-sagahost
-    image: leanda/core-sagahost:latest
+    image: leanda/core-sagahost:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -128,9 +128,9 @@ services:
       - rabbitmq
       - mongo
 
-  osdr-service-persistence:
+  core-persistence:
     container_name: leanda-persistence
-    image: leanda/core-persistence:latest
+    image: leanda/core-persistence:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -148,7 +148,7 @@ services:
 
   blob-storage-api:
     container_name: leanda-storage-api
-    image: leanda/blob-storage-webapi:latest
+    image: leanda/blob-storage-webapi:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
@@ -161,14 +161,14 @@ services:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
       - osdr-test
-    # ports:
-    #   - "18006:18006"
+    ports:
+      - "18006:18006"
     depends_on:
       - keycloak
 
   # integration:
-  #   container_name: osdr-integration-tests
-  #   image: docker.your-company.com/osdr-service-integration:ci-${BUILD_NUMBER}
+  #   container_name: leandas-integration-tests
+  #   image: leanda/integration:${TAG_VERSION-latest}
   #   entrypoint: /bin/bash
   #   environment:
   #     - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR

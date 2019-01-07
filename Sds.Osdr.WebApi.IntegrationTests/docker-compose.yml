@@ -3,9 +3,9 @@ version: '3.4'
 services:
   eventstore:
     image: eventstore/eventstore:release-4.0.2
-    # ports:
-    #   - "2113:2113"
-    #   - "1113:1113"
+    ports:
+      - "2113:2113"
+      - "1113:1113"
     environment:
       - RUN_PROJECTIONS = All
     networks:
@@ -14,8 +14,8 @@ services:
   redis:
     image: redis:4-alpine
     command: redis-server --appendonly yes
-    # ports:
-    #   - "6379:6379"
+    ports:
+      - "6379:6379"
     networks:
       - osdr-test
 
@@ -24,16 +24,16 @@ services:
     hostname: "rabbitmq-test"
     environment:
       - RABBITMQ_DEFAULT_VHOST=osdr_test
-    # ports:
-    #   - "18282:15672"
-    #   - "5672:5672"
+    ports:
+      - "8282:15672"
+      - "5672:5672"
     networks:
       - osdr-test
 
   mongo:
     image: mongo:3.6
-    # ports:
-    #   - "27017:27017"
+    ports:
+      - "27017:27017"
     networks:
       - osdr-test
 
@@ -59,16 +59,16 @@ services:
       POSTGRES_PORT_5432_TCP_ADDR: postgres
       POSTGRES_DATABASE: keycloak
       JDBC_PARAMS: 'connectTimeout=30'
-    # ports:
-    #   - '8080:8080'
+    ports:
+      - '8080:8080'
     networks:
       - osdr-test
     depends_on:
       - postgres
 
-  osdr-service-backend:
-    container_name: osdr-service-backend
-    image: leanda/core-backend:latest
+  core-backend:
+    container_name: core-backend
+    image: leanda/core-backend:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -88,9 +88,9 @@ services:
       - redis
       - mongo
 
-  osdr-service-frontend:
-    container_name: osdr-service-frontend
-    image: leanda/core-frontend:latest
+  core-frontend:
+    container_name: core-frontend
+    image: leanda/core-frontend:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -110,9 +110,9 @@ services:
       - redis
       - mongo
 
-  osdr-service-sagahost:
-    container_name: osdr-service-sagahost
-    image: leanda/core-sagahost:latest
+  core-sagahost:
+    container_name: core-sagahost
+    image: leanda/core-sagahost:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -128,9 +128,9 @@ services:
       - rabbitmq
       - mongo
 
-  osdr-service-persistence:
-    container_name: osdr-service-persistence
-    image: leanda/core-persistence:latest
+  core-persistence:
+    container_name: core-persistence
+    image: leanda/core-persistence:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
@@ -146,9 +146,9 @@ services:
       - rabbitmq
       - mongo
 
-  osdr-service-web-api:
-    container_name: osdr-service-web-api
-    image: leanda/core-web-api:latest
+  core-web-api:
+    container_name: core-web-api
+    image: leanda/core-web-api:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
@@ -175,8 +175,8 @@ services:
       - mongo
 
   blob-storage-api:
-    container_name: osdr-blob-storage-api
-    image: leanda/blob-storage-webapi:latest
+    container_name: blob-storage-api
+    image: leanda/blob-storage-webapi:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
@@ -189,8 +189,8 @@ services:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
       - osdr-test
-    # ports:
-    #   - "18006:18006"
+    ports:
+      - "18006:18006"
 
   # integration:
   #   container_name: osdr-webapi-integration-tests
