@@ -15,6 +15,7 @@ jobs:
       - docker build -t leanda/core-persistence:latest -f Sds.Osdr.Persistence/Dockerfile .
       - docker images
 
+
 # env:
 #   global:
 #     - DATE=`TZ=America/New_York date "+%Y-%m-%d-%H%M"`
