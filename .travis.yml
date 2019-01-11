@@ -11,9 +11,12 @@ os:
 jobs:
   include:
     - stage: build docker images
-      script:
-      - docker build -t leanda/core-persistence:latest -f Sds.Osdr.Persistence/Dockerfile .
-      - docker images
+      name: build Leanda Persistence service
+      script: docker build -t leanda/core-persistence:latest -f Sds.Osdr.Persistence/Dockerfile .
+      name: build Leanda Front-End service
+      script: docker build -t leanda/core-frontend:latest -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
+    - stage: check docker images
+      script: docker images
 
 
 # env:
