@@ -1,3 +1,5 @@
+language: minimal
+
 services:
   - docker
 
@@ -11,8 +13,12 @@ os:
 jobs:
   include:
     - stage: build docker images
+      name: build Persistence service
       script: docker build -t leanda/core-persistence:latest -f Sds.Osdr.Persistence/Dockerfile .
     - script: docker build -t leanda/core-frontend:latest -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
+      name: build Front End service
+    - script: docker build -t leanda/core-backend:latest -f Sds.Osdr.Domain.BackEnd/Dockerfile .
+      name: build Back End service
     - stage: check docker images
       script: docker images
 
