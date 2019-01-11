@@ -1,0 +1,32 @@
+services:
+  - docker
+
+branches:
+  only:
+    - master
+
+os:
+  - linux
+
+jobs:
+  include:
+    - stage: build docker images
+      script:
+      - docker build -t leanda/core-persistence:latest -f Sds.Osdr.Persistence/Dockerfile .
+      - docker images
+
+# env:
+#   global:
+#     - DATE=`TZ=America/New_York date "+%Y-%m-%d-%H%M"`
+#     - DATE_TM=`TZ=America/New_York date "+%Y-%m-%d %H:%M"`
+#     - DOCKER_IMAGE="leanda/ui"
+
+# before_script:
+#   - echo "{\"buildInfo\":{\"buildId\":\""$TRAVIS_BUILD_NUMBER"\",\"buildDate\":\""$DATE_TM"\",\"environment\":\"DEV\"}}" > src/jenkinsBuildData.json
+
+# script:
+#   - docker build --build-arg APP_ENV=deploy -t $DOCKER_IMAGE:$DATE -t $DOCKER_IMAGE:latest .
+
+# after_success:
+#   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+#   - docker push $DOCKER_IMAGE # Pushes both date and latest
