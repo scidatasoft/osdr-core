@@ -10,17 +10,39 @@ branches:
 os:
   - linux
 
-script:
-  - docker build -t leanda/core-persistence:latest -f Sds.Osdr.Persistence/Dockerfile .
-    name: Build Persistance service
-  - docker build -t leanda/core-frontend:latest -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
-  - docker build -t leanda/core-backend:latest -f Sds.Osdr.Domain.BackEnd/Dockerfile .
-  - docker build -t leanda/core-sagahost:latest -f Sds.Osdr.Domain.SagaHost/Dockerfile .
-  - docker build -t leanda/core-web-api:latest -f Sds.Osdr.WebApi/Dockerfile .
-  - docker build -t leanda/integration:latest -f Sds.Osdr.IntegrationTests/Dockerfile .
-  - docker build -t leanda/webapi-integration:latest -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
-  - docker image ls
+env:
+  global:
+    - DATE=`TZ=America/New_York date "+%Y-%m-%d-%H%M"`
+    - DATE_TM=`TZ=America/New_York date "+%Y-%m-%d %H:%M"`
+    - DOCKER_IMAGE="leanda/ui"
+    - DOCKER_CACHE_FILE=/home/travis/docker/cache.tar.gz
 
+before_install:
+  - if [ -f ${DOCKER_CACHE_FILE} ]; then gunzip -c ${DOCKER_CACHE_FILE} | docker load; fi
+
+cache:
+  directories:
+    - /home/travis/docker/
+
+# script:
+#   - docker build -t leanda/core-persistence:latest -f Sds.Osdr.Persistence/Dockerfile .
+#   - docker build -t leanda/core-frontend:latest -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
+#   - docker build -t leanda/core-backend:latest -f Sds.Osdr.Domain.BackEnd/Dockerfile .
+#   - docker build -t leanda/core-sagahost:latest -f Sds.Osdr.Domain.SagaHost/Dockerfile .
+#   - docker build -t leanda/core-web-api:latest -f Sds.Osdr.WebApi/Dockerfile .
+#   - docker build -t leanda/integration:latest -f Sds.Osdr.IntegrationTests/Dockerfile .
+#   - docker build -t leanda/webapi-integration:latest -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
+#   - docker image ls
+
+
+jobs:
+  include:
+    - stage: Docker warm up
+      script: 
+        - docker pull microsoft/dotnet:2.1-runtime-deps
+        - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save $(docker history -q ${TRAVIS_COMMIT} | grep -v '<missing>') | gzip > ${DOCKER_CACHE_FILE}; fi
+    - stage: Check docker images
+      script: docker images
 
 # jobs:
 #   include:
