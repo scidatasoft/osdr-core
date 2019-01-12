@@ -12,6 +12,7 @@ os:
 
 script:
   - docker build -t leanda/core-persistence:latest -f Sds.Osdr.Persistence/Dockerfile .
+    name: Build Persistance service
   - docker build -t leanda/core-frontend:latest -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
   - docker build -t leanda/core-backend:latest -f Sds.Osdr.Domain.BackEnd/Dockerfile .
   - docker build -t leanda/core-sagahost:latest -f Sds.Osdr.Domain.SagaHost/Dockerfile .
