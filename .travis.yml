@@ -10,6 +10,10 @@ branches:
 os:
   - linux
 
+before_install:
+  - docker --version
+  - docker pull microsoft/dotnet:2.1-sdk
+  - docker images
 jobs:
   include:
     - stage: build docker images
