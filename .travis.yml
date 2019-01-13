@@ -42,9 +42,11 @@ jobs:
         - docker pull microsoft/dotnet:2.1-runtime-deps
         - printenv
         # - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save $(docker history -q ${TRAVIS_COMMIT} | grep -v '<missing>') | gzip > ${DOCKER_CACHE_FILE}; fi
-        # - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save microsoft/dotnet:2.1-runtime-deps | gzip > ${DOCKER_CACHE_FILE}; fi
+        - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save $(docker history -q microsoft/dotnet:2.1-runtime-deps | grep -v '<missing>') | gzip > ${DOCKER_CACHE_FILE}; fi
     - stage: Check docker images
-      script: docker images
+      script:
+        - - if [ -f ${DOCKER_CACHE_FILE} ]; then gunzip -c ${DOCKER_CACHE_FILE} | docker load; fi
+        - docker images
 
 # jobs:
 #   include:
