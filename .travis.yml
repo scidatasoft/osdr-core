@@ -19,7 +19,7 @@ env:
 
 before_install:
   - ls /home/travis/docker/
-  - if [ -f ${DOCKER_CACHE_FILE} ]; then gunzip -c ${DOCKER_CACHE_FILE} | docker load; fi
+  # - if [ -f ${DOCKER_CACHE_FILE} ]; then gunzip -c ${DOCKER_CACHE_FILE} | docker load; fi
   - docker image ls
 
 cache:
@@ -48,7 +48,9 @@ jobs:
         - docker pull leanda/core-web-api
         # - docker pull leanda/integration
         # - docker pull leanda/webapi-integration
-        - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save $(docker history -q microsoft/dotnet:2.1-sdk | docker history -q leanda/core-persistence | docker history -q leanda/core-frontend | docker history -q leanda/core-backend | docker history -q leanda/core-sagahost | docker history -q leanda/core-web-api | grep -v '<missing>') | gzip > ${DOCKER_CACHE_FILE}; fi
+        # - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save $(docker history -q microsoft/dotnet:2.1-sdk | docker history -q leanda/core-persistence | docker history -q leanda/core-frontend | docker history -q leanda/core-backend | docker history -q leanda/core-sagahost | docker history -q leanda/core-web-api | grep -v '<missing>') | gzip > ${DOCKER_CACHE_FILE}; fi
+        - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}); docker save -o ${DOCKER_CACHE_FILE} leanda/core-persistence:latest leanda/core-frontend:latest leanda/core-backend:latest leanda/core-sagahost:latest leanda/core-web-api:latest
+        - ls -l
     - stage: Check docker images
       script:
         # - if [ -f ${DOCKER_CACHE_FILE} ]; then gunzip -c ${DOCKER_CACHE_FILE} | docker load; fi
