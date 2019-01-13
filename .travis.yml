@@ -16,11 +16,14 @@ env:
     - DATE_TM=`TZ=America/New_York date "+%Y-%m-%d %H:%M"`
     # - DOCKER_IMAGE="leanda/ui"
     - DOCKER_CACHE_FILE=/home/travis/docker/docker-cache.tar
+    - DOCKER_CACHE_FOLDER=/home/travis/docker/
+    - LEANDA_PERSISTENCE_IMAGE="leanda/core-persistence"
+    - LEANDA_FRONTEND_IMAGE="leanda/core-frontend"
+    - LEANDA_BACKEND_IMAGE="leanda/core-backend"
 
-before_install:
-  - ls /home/travis/docker/
-  - if [ -f ${DOCKER_CACHE_FILE} ]; then docker load -i ${DOCKER_CACHE_FILE}; fi
-  - docker image ls
+# before_install:
+#   - if [ -d ${DOCKER_CACHE_FOLDER} ]; then rm ${DOCKER_CACHE_FOLDER}*; fi
+#   - ls ${DOCKER_CACHE_FOLDER}
 
 cache:
   directories:
@@ -38,30 +41,44 @@ cache:
 
 jobs:
   include:
-    - stage: Docker warm up
-      name: Pull required docker images
+    - stage: Clear cache
+      name: Clear cache
       script: 
-        - docker pull microsoft/dotnet:2.1-sdk
-        - docker pull leanda/core-persistence
-        - docker pull leanda/core-frontend
-        - docker pull leanda/core-backend
-        - docker pull leanda/core-sagahost
-        - docker pull leanda/core-web-api
-        # - docker pull leanda/integration
-        # - docker pull leanda/webapi-integration
-        # - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save $(docker history -q microsoft/dotnet:2.1-sdk | docker history -q leanda/core-persistence | docker history -q leanda/core-frontend | docker history -q leanda/core-backend | docker history -q leanda/core-sagahost | docker history -q leanda/core-web-api | grep -v '<missing>') | gzip > ${DOCKER_CACHE_FILE}; fi
-        - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}); docker save -o ${DOCKER_CACHE_FILE} microsoft/dotnet:2.1-sdk leanda/core-persistence:latest leanda/core-frontend:latest leanda/core-backend:latest leanda/core-sagahost:latest leanda/core-web-api:latest; fi
-        - ls -l
+        - mkdir -p ${DOCKER_CACHE_FOLDER}
+        - rm ${DOCKER_CACHE_FOLDER}*
+        - ls ${DOCKER_CACHE_FOLDER}
+    # - stage: Docker warm up
+    #   name: Pull required docker images
+    #   script: 
+    #     - docker pull microsoft/dotnet:2.1-sdk
+    #     - docker pull leanda/core-persistence
+    #     - docker pull leanda/core-frontend
+    #     - docker pull leanda/core-backend
+    #     - docker pull leanda/core-sagahost
+    #     - docker pull leanda/core-web-api
+    #     # - docker pull leanda/integration
+    #     # - docker pull leanda/webapi-integration
+    #     # - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save $(docker history -q microsoft/dotnet:2.1-sdk | docker history -q leanda/core-persistence | docker history -q leanda/core-frontend | docker history -q leanda/core-backend | docker history -q leanda/core-sagahost | docker history -q leanda/core-web-api | grep -v '<missing>') | gzip > ${DOCKER_CACHE_FILE}; fi
+    #     - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}); docker save -o ${DOCKER_CACHE_FILE} microsoft/dotnet:2.1-sdk leanda/core-persistence:latest leanda/core-frontend:latest leanda/core-backend:latest leanda/core-sagahost:latest leanda/core-web-api:latest; fi
+    #     - ls -l
     - stage: Build docker images
       name: Build Persistence service
-      script: docker build -t leanda/core-persistence:latest -f Sds.Osdr.Persistence/Dockerfile .
-    - script: docker build -t leanda/core-frontend:latest -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
+      script: 
+        - docker build -t ${LEANDA_PERSISTENCE_IMAGE}:latest -f Sds.Osdr.Persistence/Dockerfile .
+        - docker save -o ${DOCKER_CACHE_FOLDER}leanda-persistence.tar ${LEANDA_PERSISTENCE_IMAGE}:latest
+    - script:
+        - docker build -t ${LEANDA_FRONTEND_IMAGE}:latest -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
+        - docker save -o ${DOCKER_CACHE_FOLDER}leanda-frontend.tar ${LEANDA_FRONTEND_IMAGE}:latest
       name: Build Front End service
-    - script: docker build -t leanda/core-backend:latest -f Sds.Osdr.Domain.BackEnd/Dockerfile .
+    - script:
+        - docker build -t ${LEANDA_BACKEND_IMAGE}:latest -f Sds.Osdr.Domain.BackEnd/Dockerfile .
+        - docker save -o ${DOCKER_CACHE_FOLDER}leanda-backend.tar ${LEANDA_FRONTEND_IMAGE}:latest
       name: Build Back End service
     - stage: Check docker images
       script:
-        # - if [ -f ${DOCKER_CACHE_FILE} ]; then gunzip -c ${DOCKER_CACHE_FILE} | docker load; fi
+        - docker load -i ${DOCKER_CACHE_FOLDER}leanda-persistence.tar
+        - docker load -i ${DOCKER_CACHE_FOLDER}leanda-frontend.tar
+        - docker load -i ${DOCKER_CACHE_FOLDER}leanda-backend.tar
         - docker images
 
 # jobs:
