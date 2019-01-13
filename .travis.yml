@@ -44,7 +44,7 @@ jobs:
       name: Clear cache
       script: 
         - mkdir ${DOCKER_CACHE_FOLDER}
-        - rm ${DOCKER_CACHE_FOLDER}/*
+        - rm -rf ${DOCKER_CACHE_FOLDER}/*
         - ls ${DOCKER_CACHE_FOLDER}
     # - stage: Docker warm up
     #   name: Pull required docker images
