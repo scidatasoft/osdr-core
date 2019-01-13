@@ -15,11 +15,11 @@ env:
     - DATE=`TZ=America/New_York date "+%Y-%m-%d-%H%M"`
     - DATE_TM=`TZ=America/New_York date "+%Y-%m-%d %H:%M"`
     # - DOCKER_IMAGE="leanda/ui"
-    - DOCKER_CACHE_FILE=/home/travis/docker/cache.tar.gz
+    - DOCKER_CACHE_FILE=/home/travis/docker/docker-cache.tar
 
 before_install:
   - ls /home/travis/docker/
-  # - if [ -f ${DOCKER_CACHE_FILE} ]; then gunzip -c ${DOCKER_CACHE_FILE} | docker load; fi
+  - if [ -f ${DOCKER_CACHE_FILE} ]; then docker load -i ${DOCKER_CACHE_FILE}; fi
   - docker image ls
 
 cache:
@@ -40,7 +40,7 @@ jobs:
   include:
     - stage: Docker warm up
       script: 
-        - docker pull microsoft/dotnet:2.1-sdk
+        # - docker pull microsoft/dotnet:2.1-sdk
         - docker pull leanda/core-persistence
         - docker pull leanda/core-frontend
         - docker pull leanda/core-backend
@@ -49,7 +49,7 @@ jobs:
         # - docker pull leanda/integration
         # - docker pull leanda/webapi-integration
         # - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save $(docker history -q microsoft/dotnet:2.1-sdk | docker history -q leanda/core-persistence | docker history -q leanda/core-frontend | docker history -q leanda/core-backend | docker history -q leanda/core-sagahost | docker history -q leanda/core-web-api | grep -v '<missing>') | gzip > ${DOCKER_CACHE_FILE}; fi
-        - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}); docker save -o ${DOCKER_CACHE_FILE} leanda/core-persistence:latest leanda/core-frontend:latest leanda/core-backend:latest leanda/core-sagahost:latest leanda/core-web-api:latest
+        - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}); docker save -o ${DOCKER_CACHE_FILE} leanda/core-persistence:latest leanda/core-frontend:latest leanda/core-backend:latest leanda/core-sagahost:latest leanda/core-web-api:latest; fi
         - ls -l
     - stage: Check docker images
       script:
