@@ -41,7 +41,7 @@ jobs:
     - stage: Docker warm up
       name: Pull required docker images
       script: 
-        # - docker pull microsoft/dotnet:2.1-sdk
+        - docker pull microsoft/dotnet:2.1-sdk
         - docker pull leanda/core-persistence
         - docker pull leanda/core-frontend
         - docker pull leanda/core-backend
