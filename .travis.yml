@@ -43,7 +43,7 @@ jobs:
     - stage: Clear cache
       name: Clear cache
       script: 
-        - mkdir ${DOCKER_CACHE_FOLDER}
+        - mkdir -p ${DOCKER_CACHE_FOLDER}
         - rm -rf ${DOCKER_CACHE_FOLDER}/*
         - ls ${DOCKER_CACHE_FOLDER}
     # - stage: Docker warm up
