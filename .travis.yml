@@ -39,10 +39,15 @@ jobs:
   include:
     - stage: Docker warm up
       script: 
-        - docker pull microsoft/dotnet:2.1-runtime-deps
-        - printenv
-        # - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save $(docker history -q ${TRAVIS_COMMIT} | grep -v '<missing>') | gzip > ${DOCKER_CACHE_FILE}; fi
-        - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save $(docker history -q microsoft/dotnet:2.1-runtime-deps | grep -v '<missing>') | gzip > ${DOCKER_CACHE_FILE}; fi
+        - docker pull microsoft/dotnet:2.1-sdk
+        - docker pull leanda/core-persistence
+        - docker pull leanda/core-frontend
+        - docker pull leanda/core-backend
+        - docker pull leanda/core-sagahost
+        - docker pull leanda/core-web-api
+        - docker pull leanda/integration
+        - docker pull leanda/webapi-integration
+        - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save $(docker history -q microsoft/dotnet:2.1-sdk | docker history -q leanda/core-persistence | docker history -q leanda/core-frontend | docker history -q leanda/core-backend | docker history -q leanda/core-sagahost | grep -v '<missing>') | gzip > ${DOCKER_CACHE_FILE}; fi
     - stage: Check docker images
       script:
         - if [ -f ${DOCKER_CACHE_FILE} ]; then gunzip -c ${DOCKER_CACHE_FILE} | docker load; fi
