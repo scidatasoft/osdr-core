@@ -14,9 +14,8 @@ env:
   global:
     - DATE=`TZ=America/New_York date "+%Y-%m-%d-%H%M"`
     - DATE_TM=`TZ=America/New_York date "+%Y-%m-%d %H:%M"`
-    # - DOCKER_IMAGE="leanda/ui"
     - DOCKER_CACHE_FILE=/home/travis/docker/docker-cache.tar
-    - DOCKER_CACHE_FOLDER=/home/travis/docker/
+    - DOCKER_CACHE_FOLDER=/home/travis/docker
     - LEANDA_PERSISTENCE_IMAGE="leanda/core-persistence"
     - LEANDA_FRONTEND_IMAGE="leanda/core-frontend"
     - LEANDA_BACKEND_IMAGE="leanda/core-backend"
@@ -44,8 +43,8 @@ jobs:
     - stage: Clear cache
       name: Clear cache
       script: 
-        - mkdir -p ${DOCKER_CACHE_FOLDER}
-        - rm ${DOCKER_CACHE_FOLDER}*
+        - mkdir ${DOCKER_CACHE_FOLDER}
+        - rm ${DOCKER_CACHE_FOLDER}/*
         - ls ${DOCKER_CACHE_FOLDER}
     # - stage: Docker warm up
     #   name: Pull required docker images
@@ -65,20 +64,20 @@ jobs:
       name: Build Persistence service
       script: 
         - docker build -t ${LEANDA_PERSISTENCE_IMAGE}:latest -f Sds.Osdr.Persistence/Dockerfile .
-        - docker save -o ${DOCKER_CACHE_FOLDER}leanda-persistence.tar ${LEANDA_PERSISTENCE_IMAGE}:latest
+        - docker save -o ${DOCKER_CACHE_FOLDER}/leanda-persistence.tar ${LEANDA_PERSISTENCE_IMAGE}:latest
     - script:
         - docker build -t ${LEANDA_FRONTEND_IMAGE}:latest -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
-        - docker save -o ${DOCKER_CACHE_FOLDER}leanda-frontend.tar ${LEANDA_FRONTEND_IMAGE}:latest
+        - docker save -o ${DOCKER_CACHE_FOLDER}/leanda-frontend.tar ${LEANDA_FRONTEND_IMAGE}:latest
       name: Build Front End service
     - script:
         - docker build -t ${LEANDA_BACKEND_IMAGE}:latest -f Sds.Osdr.Domain.BackEnd/Dockerfile .
-        - docker save -o ${DOCKER_CACHE_FOLDER}leanda-backend.tar ${LEANDA_FRONTEND_IMAGE}:latest
+        - docker save -o ${DOCKER_CACHE_FOLDER}/leanda-backend.tar ${LEANDA_FRONTEND_IMAGE}:latest
       name: Build Back End service
     - stage: Check docker images
       script:
-        - docker load -i ${DOCKER_CACHE_FOLDER}leanda-persistence.tar
-        - docker load -i ${DOCKER_CACHE_FOLDER}leanda-frontend.tar
-        - docker load -i ${DOCKER_CACHE_FOLDER}leanda-backend.tar
+        - docker load -i ${DOCKER_CACHE_FOLDER}/leanda-persistence.tar
+        - docker load -i ${DOCKER_CACHE_FOLDER}/leanda-frontend.tar
+        - docker load -i ${DOCKER_CACHE_FOLDER}/leanda-backend.tar
         - docker images
 
 # jobs:
