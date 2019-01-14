@@ -76,14 +76,15 @@ jobs:
       name: Run Web API integration tests
       script:
         - docker load -i ${DOCKER_CACHE_FILE}
-        - docker build -t leanda/webapi-integration:latest -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
+        - docker build -t leanda/webapi-integration:ci -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
         - docker images
         - echo 'Web API integration tests...'
     - script:
         - docker load -i ${DOCKER_CACHE_FILE}
-        - docker build -t leanda/integration:latest -f Sds.Osdr.IntegrationTests/Dockerfile .
+        - docker build -t leanda/integration:ci -f Sds.Osdr.IntegrationTests/Dockerfile .
         - docker images
-        - echo 'Leanda processing integration tests...'
+        - yes | cp -rf Sds.Osdr.IntegrationTests/.env.travis-ci Sds.Osdr.IntegrationTests/.env
+        - cd Sds.Osdr.IntegrationTests && docker-compose up --abort-on-container-exit
       name: Run processing integration tests
     - stage: Check docker images
       script:
