@@ -42,12 +42,12 @@ cache:
 
 jobs:
   include:
-    - stage: Clear Cache
-      name: Clear Cache
-      script: 
-        - mkdir -p ${DOCKER_CACHE_FOLDER}
-        - rm -rf ${DOCKER_CACHE_FOLDER}/*
-        - ls ${DOCKER_CACHE_FOLDER}
+    # - stage: Clear Cache
+    #   name: Clear Cache
+    #   script: 
+    #     - mkdir -p ${DOCKER_CACHE_FOLDER}
+    #     - rm -rf ${DOCKER_CACHE_FOLDER}/*
+    #     - ls ${DOCKER_CACHE_FOLDER}
     # - stage: Docker warm up
     #   name: Pull required docker images
     #   script: 
@@ -63,33 +63,17 @@ jobs:
     #     - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}); docker save -o ${DOCKER_CACHE_FILE} microsoft/dotnet:2.1-sdk leanda/core-persistence:latest leanda/core-frontend:latest leanda/core-backend:latest leanda/core-sagahost:latest leanda/core-web-api:latest; fi
     #     - ls -l
     - stage: Build Docker Images
-      name: Build Persistence Service
       script: 
-        - docker build -t ${LEANDA_PERSISTENCE_IMAGE}:latest -f Sds.Osdr.Persistence/Dockerfile .
-        - docker save -o ${DOCKER_CACHE_FOLDER}/leanda-persistence.tar ${LEANDA_PERSISTENCE_IMAGE}:latest
-    - script:
-        - docker build -t ${LEANDA_FRONTEND_IMAGE}:latest -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
-        - docker save -o ${DOCKER_CACHE_FOLDER}/leanda-frontend.tar ${LEANDA_FRONTEND_IMAGE}:latest
-      name: Build Front End Service
-    - script:
-        - docker build -t ${LEANDA_BACKEND_IMAGE}:latest -f Sds.Osdr.Domain.BackEnd/Dockerfile .
-        - docker save -o ${DOCKER_CACHE_FOLDER}/leanda-backend.tar ${LEANDA_BACKEND_IMAGE}:latest
-      name: Build Back End Service
-    - script:
-        - docker build -t ${LEANDA_SAGAHOST_IMAGE}:latest -f Sds.Osdr.Domain.SagaHost/Dockerfile .
-        - docker save -o ${DOCKER_CACHE_FOLDER}/leanda-sagahost.tar ${LEANDA_SAGAHOST_IMAGE}:latest
-      name: Build Saga Host Service
-    - script:
-        - docker build -t ${LEANDA_WEBAPI_IMAGE}:latest -f Sds.Osdr.Domain.SagaHost/Dockerfile .
-        - docker save -o ${DOCKER_CACHE_FOLDER}/leanda-webapi.tar ${LEANDA_WEBAPI_IMAGE}:latest
-      name: Build Saga Host Service
+        - docker build -t ${LEANDA_PERSISTENCE_IMAGE}:ci -f Sds.Osdr.Persistence/Dockerfile .
+        - docker build -t ${LEANDA_FRONTEND_IMAGE}:ci -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
+        - docker build -t ${LEANDA_BACKEND_IMAGE}:ci -f Sds.Osdr.Domain.BackEnd/Dockerfile .
+        - docker build -t ${LEANDA_SAGAHOST_IMAGE}:ci -f Sds.Osdr.Domain.SagaHost/Dockerfile .
+        - docker build -t ${LEANDA_WEBAPI_IMAGE}:ci -f Sds.Osdr.Domain.SagaHost/Dockerfile .
+        - if [ -d ${DOCKER_CACHE_FILE} ]; then rm ${DOCKER_CACHE_FILE}; fi
+        - docker save -o ${DOCKER_CACHE_FILE} ${LEANDA_PERSISTENCE_IMAGE}:ci ${LEANDA_FRONTEND_IMAGE}:ci ${LEANDA_BACKEND_IMAGE}:ci ${LEANDA_SAGAHOST_IMAGE}:ci ${LEANDA_WEBAPI_IMAGE}:ci
     - stage: Check docker images
       script:
-        - docker load -i ${DOCKER_CACHE_FOLDER}/leanda-persistence.tar
-        - docker load -i ${DOCKER_CACHE_FOLDER}/leanda-frontend.tar
-        - docker load -i ${DOCKER_CACHE_FOLDER}/leanda-backend.tar
-        - docker load -i ${DOCKER_CACHE_FOLDER}/leanda-sagahost.tar
-        - docker load -i ${DOCKER_CACHE_FOLDER}/leanda-webapi.tar
+        - docker load -i ${DOCKER_CACHE_FILE}
         - docker images
 
 # jobs:
