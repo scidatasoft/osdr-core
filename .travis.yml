@@ -62,7 +62,8 @@ jobs:
     #     # - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}) ; docker save $(docker history -q microsoft/dotnet:2.1-sdk | docker history -q leanda/core-persistence | docker history -q leanda/core-frontend | docker history -q leanda/core-backend | docker history -q leanda/core-sagahost | docker history -q leanda/core-web-api | grep -v '<missing>') | gzip > ${DOCKER_CACHE_FILE}; fi
     #     - if [[ ${TRAVIS_BRANCH} == "master" ]] && [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then mkdir -p $(dirname ${DOCKER_CACHE_FILE}); docker save -o ${DOCKER_CACHE_FILE} microsoft/dotnet:2.1-sdk leanda/core-persistence:latest leanda/core-frontend:latest leanda/core-backend:latest leanda/core-sagahost:latest leanda/core-web-api:latest; fi
     #     - ls -l
-    - stage: Build Docker Images
+    - stage: Build docker images
+      name: Build Leanda Back-End, Front-End, Sagahost, Persistence and Web API services
       script: 
         - docker build -t ${LEANDA_PERSISTENCE_IMAGE}:ci -f Sds.Osdr.Persistence/Dockerfile .
         - docker build -t ${LEANDA_FRONTEND_IMAGE}:ci -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
@@ -71,6 +72,19 @@ jobs:
         - docker build -t ${LEANDA_WEBAPI_IMAGE}:ci -f Sds.Osdr.Domain.SagaHost/Dockerfile .
         - if [ -d ${DOCKER_CACHE_FILE} ]; then rm ${DOCKER_CACHE_FILE}; fi
         - docker save -o ${DOCKER_CACHE_FILE} ${LEANDA_PERSISTENCE_IMAGE}:ci ${LEANDA_FRONTEND_IMAGE}:ci ${LEANDA_BACKEND_IMAGE}:ci ${LEANDA_SAGAHOST_IMAGE}:ci ${LEANDA_WEBAPI_IMAGE}:ci
+    - stage: Run integration tests
+      name: Run Web API integration tests
+      script:
+        - docker load -i ${DOCKER_CACHE_FILE}
+        - docker build -t leanda/webapi-integration:latest -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
+        - docker images
+        - echo 'Web API integration tests...'
+    - script:
+        - docker load -i ${DOCKER_CACHE_FILE}
+        - docker build -t leanda/integration:latest -f Sds.Osdr.IntegrationTests/Dockerfile .
+        - docker images
+        - echo 'Leanda processing integration tests...'
+      name: Run processing integration tests
     - stage: Check docker images
       script:
         - docker load -i ${DOCKER_CACHE_FILE}
