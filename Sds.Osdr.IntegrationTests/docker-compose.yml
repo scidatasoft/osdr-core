@@ -148,7 +148,7 @@ services:
 
   blob-storage-api:
     container_name: blob-storage-api
-    image: leanda/blob-storage-webapi:${TAG_VERSION-latest}
+    image: leanda/blob-storage-webapi
     entrypoint: /bin/bash
     environment:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
