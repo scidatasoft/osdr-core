@@ -44,7 +44,7 @@ COPY Sds.Osdr.WebApi.IntegrationTests Sds.Osdr.WebApi.IntegrationTests
 RUN dotnet publish Sds.Osdr.WebApi.IntegrationTests/Sds.Osdr.WebApi.IntegrationTests.csproj -r $RID -c Release -o /dist
 
 # Build runtime image
-FROM microsoft/dotnet:2.1-runtime-deps
+FROM microsoft/dotnet:2.1-sdk
 
 LABEL maintainer="pshenichnov@gmail.com"
 

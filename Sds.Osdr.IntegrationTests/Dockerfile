@@ -42,7 +42,7 @@ COPY Sds.Osdr.IntegrationTests Sds.Osdr.IntegrationTests
 RUN dotnet publish Sds.Osdr.IntegrationTests/Sds.Osdr.IntegrationTests.csproj -r $RID -c Release -o /dist
 
 # Build runtime image
-FROM microsoft/dotnet:2.1-runtime-deps
+FROM microsoft/dotnet:2.1-sdk
 
 LABEL maintainer="pshenichnov@gmail.com"
 

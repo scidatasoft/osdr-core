@@ -52,19 +52,21 @@ jobs:
         - docker build -t ${LEANDA_BACKEND_IMAGE}:ci -f Sds.Osdr.Domain.BackEnd/Dockerfile .
         - docker build -t ${LEANDA_SAGAHOST_IMAGE}:ci -f Sds.Osdr.Domain.SagaHost/Dockerfile .
         - docker build -t ${LEANDA_WEBAPI_IMAGE}:ci -f Sds.Osdr.Domain.SagaHost/Dockerfile .
-        - docker build -t ${LEANDA_INTEGRATION_TESTS_IMAGE}:ci -f Sds.Osdr.IntegrationTests/Dockerfile .
-        - docker build -t ${LEANDA_WEBAPI_INTEGRATION_TESTS_IMAGE}:ci -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
+        # - docker build -t ${LEANDA_INTEGRATION_TESTS_IMAGE}:ci -f Sds.Osdr.IntegrationTests/Dockerfile .
+        # - docker build -t ${LEANDA_WEBAPI_INTEGRATION_TESTS_IMAGE}:ci -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
         - if [ -d ${DOCKER_CACHE_FILE} ]; then rm ${DOCKER_CACHE_FILE}; fi
-        - docker save -o ${DOCKER_CACHE_FILE} ${LEANDA_PERSISTENCE_IMAGE}:ci ${LEANDA_FRONTEND_IMAGE}:ci ${LEANDA_BACKEND_IMAGE}:ci ${LEANDA_SAGAHOST_IMAGE}:ci ${LEANDA_WEBAPI_IMAGE}:ci ${LEANDA_INTEGRATION_TESTS_IMAGE}:ci ${LEANDA_WEBAPI_INTEGRATION_TESTS_IMAGE}:ci
+        - docker save -o ${DOCKER_CACHE_FILE} ${LEANDA_PERSISTENCE_IMAGE}:ci ${LEANDA_FRONTEND_IMAGE}:ci ${LEANDA_BACKEND_IMAGE}:ci ${LEANDA_SAGAHOST_IMAGE}:ci ${LEANDA_WEBAPI_IMAGE}:ci
     - stage: Run integration tests
       name: Run Web API integration tests
       script:
         - docker load -i ${DOCKER_CACHE_FILE}
+        - docker build -t ${LEANDA_WEBAPI_INTEGRATION_TESTS_IMAGE}:ci -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
         - docker images
         - yes | cp -rf Sds.Osdr.WebApi.IntegrationTests/.env.travis-ci Sds.Osdr.WebApi.IntegrationTests/.env
         - cd Sds.Osdr.WebApi.IntegrationTests && docker-compose up --abort-on-container-exit
     - script:
         - docker load -i ${DOCKER_CACHE_FILE}
+        - docker build -t ${LEANDA_INTEGRATION_TESTS_IMAGE}:ci -f Sds.Osdr.IntegrationTests/Dockerfile .
         - docker images
         - yes | cp -rf Sds.Osdr.IntegrationTests/.env.travis-ci Sds.Osdr.IntegrationTests/.env
         - cd Sds.Osdr.IntegrationTests && docker-compose up --abort-on-container-exit
