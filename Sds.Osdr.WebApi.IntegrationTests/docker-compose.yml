@@ -148,7 +148,7 @@ services:
 
   core-web-api:
     container_name: core-web-api
-    image: leanda/core-webapi:${TAG_VERSION-latest}
+    image: leanda/core-web-api:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR

@@ -15,32 +15,17 @@ env:
     - DATE=`TZ=America/New_York date "+%Y-%m-%d-%H%M"`
     - DATE_TM=`TZ=America/New_York date "+%Y-%m-%d %H:%M"`
     - DOCKER_CACHE_FILE=/home/travis/docker/docker-cache.tar
-    - DOCKER_CACHE_FOLDER=/home/travis/docker
     - LEANDA_PERSISTENCE_IMAGE="leanda/core-persistence"
     - LEANDA_FRONTEND_IMAGE="leanda/core-frontend"
     - LEANDA_BACKEND_IMAGE="leanda/core-backend"
     - LEANDA_SAGAHOST_IMAGE="leanda/core-sagahost"
-    - LEANDA_WEBAPI_IMAGE="leanda/core-webapi"
+    - LEANDA_WEBAPI_IMAGE="leanda/core-web-api"
     - LEANDA_INTEGRATION_TESTS_IMAGE="leanda/integration"
     - LEANDA_WEBAPI_INTEGRATION_TESTS_IMAGE="leanda/webapi-integration"
-
-# before_install:
-#   - if [ -d ${DOCKER_CACHE_FOLDER} ]; then rm ${DOCKER_CACHE_FOLDER}*; fi
-#   - ls ${DOCKER_CACHE_FOLDER}
 
 cache:
   directories:
     - /home/travis/docker/
-
-# script:
-#   - docker build -t leanda/core-persistence:latest -f Sds.Osdr.Persistence/Dockerfile .
-#   - docker build -t leanda/core-frontend:latest -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
-#   - docker build -t leanda/core-backend:latest -f Sds.Osdr.Domain.BackEnd/Dockerfile .
-#   - docker build -t leanda/core-sagahost:latest -f Sds.Osdr.Domain.SagaHost/Dockerfile .
-#   - docker build -t leanda/core-web-api:latest -f Sds.Osdr.WebApi/Dockerfile .
-#   - docker build -t leanda/integration:latest -f Sds.Osdr.IntegrationTests/Dockerfile .
-#   - docker build -t leanda/webapi-integration:latest -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
-#   - docker image ls
 
 jobs:
   include:
@@ -52,8 +37,6 @@ jobs:
         - docker build -t ${LEANDA_BACKEND_IMAGE}:ci -f Sds.Osdr.Domain.BackEnd/Dockerfile .
         - docker build -t ${LEANDA_SAGAHOST_IMAGE}:ci -f Sds.Osdr.Domain.SagaHost/Dockerfile .
         - docker build -t ${LEANDA_WEBAPI_IMAGE}:ci -f Sds.Osdr.WebApi/Dockerfile .
-        # - docker build -t ${LEANDA_INTEGRATION_TESTS_IMAGE}:ci -f Sds.Osdr.IntegrationTests/Dockerfile .
-        # - docker build -t ${LEANDA_WEBAPI_INTEGRATION_TESTS_IMAGE}:ci -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
         - if [ -d ${DOCKER_CACHE_FILE} ]; then rm ${DOCKER_CACHE_FILE}; fi
         - docker save -o ${DOCKER_CACHE_FILE} ${LEANDA_PERSISTENCE_IMAGE}:ci ${LEANDA_FRONTEND_IMAGE}:ci ${LEANDA_BACKEND_IMAGE}:ci ${LEANDA_SAGAHOST_IMAGE}:ci ${LEANDA_WEBAPI_IMAGE}:ci
     - stage: Run integration tests
