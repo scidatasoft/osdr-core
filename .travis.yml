@@ -12,15 +12,12 @@ os:
 
 env:
   global:
-    - DATE=`TZ=America/New_York date "+%Y-%m-%d-%H%M"`
-    - DATE_TM=`TZ=America/New_York date "+%Y-%m-%d %H:%M"`
     - DOCKER_CACHE_FILE=/home/travis/docker/docker-cache.tar
     - LEANDA_PERSISTENCE_IMAGE="leanda/core-persistence"
     - LEANDA_FRONTEND_IMAGE="leanda/core-frontend"
     - LEANDA_BACKEND_IMAGE="leanda/core-backend"
     - LEANDA_SAGAHOST_IMAGE="leanda/core-sagahost"
     - LEANDA_WEBAPI_IMAGE="leanda/core-web-api"
-    - LEANDA_INTEGRATION_TESTS_IMAGE="leanda/integration"
     - LEANDA_WEBAPI_INTEGRATION_TESTS_IMAGE="leanda/webapi-integration"
 
 cache:
@@ -43,16 +40,16 @@ jobs:
       name: Run Web API integration tests
       script:
         - docker load -i ${DOCKER_CACHE_FILE}
-        - docker build -t ${LEANDA_WEBAPI_INTEGRATION_TESTS_IMAGE}:ci -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
+        - docker build -t leanda/webapi-integration:ci -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
         - docker images
         - yes | cp -rf Sds.Osdr.WebApi.IntegrationTests/.env.travis-ci Sds.Osdr.WebApi.IntegrationTests/.env
         - cd Sds.Osdr.WebApi.IntegrationTests && docker-compose up --abort-on-container-exit
     - script:
         - docker load -i ${DOCKER_CACHE_FILE}
-        - docker build -t ${LEANDA_INTEGRATION_TESTS_IMAGE}:ci -f Sds.Osdr.IntegrationTests/Dockerfile .
+        - docker build -t leanda/integration:ci -f Sds.Osdr.IntegrationTests/Dockerfile .
         - docker images
         - yes | cp -rf Sds.Osdr.IntegrationTests/.env.travis-ci Sds.Osdr.IntegrationTests/.env
-        - cd Sds.Osdr.IntegrationTests && docker-compose up --abort-on-container-exit
+        - docker-compose -f Sds.Osdr.IntegrationTests/docker-compose.yml up --abort-on-container-exit
       name: Run processing integration tests
     - stage: Deploy to docker hub
       script:
@@ -63,31 +60,9 @@ jobs:
         - docker tag ${LEANDA_SAGAHOST_IMAGE}:ci ${LEANDA_SAGAHOST_IMAGE}:latest
         - docker tag ${LEANDA_WEBAPI_IMAGE}:ci ${LEANDA_WEBAPI_IMAGE}:latest
         - docker images
-
-# jobs:
-#   include:
-#     - stage: build docker images
-#       name: build Persistence service
-#       script: docker build -t leanda/core-persistence:latest -f Sds.Osdr.Persistence/Dockerfile .
-#     - script: docker build -t leanda/core-frontend:latest -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
-#       name: build Front End service
-#     - script: docker build -t leanda/core-backend:latest -f Sds.Osdr.Domain.BackEnd/Dockerfile .
-#       name: build Back End service
-#     - stage: check docker images
-#       script: docker images
-
-# env:
-#   global:
-#     - DATE=`TZ=America/New_York date "+%Y-%m-%d-%H%M"`
-#     - DATE_TM=`TZ=America/New_York date "+%Y-%m-%d %H:%M"`
-#     - DOCKER_IMAGE="leanda/ui"
-
-# before_script:
-#   - echo "{\"buildInfo\":{\"buildId\":\""$TRAVIS_BUILD_NUMBER"\",\"buildDate\":\""$DATE_TM"\",\"environment\":\"DEV\"}}" > src/jenkinsBuildData.json
-
-# script:
-#   - docker build --build-arg APP_ENV=deploy -t $DOCKER_IMAGE:$DATE -t $DOCKER_IMAGE:latest .
-
-# after_success:
-#   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-#   - docker push $DOCKER_IMAGE # Pushes both date and latest
+        - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        - docker push ${LEANDA_PERSISTENCE_IMAGE}:latest
+        - docker push ${LEANDA_FRONTEND_IMAGE}:latest
+        - docker push ${LEANDA_BACKEND_IMAGE}:latest
+        - docker push ${LEANDA_SAGAHOST_IMAGE}:latest
+        - docker push ${LEANDA_WEBAPI_IMAGE}:latest
