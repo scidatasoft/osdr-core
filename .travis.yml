@@ -26,7 +26,7 @@ cache:
 
 jobs:
   include:
-    - stage: Build docker images
+    - stage: Build
       name: Build Leanda Back-End, Front-End, Sagahost, Persistence and Web API services
       script: 
         - docker build -t ${LEANDA_PERSISTENCE_IMAGE}:ci -f Sds.Osdr.Persistence/Dockerfile .
@@ -36,7 +36,7 @@ jobs:
         - docker build -t ${LEANDA_WEBAPI_IMAGE}:ci -f Sds.Osdr.WebApi/Dockerfile .
         - if [ -d ${DOCKER_CACHE_FILE} ]; then rm ${DOCKER_CACHE_FILE}; fi
         - docker save -o ${DOCKER_CACHE_FILE} ${LEANDA_PERSISTENCE_IMAGE}:ci ${LEANDA_FRONTEND_IMAGE}:ci ${LEANDA_BACKEND_IMAGE}:ci ${LEANDA_SAGAHOST_IMAGE}:ci ${LEANDA_WEBAPI_IMAGE}:ci
-    - stage: Run integration tests
+    - stage: Integration tests
       name: Run Web API integration tests
       script:
         - docker load -i ${DOCKER_CACHE_FILE}
@@ -49,9 +49,9 @@ jobs:
         - docker build -t leanda/integration:ci -f Sds.Osdr.IntegrationTests/Dockerfile .
         - docker images
         - yes | cp -rf Sds.Osdr.IntegrationTests/.env.travis-ci Sds.Osdr.IntegrationTests/.env
-        - docker-compose -f Sds.Osdr.IntegrationTests/docker-compose.yml up --abort-on-container-exit
+        - cd Sds.Osdr.IntegrationTests && docker-compose up --abort-on-container-exit
       name: Run processing integration tests
-    - stage: Deploy to docker hub
+    - stage: Deploy
       script:
         - docker load -i ${DOCKER_CACHE_FILE}
         - docker tag ${LEANDA_PERSISTENCE_IMAGE}:ci ${LEANDA_PERSISTENCE_IMAGE}:latest
@@ -66,3 +66,5 @@ jobs:
         - docker push ${LEANDA_BACKEND_IMAGE}:latest
         - docker push ${LEANDA_SAGAHOST_IMAGE}:latest
         - docker push ${LEANDA_WEBAPI_IMAGE}:latest
+        - rm -f ${DOCKER_CACHE_FILE}
+      name: Deploy new images to docker hub
