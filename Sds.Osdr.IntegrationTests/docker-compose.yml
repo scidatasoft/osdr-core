@@ -178,8 +178,8 @@ services:
       - OSDR_GRID_FS=mongodb://mongo:27017/osdr_dev
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
-    #command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./wait-for-it.sh http://blob-storage-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.IntegrationTests.dll /logger:console;verbosity="normal"
-    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./wait-for-it.sh http://blob-storage-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.IntegrationTests.dll /logger:"trx;LogFileName=integrationtests-results-${BUILD_NUMBER}.xml" /ResultsDirectory:/results
+    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./wait-for-it.sh http://blob-storage-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.IntegrationTests.dll /logger:console;verbosity="normal"
+    #command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./wait-for-it.sh http://blob-storage-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.IntegrationTests.dll /logger:"trx;LogFileName=integrationtests-results-${BUILD_NUMBER}.xml" /ResultsDirectory:/results
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
       - ${OSDR_LOG_FOLDER}:/results

@@ -51,7 +51,7 @@ jobs:
         - docker build -t ${LEANDA_FRONTEND_IMAGE}:ci -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
         - docker build -t ${LEANDA_BACKEND_IMAGE}:ci -f Sds.Osdr.Domain.BackEnd/Dockerfile .
         - docker build -t ${LEANDA_SAGAHOST_IMAGE}:ci -f Sds.Osdr.Domain.SagaHost/Dockerfile .
-        - docker build -t ${LEANDA_WEBAPI_IMAGE}:ci -f Sds.Osdr.Domain.SagaHost/Dockerfile .
+        - docker build -t ${LEANDA_WEBAPI_IMAGE}:ci -f Sds.Osdr.WebApi/Dockerfile .
         # - docker build -t ${LEANDA_INTEGRATION_TESTS_IMAGE}:ci -f Sds.Osdr.IntegrationTests/Dockerfile .
         # - docker build -t ${LEANDA_WEBAPI_INTEGRATION_TESTS_IMAGE}:ci -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
         - if [ -d ${DOCKER_CACHE_FILE} ]; then rm ${DOCKER_CACHE_FILE}; fi
