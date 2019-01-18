@@ -9,7 +9,7 @@ services:
     environment:
       - RUN_PROJECTIONS = All
     networks:
-      - osdr-test
+      - leanda-net
 
   redis:
     image: redis:4-alpine
@@ -17,25 +17,25 @@ services:
     # ports:
     #   - "6379:6379"
     networks:
-      - osdr-test
+      - leanda-net
 
   rabbitmq:
     image: leanda/rabbitmq
-    hostname: "rabbitmq-test"
+    hostname: "rabbitmq-leanda"
     environment:
-      - RABBITMQ_DEFAULT_VHOST=osdr_test
+      - RABBITMQ_DEFAULT_VHOST=leanda
     ports:
       - "8282:15672"
       - "5672:5672"
     networks:
-      - osdr-test
+      - leanda-net
 
   mongo:
     image: mongo:3.6
     ports:
       - "27017:27017"
     networks:
-      - osdr-test
+      - leanda-net
 
   postgres:
     image: postgres
@@ -46,7 +46,7 @@ services:
       POSTGRES_ROOT_PASSWORD: keycloak
       pgdata: data-pstgresql
     networks:
-      - osdr-test
+      - leanda-net
 
   keycloak:
     build: KeyCloak
@@ -62,7 +62,7 @@ services:
     ports:
       - '8080:8080'
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - postgres
 
@@ -73,30 +73,30 @@ services:
     environment:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./Sds.MetadataStorage.Processing
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - rabbitmq
       - mongo
 
-  osdr-indexing:
+  indexing:
     container_name: indexing
     image: leanda/indexing:${TAG_VERSION-latest}
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_ES=http://elasticsearch:9200
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./Sds.Indexing
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - rabbitmq
 
@@ -107,7 +107,7 @@ services:
     environment:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_TEMP_FILES_FOLDER=/temp
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
       - QUEUE_PREFETCH_SIZE=9
       - EXECUTOR_THREAD_COUNT=3
@@ -116,76 +116,76 @@ services:
       - ${OSDR_LOG_FOLDER}:/logs
       - ${OSDR_TEMP_FILES_FOLDER}:/temp
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - rabbitmq
       - mongo
 
-  # reaction-parser-service:
-  #   container_name: reaction-file-parser
-  #   image: docker.your-company.com/sds/reaction-file-parser:${TAG_VERSION-latest}
-  #   entrypoint: /bin/bash
-  #   environment:
-  #     - TZ=EST
-  #     - OSDR_LOG_FOLDER=/logs
-  #     - OSDR_TEMP_FILES_FOLDER=/temp
-  #     - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
-  #     - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-  #     - QUEUE_PREFETCH_SIZE=9
-  #     - EXECUTOR_THREAD_COUNT=3
-  #   command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh mongo:27017 -t 30 -- java -XX:NativeMemoryTracking=summary -jar reaction-parser.jar
-  #   volumes:
-  #     - ${OSDR_LOG_FOLDER}:/logs
-  #     - ${OSDR_TEMP_FILES_FOLDER}:/temp
-  #   networks:
-  #     - osdr-test
-  #   depends_on:
-  #     - rabbitmq
-  #     - mongo
+  reaction-parser-service:
+    container_name: reaction-file-parser
+    image: leanda/reaction-file-parser:${TAG_VERSION-latest}
+    entrypoint: /bin/bash
+    environment:
+      - TZ=EST
+      - OSDR_LOG_FOLDER=/logs
+      - OSDR_TEMP_FILES_FOLDER=/temp
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
+      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - QUEUE_PREFETCH_SIZE=9
+      - EXECUTOR_THREAD_COUNT=3
+    command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh mongo:27017 -t 30 -- java -XX:NativeMemoryTracking=summary -jar reaction-parser.jar
+    volumes:
+      - ${OSDR_LOG_FOLDER}:/logs
+      - ${OSDR_TEMP_FILES_FOLDER}:/temp
+    networks:
+      - leanda-net
+    depends_on:
+      - rabbitmq
+      - mongo
 
-  # crystal-parser-service:
-  #   container_name: crystal-file-parser
-  #   image: docker.your-company.com/sds/crystal-file-parser:${TAG_VERSION-latest}
-  #   entrypoint: /bin/bash
-  #   environment:
-  #     - TZ=EST
-  #     - OSDR_LOG_FOLDER=/logs
-  #     - OSDR_TEMP_FILES_FOLDER=/temp
-  #     - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
-  #     - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-  #     - QUEUE_PREFETCH_SIZE=9
-  #     - EXECUTOR_THREAD_COUNT=3
-  #   command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh mongo:27017 -t 30 -- java -XX:NativeMemoryTracking=summary -jar crystal-parser.jar
-  #   volumes:
-  #     - ${OSDR_LOG_FOLDER}:/logs
-  #     - ${OSDR_TEMP_FILES_FOLDER}:/temp
-  #   networks:
-  #     - osdr-test
-  #   depends_on:
-  #     - rabbitmq
-  #     - mongo
+  crystal-parser-service:
+    container_name: crystal-file-parser
+    image: leanda/crystal-file-parser:${TAG_VERSION-latest}
+    entrypoint: /bin/bash
+    environment:
+      - TZ=EST
+      - OSDR_LOG_FOLDER=/logs
+      - OSDR_TEMP_FILES_FOLDER=/temp
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
+      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - QUEUE_PREFETCH_SIZE=9
+      - EXECUTOR_THREAD_COUNT=3
+    command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh mongo:27017 -t 30 -- java -XX:NativeMemoryTracking=summary -jar crystal-parser.jar
+    volumes:
+      - ${OSDR_LOG_FOLDER}:/logs
+      - ${OSDR_TEMP_FILES_FOLDER}:/temp
+    networks:
+      - leanda-net
+    depends_on:
+      - rabbitmq
+      - mongo
 
-  # spectra-parser-service:
-  #   container_name: spectra-file-parser
-  #   image: docker.your-company.com/sds/spectra-file-parser:${TAG_VERSION-latest}
-  #   entrypoint: /bin/bash
-  #   environment:
-  #     - TZ=EST
-  #     - OSDR_LOG_FOLDER=/logs
-  #     - OSDR_TEMP_FILES_FOLDER=/temp
-  #     - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
-  #     - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-  #     - QUEUE_PREFETCH_SIZE=9
-  #     - EXECUTOR_THREAD_COUNT=3
-  #   command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh mongo:27017 -t 30 -- java -XX:NativeMemoryTracking=summary -jar spectra-parser.jar
-  #   volumes:
-  #     - ${OSDR_LOG_FOLDER}:/logs
-  #     - ${OSDR_TEMP_FILES_FOLDER}:/temp
-  #   networks:
-  #     - osdr-test
-  #   depends_on:
-  #     - rabbitmq
-  #     - mongo
+  spectra-parser-service:
+    container_name: spectra-file-parser
+    image: leanda/spectra-file-parser:${TAG_VERSION-latest}
+    entrypoint: /bin/bash
+    environment:
+      - TZ=EST
+      - OSDR_LOG_FOLDER=/logs
+      - OSDR_TEMP_FILES_FOLDER=/temp
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
+      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - QUEUE_PREFETCH_SIZE=9
+      - EXECUTOR_THREAD_COUNT=3
+    command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh mongo:27017 -t 30 -- java -XX:NativeMemoryTracking=summary -jar spectra-parser.jar
+    volumes:
+      - ${OSDR_LOG_FOLDER}:/logs
+      - ${OSDR_TEMP_FILES_FOLDER}:/temp
+    networks:
+      - leanda-net
+    depends_on:
+      - rabbitmq
+      - mongo
 
   chemical-file-parser:
     container_name: chemical-file-parser
@@ -195,7 +195,7 @@ services:
       - TZ=EST
       - OSDR_LOG_FOLDER=/logs
       - OSDR_TEMP_FILES_FOLDER=/temp
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
       - QUEUE_PREFETCH_SIZE=9
       - EXECUTOR_THREAD_COUNT=3
@@ -204,7 +204,7 @@ services:
       - ${OSDR_LOG_FOLDER}:/logs
       - ${OSDR_TEMP_FILES_FOLDER}:/temp
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - rabbitmq
       - mongo
@@ -217,7 +217,7 @@ services:
       - TZ=EST
       - OSDR_LOG_FOLDER=/logs
       - OSDR_TEMP_FILES_FOLDER=/temp
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
       - QUEUE_PREFETCH_SIZE=9
       - EXECUTOR_THREAD_COUNT=3
@@ -226,7 +226,7 @@ services:
       - ${OSDR_LOG_FOLDER}:/logs
       - ${OSDR_TEMP_FILES_FOLDER}:/temp
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - rabbitmq
       - mongo
@@ -238,7 +238,7 @@ services:
     environment:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_REDIS=redis
       - OSDR_LOG_LEVEL=Error
@@ -246,7 +246,7 @@ services:
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - rabbitmq
       - eventstore
@@ -260,7 +260,7 @@ services:
     environment:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_REDIS=redis
       - OSDR_LOG_LEVEL=Error
@@ -268,7 +268,7 @@ services:
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - rabbitmq
       - eventstore
@@ -282,13 +282,13 @@ services:
     environment:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_LOG_LEVEL=Error
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./Sds.Osdr.Domain.SagaHost
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - rabbitmq
       - mongo
@@ -300,13 +300,13 @@ services:
     environment:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_LOG_LEVEL=Error
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./Sds.Osdr.Persistence
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     depends_on:
       - rabbitmq
       - mongo
@@ -320,7 +320,7 @@ services:
       - OSDR_REDIS=redis
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       #- OSDR_ES=http://elasticsearch:9200
       - SWAGGER_BASEPATH=/osdr/v1
@@ -329,7 +329,7 @@ services:
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     ports:
       - "28611:18006"
     depends_on:
@@ -347,15 +347,46 @@ services:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/osdr_test
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - SWAGGER_BASEPATH=/blob/v1
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh keycloak:8080 -t 30 -- ./Sds.Storage.Blob.WebApi
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
-      - osdr-test
+      - leanda-net
     ports:
       - "18006:18006"
+    depends_on:
+      - keycloak
+      - rabbitmq
+      - mongo
+
+  # e2e-tests:
+  #   container_name: e2e-tests
+  #   image: leanda/e2e-tests:${TAG_VERSION-latest}
+  #   entrypoint: /bin/bash
+  #   environment:
+  #     - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
+  #     - OSDR_REDIS=redis
+  #     - OSDR_LOG_FOLDER=/logs
+  #     - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+  #     - OSDR_GRID_FS=mongodb://mongo:27017/osdr_dev
+  #     - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
+  #     - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
+  #     - OSDR_WEB_API=http://core-web-api:18006
+  #   command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.EndToEndTests.dll /logger:console;verbosity="normal"
+  #   volumes:
+  #     - ${OSDR_LOG_FOLDER}:/logs
+  #     - /results:/results
+  #   networks:
+  #     - leanda-net
+  #   depends_on:
+  #     - core-backend
+  #     - core-frontend
+  #     - core-sagahost
+  #     - core-persistence
+  #     - core-web-api
+  #     - blob-storage-api
 
 networks:
-  osdr-test:
+  leanda-net:
