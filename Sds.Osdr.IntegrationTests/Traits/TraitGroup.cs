@@ -21,6 +21,7 @@
 		Sharing,
         DummyAuthentication,
         NotAuthorized,
-        Stream
+        Stream,
+        Microscopy
 	}
 }

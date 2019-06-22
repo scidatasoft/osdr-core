@@ -16,7 +16,8 @@ namespace Sds.Osdr.Generic.Domain
         Tabular,
         Pdf,
         WebPage,
-        Image
+        Image,
+        Microscopy
     }
 
     public enum FileStatus

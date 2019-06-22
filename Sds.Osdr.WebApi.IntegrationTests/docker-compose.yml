@@ -192,32 +192,32 @@ services:
     ports:
       - "18006:18006"
 
-  integration:
-    container_name: webapi-integration
-    image: leanda/webapi-integration:${TAG_VERSION-latest}
-    entrypoint: /bin/bash
-    environment:
-      - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
-      - OSDR_REDIS=redis
-      - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-      - OSDR_GRID_FS=mongodb://mongo:27017/osdr_dev
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
-      - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
-      - OSDR_WEB_API=http://core-web-api:18006
-    command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console;verbosity="normal"
-    #command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:"trx;LogFileName=webapi-integrationtests-results-${BUILD_NUMBER}.xml" /ResultsDirectory:/results
-    volumes:
-      - ${OSDR_LOG_FOLDER}:/logs
-      - /results:/results
-    networks:
-      - leanda-net
-    depends_on:
-      - core-backend
-      - core-frontend
-      - core-sagahost
-      - core-persistence
-      - core-web-api
+  # integration:
+  #   container_name: webapi-integration
+  #   image: leanda/webapi-integration:${TAG_VERSION-latest}
+  #   entrypoint: /bin/bash
+  #   environment:
+  #     - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
+  #     - OSDR_REDIS=redis
+  #     - OSDR_LOG_FOLDER=/logs
+  #     - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+  #     - OSDR_GRID_FS=mongodb://mongo:27017/osdr_dev
+  #     - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
+  #     - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
+  #     - OSDR_WEB_API=http://core-web-api:18006
+  #   command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console;verbosity="normal"
+  #   #command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:"trx;LogFileName=webapi-integrationtests-results-${BUILD_NUMBER}.xml" /ResultsDirectory:/results
+  #   volumes:
+  #     - ${OSDR_LOG_FOLDER}:/logs
+  #     - /results:/results
+  #   networks:
+  #     - leanda-net
+  #   depends_on:
+  #     - core-backend
+  #     - core-frontend
+  #     - core-sagahost
+  #     - core-persistence
+  #     - core-web-api
 
 networks:
   leanda-net:
