@@ -1,4 +1,8 @@
 ﻿using Automatonymous;
+using Leanda.Microscopy.Domain.Commands;
+using Leanda.Microscopy.Domain.Events;
+using Leanda.Microscopy.Metadata.Domain.Commands;
+using Leanda.Microscopy.Metadata.Domain.Events;
 using Leanda.Microscopy.Sagas.Commands;
 using MassTransit;
 using MassTransit.MongoDbIntegration.Saga;
@@ -33,6 +37,7 @@ namespace Leanda.Microscopy.Sagas
         public DateTimeOffset Updated { get; set; }
         public IList<Guid> Images { get; set; } = new List<Guid>();
         public int AllPersisted { get; set; }
+        public int EndProcessing { get; set; }
     }
 
     public static partial class PublishEndpointExtensions
@@ -68,12 +73,16 @@ namespace Leanda.Microscopy.Sagas
             Event(() => ImageGenerated, x => x.CorrelateById(context => context.Message.CorrelationId));
             Event(() => ImageGenerationFailed, x => x.CorrelateById(context => context.Message.CorrelationId));
             Event(() => ImageAdded, x => x.CorrelateById(context => context.Message.Id));
+            Event(() => MetadataExtracted, x => x.CorrelateById(context => context.Message.CorrelationId));
+            Event(() => MetadataExtractionFailed, x => x.CorrelateById(context => context.Message.CorrelationId));
+            Event(() => MetadataPersisted, x => x.CorrelateById(context => context.Message.Id));
             Event(() => FileProcessed, x => x.CorrelateById(context => context.Message.CorrelationId));
             Event(() => StatusChanged, x => x.CorrelateById(context => context.Message.Id));
             Event(() => NodeStatusPersisted, x => x.CorrelateById(context => context.Message.Id));
             Event(() => StatusPersisted, x => x.CorrelateById(context => context.Message.Id));
 
             CompositeEvent(() => AllPersisted, x => x.AllPersisted, StatusChanged, StatusPersistenceDone, NodeStatusPersistenceDone);
+            CompositeEvent(() => EndProcessing, x => x.EndProcessing, MetadataExtractionFinished, ImageGenerationFinished, ImageGenerationFinished, ImageGenerationFinished);
 
             Initially(
                 When(ProcessFile)
@@ -113,6 +122,15 @@ namespace Leanda.Microscopy.Sagas
                         await context.CreateConsumeContext().GenerateImage(context.Instance, 300, 300);
                         await context.CreateConsumeContext().GenerateImage(context.Instance, 600, 600);
                         await context.CreateConsumeContext().GenerateImage(context.Instance, 1200, 1200);
+
+                        await context.CreateConsumeContext().Publish<ExtractMicroscopyMetadata>(new
+                        {
+                            Id = context.Instance.FileId,
+                            UserId = context.Instance.UserId,
+                            BlobId = context.Instance.BlobId,
+                            Bucket = context.Instance.Bucket,
+                            CorrelationId = context.Instance.CorrelationId
+                        });
                     }),
                 When(ImageGenerated)
                     .ThenAsync(async context => {
@@ -133,20 +151,39 @@ namespace Leanda.Microscopy.Sagas
 
                         context.Instance.Images.Add(context.Data.Image.Id);
 
-                        if (context.Instance.Images.Count == 3)
-                        {
-                            await context.Raise(EndProcessing);
-                        }
+                        await context.Raise(ImageGenerationFinished);
+
                     }),
                 When(ImageAdded)
                     .ThenAsync(async context =>
                     {
                         context.Instance.Images.Add(context.Data.Image.Id);
 
-                        if (context.Instance.Images.Count == 3)
+                        await context.Raise(ImageGenerationFinished);
+                    }),
+                When(MetadataExtracted)
+                    .ThenAsync(async context => {
+                        if (context.Data.TimeStamp > context.Instance.Updated)
+                            context.Instance.Updated = context.Data.TimeStamp;
+
+                        await context.CreateConsumeContext().Publish<UpdateMetadata>(new
                         {
-                            await context.Raise(EndProcessing);
-                        }
+                            Id = context.Instance.FileId,
+                            UserId = context.Instance.UserId,
+                            Metadata = context.Data.Metadata
+                        });
+                    }),
+                When(MetadataExtractionFailed)
+                    .ThenAsync(async context => {
+                        if (context.Data.TimeStamp > context.Instance.Updated)
+                            context.Instance.Updated = context.Data.TimeStamp;
+
+                        await context.Raise(MetadataExtractionFinished);
+                    }),
+                When(MetadataPersisted)
+                    .ThenAsync(async context =>
+                    {
+                        await context.Raise(MetadataExtractionFinished);
                     }),
                 When(EndProcessing)
                     .TransitionTo(Processed)
@@ -213,6 +250,9 @@ namespace Leanda.Microscopy.Sagas
         Event<ImageGenerated> ImageGenerated { get; set; }
         Event<ImageGenerationFailed> ImageGenerationFailed { get; set; }
         Event<ImageAdded> ImageAdded { get; set; }
+        Event<MicroscopyMetadataExtracted> MetadataExtracted { get; set; }
+        Event<MicroscopyMetadataExtractionFailed> MetadataExtractionFailed { get; set; }
+        Event<MetadataPersisted> MetadataPersisted { get; set; }
         Event<FileProcessed> FileProcessed { get; set; }
         Event<StatusChanged> StatusChanged { get; set; }
         Event<NodeStatusPersisted> NodeStatusPersisted { get; set; }
@@ -228,5 +268,7 @@ namespace Leanda.Microscopy.Sagas
         Event AllPersisted { get; set; }
         Event NodeStatusPersistenceDone { get; set; }
         Event StatusPersistenceDone { get; set; }
+        Event ImageGenerationFinished { get; set; }
+        Event MetadataExtractionFinished { get; set; }
     }
 }

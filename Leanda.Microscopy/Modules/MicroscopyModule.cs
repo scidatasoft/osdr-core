@@ -6,6 +6,7 @@ using MassTransit;
 using MassTransit.RabbitMqTransport;
 using MassTransit.Saga;
 using Microsoft.Extensions.DependencyInjection;
+using Sds.CqrsLite.MassTransit.Filters;
 using Sds.MassTransit.Extensions;
 using Sds.MassTransit.RabbitMq;
 using Sds.MassTransit.Saga;
@@ -65,6 +66,9 @@ namespace Leanda.Microscopy.Modules
         {
             services.AddScoped<IModule, MicroscopyModule>();
 
+            //  add backend consumers...
+            services.AddScoped<BackEnd.CommandHandlers.UpdateMetadataCommandHandler>();
+
             //  add persistence consumers...
             services.AddTransient<Persistence.EventHandlers.NodesEventHandlers>();
             services.AddTransient<Persistence.EventHandlers.FilesEventHandlers>();
@@ -79,6 +83,9 @@ namespace Leanda.Microscopy.Modules
         public static void UseBackEndModule(this IServiceCollection services)
         {
             services.AddScoped<IModule, MicroscopyModule>();
+
+            //  add backend consumers...
+            services.AddScoped<BackEnd.CommandHandlers.UpdateMetadataCommandHandler>();
         }
 
         public static void UsePersistenceModule(this IServiceCollection services)
@@ -108,6 +115,12 @@ namespace Leanda.Microscopy.Modules
 
             //  register state machines...
             configurator.RegisterStateMachine<MicroscopyFileProcessingStateMachine, MicroscopyFileProcessingState>(provider);
+        }
+
+        public static void RegisterBackEndModule(this IRabbitMqBusFactoryConfigurator bus, IRabbitMqHost host, IServiceProvider provider, Action<IRabbitMqReceiveEndpointConfigurator> endpointConfigurator = null)
+        {
+            //  register backend consumers...
+            bus.RegisterScopedConsumer<BackEnd.CommandHandlers.UpdateMetadataCommandHandler>(host, provider, endpointConfigurator, c => c.UseCqrsLite());
         }
 
         public static void RegisterPersistenceModule(this IRabbitMqBusFactoryConfigurator configurator, IRabbitMqHost host, IServiceProvider provider, Action<IRabbitMqReceiveEndpointConfigurator> endpointConfigurator = null)

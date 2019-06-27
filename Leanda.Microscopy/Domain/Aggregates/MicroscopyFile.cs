@@ -1,13 +1,24 @@
 ﻿using Sds.Osdr.Generic.Domain;
 using Leanda.Microscopy.Domain.Events;
 using System;
+using System.Collections.Generic;
 
 namespace Leanda.Microscopy.Domain
 {
     public class MicroscopyFile : File
     {
+        public IDictionary<string, object> Metadata { get; protected set; } = new Dictionary<string, object>();
+
         private void Apply(MicroscopyFileCreated e)
         {
+        }
+
+        private void Apply(MetadataUpdated e)
+        {
+            Metadata = e.Metadata;
+
+            UpdatedBy = e.UserId;
+            UpdatedDateTime = e.TimeStamp;
         }
 
         protected MicroscopyFile()
@@ -20,5 +31,10 @@ namespace Leanda.Microscopy.Domain
             Id = id;
 			ApplyChange(new MicroscopyFileCreated(Id));
 		}
+
+        public void UpdateMetadata(Guid userId, IDictionary<string, object> metadata)
+        {
+            ApplyChange(new MetadataUpdated(Id, userId, metadata));
+        }
     }
 }
