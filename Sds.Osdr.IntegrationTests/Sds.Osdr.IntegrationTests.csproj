@@ -33,7 +33,6 @@
     <PackageReference Include="FluentAssertions" Version="4.19.4" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Leanda.Microscopy.Metadata.Domain\Leanda.Microscopy.Metadata.Domain.csproj" />
     <ProjectReference Include="..\Leanda.Microscopy\Leanda.Microscopy.csproj" />
     <ProjectReference Include="..\Sds.Osdr.Chemicals\Sds.Osdr.Chemicals.csproj" />
     <ProjectReference Include="..\Sds.Osdr.Crystals\Sds.Osdr.Crystals.csproj" />

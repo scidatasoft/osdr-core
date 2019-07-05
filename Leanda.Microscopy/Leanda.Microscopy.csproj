@@ -5,7 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Leanda.Microscopy.Metadata.Domain\Leanda.Microscopy.Metadata.Domain.csproj" />
+    <PackageReference Include="Leanda.Microscopy.Metadata.Domain" Version="0.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Sds.Osdr.Generic\Sds.Osdr.Generic.csproj" />
   </ItemGroup>
 
