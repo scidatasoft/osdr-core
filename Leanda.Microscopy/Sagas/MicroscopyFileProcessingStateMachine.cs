@@ -82,7 +82,7 @@ namespace Leanda.Microscopy.Sagas
             Event(() => StatusPersisted, x => x.CorrelateById(context => context.Message.Id));
 
             CompositeEvent(() => AllPersisted, x => x.AllPersisted, StatusChanged, StatusPersistenceDone, NodeStatusPersistenceDone);
-            CompositeEvent(() => EndProcessing, x => x.EndProcessing, MetadataExtractionFinished, ImageGenerationFinished, ImageGenerationFinished, ImageGenerationFinished);
+            CompositeEvent(() => EndProcessing, x => x.EndProcessing, MetadataExtractionFinished, ImageGenerationFinished);
 
             Initially(
                 When(ProcessFile)
@@ -151,15 +151,20 @@ namespace Leanda.Microscopy.Sagas
 
                         context.Instance.Images.Add(context.Data.Image.Id);
 
-                        await context.Raise(ImageGenerationFinished);
-
+                        if (context.Instance.Images.Count == 3)
+                        {
+                            await context.Raise(ImageGenerationFinished);
+                        }
                     }),
                 When(ImageAdded)
                     .ThenAsync(async context =>
                     {
                         context.Instance.Images.Add(context.Data.Image.Id);
 
-                        await context.Raise(ImageGenerationFinished);
+                        if (context.Instance.Images.Count == 3)
+                        {
+                            await context.Raise(ImageGenerationFinished);
+                        }
                     }),
                 When(MetadataExtracted)
                     .ThenAsync(async context => {
