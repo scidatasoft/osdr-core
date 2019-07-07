@@ -57,10 +57,15 @@ jobs:
       script:
         - docker load -i $DOCKER_CACHE_FILE
         - docker tag $LEANDA_PERSISTENCE_IMAGE:ci $LEANDA_PERSISTENCE_IMAGE:latest
+        - docker tag $LEANDA_PERSISTENCE_IMAGE:ci $LEANDA_PERSISTENCE_IMAGE:$DATE
         - docker tag $LEANDA_FRONTEND_IMAGE:ci $LEANDA_FRONTEND_IMAGE:latest
+        - docker tag $LEANDA_FRONTEND_IMAGE:ci $LEANDA_FRONTEND_IMAGE:$DATE
         - docker tag $LEANDA_BACKEND_IMAGE:ci $LEANDA_BACKEND_IMAGE:latest
+        - docker tag $LEANDA_BACKEND_IMAGE:ci $LEANDA_BACKEND_IMAGE:$DATE
         - docker tag $LEANDA_SAGAHOST_IMAGE:ci $LEANDA_SAGAHOST_IMAGE:latest
+        - docker tag $LEANDA_SAGAHOST_IMAGE:ci $LEANDA_SAGAHOST_IMAGE:$DATE
         - docker tag $LEANDA_WEBAPI_IMAGE:ci $LEANDA_WEBAPI_IMAGE:latest
+        - docker tag $LEANDA_WEBAPI_IMAGE:ci $LEANDA_WEBAPI_IMAGE:$DATE
         - docker images
         - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         - docker push $LEANDA_PERSISTENCE_IMAGE:latest
