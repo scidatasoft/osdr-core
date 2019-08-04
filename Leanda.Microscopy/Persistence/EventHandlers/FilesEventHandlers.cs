@@ -31,14 +31,17 @@ namespace Leanda.Microscopy.Persistence.EventHandlers
             var document = await Files.FindOneAndUpdateAsync(filter, update);
 
             if (document == null)
+            {
                 throw new ConcurrencyException(context.Message.Id);
+            }
         }
 
         public async Task Consume(ConsumeContext<MetadataUpdated> context)
         {
             var filter = new BsonDocument("_id", context.Message.Id).Add("Version", context.Message.Version - 1);
             var update = Builders<BsonDocument>.Update
-                .Set("Metadata", context.Message.Metadata)
+                //.Set("Metadata", context.Message.Metadata)
+                .Set("Properties", (new { Metadata = context.Message.Metadata }).ToBsonDocument())
                 .Set("UpdatedBy", context.Message.UserId)
                 .Set("UpdatedDateTime", context.Message.TimeStamp.UtcDateTime)
                 .Set("Version", context.Message.Version);
@@ -46,7 +49,9 @@ namespace Leanda.Microscopy.Persistence.EventHandlers
             var document = await Files.FindOneAndUpdateAsync(filter, update);
 
             if (document == null)
+            {
                 throw new ConcurrencyException(context.Message.Id);
+            }
 
             await context.Publish<MetadataPersisted>(new
             {
