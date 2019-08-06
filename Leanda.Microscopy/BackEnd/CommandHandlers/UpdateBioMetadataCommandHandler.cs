@@ -20,7 +20,7 @@ namespace Leanda.Microscopy.BackEnd.CommandHandlers
         {
             var file = await session.Get<MicroscopyFile>(context.Message.Id);
 
-            file.UpdateMetadata(context.Message.UserId, context.Message.Metadata);
+            file.UpdateBioMetadata(context.Message.UserId, context.Message.Metadata);
 
             await session.Commit();
         }

@@ -7,7 +7,7 @@ services:
       - "2113:2113"
       - "1113:1113"
     environment:
-      - RUN_PROJECTIONS = All
+      - RUN_PROJECTIONS=All
     networks:
       - leanda-net
 

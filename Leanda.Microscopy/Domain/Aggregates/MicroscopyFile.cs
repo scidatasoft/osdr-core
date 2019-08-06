@@ -7,7 +7,7 @@ namespace Leanda.Microscopy.Domain
 {
     public class MicroscopyFile : File
     {
-        public IDictionary<string, object> Metadata { get; protected set; } = new Dictionary<string, object>();
+        public IDictionary<string, object> BioMetadata { get; protected set; } = new Dictionary<string, object>();
 
         private void Apply(MicroscopyFileCreated e)
         {
@@ -15,7 +15,7 @@ namespace Leanda.Microscopy.Domain
 
         private void Apply(BioMetadataUpdated e)
         {
-            Metadata = e.Metadata;
+            BioMetadata = e.Metadata;
 
             UpdatedBy = e.UserId;
             UpdatedDateTime = e.TimeStamp;
@@ -32,7 +32,7 @@ namespace Leanda.Microscopy.Domain
 			ApplyChange(new MicroscopyFileCreated(Id));
 		}
 
-        public void UpdateMetadata(Guid userId, IDictionary<string, object> metadata)
+        public void UpdateBioMetadata(Guid userId, IDictionary<string, object> metadata)
         {
             ApplyChange(new BioMetadataUpdated(Id, userId, metadata));
         }
