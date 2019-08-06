@@ -2,13 +2,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace Leanda.Microscopy.Domain.Events
+namespace Sds.Osdr.Generic.Domain.Events.Files
 {
     public class MetadataUpdated : IUserEvent
     {
-        public readonly IDictionary<string, object> Metadata;
+        public readonly IDictionary<string, string> Metadata;
 
-        public MetadataUpdated(Guid id, Guid userId, IDictionary<string, object> metadata)
+        public MetadataUpdated(Guid id, Guid userId, IDictionary<string, string> metadata)
         {
             Id = id;
             UserId = userId;

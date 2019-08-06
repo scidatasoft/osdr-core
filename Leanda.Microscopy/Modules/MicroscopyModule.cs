@@ -67,7 +67,7 @@ namespace Leanda.Microscopy.Modules
             services.AddScoped<IModule, MicroscopyModule>();
 
             //  add backend consumers...
-            services.AddScoped<BackEnd.CommandHandlers.UpdateMetadataCommandHandler>();
+            services.AddScoped<BackEnd.CommandHandlers.UpdateBioMetadataCommandHandler>();
 
             //  add persistence consumers...
             services.AddTransient<Persistence.EventHandlers.NodesEventHandlers>();
@@ -85,7 +85,7 @@ namespace Leanda.Microscopy.Modules
             services.AddScoped<IModule, MicroscopyModule>();
 
             //  add backend consumers...
-            services.AddScoped<BackEnd.CommandHandlers.UpdateMetadataCommandHandler>();
+            services.AddScoped<BackEnd.CommandHandlers.UpdateBioMetadataCommandHandler>();
         }
 
         public static void UsePersistenceModule(this IServiceCollection services)
@@ -120,7 +120,7 @@ namespace Leanda.Microscopy.Modules
         public static void RegisterBackEndModule(this IRabbitMqBusFactoryConfigurator bus, IRabbitMqHost host, IServiceProvider provider, Action<IRabbitMqReceiveEndpointConfigurator> endpointConfigurator = null)
         {
             //  register backend consumers...
-            bus.RegisterScopedConsumer<BackEnd.CommandHandlers.UpdateMetadataCommandHandler>(host, provider, endpointConfigurator, c => c.UseCqrsLite());
+            bus.RegisterScopedConsumer<BackEnd.CommandHandlers.UpdateBioMetadataCommandHandler>(host, provider, endpointConfigurator, c => c.UseCqrsLite());
         }
 
         public static void RegisterPersistenceModule(this IRabbitMqBusFactoryConfigurator configurator, IRabbitMqHost host, IServiceProvider provider, Action<IRabbitMqReceiveEndpointConfigurator> endpointConfigurator = null)

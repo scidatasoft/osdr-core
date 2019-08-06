@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace Leanda.Microscopy.BackEnd.CommandHandlers
 {
-    public class UpdateMetadataCommandHandler : IConsumer<UpdateMetadata>
+    public class UpdateBioMetadataCommandHandler : IConsumer<UpdateBioMetadata>
     {
         private readonly ISession session;
 
-        public UpdateMetadataCommandHandler(ISession session)
+        public UpdateBioMetadataCommandHandler(ISession session)
         {
             this.session = session ?? throw new ArgumentNullException(nameof(session));
         }
 
-        public async Task Consume(ConsumeContext<UpdateMetadata> context)
+        public async Task Consume(ConsumeContext<UpdateBioMetadata> context)
         {
             var file = await session.Get<MicroscopyFile>(context.Message.Id);
 

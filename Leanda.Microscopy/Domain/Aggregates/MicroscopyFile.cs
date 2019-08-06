@@ -13,7 +13,7 @@ namespace Leanda.Microscopy.Domain
         {
         }
 
-        private void Apply(MetadataUpdated e)
+        private void Apply(BioMetadataUpdated e)
         {
             Metadata = e.Metadata;
 
@@ -34,7 +34,7 @@ namespace Leanda.Microscopy.Domain
 
         public void UpdateMetadata(Guid userId, IDictionary<string, object> metadata)
         {
-            ApplyChange(new MetadataUpdated(Id, userId, metadata));
+            ApplyChange(new BioMetadataUpdated(Id, userId, metadata));
         }
     }
 }

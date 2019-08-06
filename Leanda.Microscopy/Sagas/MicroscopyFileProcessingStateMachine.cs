@@ -171,7 +171,7 @@ namespace Leanda.Microscopy.Sagas
                         if (context.Data.TimeStamp > context.Instance.Updated)
                             context.Instance.Updated = context.Data.TimeStamp;
 
-                        await context.CreateConsumeContext().Publish<UpdateMetadata>(new
+                        await context.CreateConsumeContext().Publish<UpdateBioMetadata>(new
                         {
                             Id = context.Instance.FileId,
                             UserId = context.Instance.UserId,
@@ -257,7 +257,7 @@ namespace Leanda.Microscopy.Sagas
         Event<ImageAdded> ImageAdded { get; set; }
         Event<MicroscopyMetadataExtracted> MetadataExtracted { get; set; }
         Event<MicroscopyMetadataExtractionFailed> MetadataExtractionFailed { get; set; }
-        Event<MetadataPersisted> MetadataPersisted { get; set; }
+        Event<BioMetadataPersisted> MetadataPersisted { get; set; }
         Event<FileProcessed> FileProcessed { get; set; }
         Event<StatusChanged> StatusChanged { get; set; }
         Event<NodeStatusPersisted> NodeStatusPersisted { get; set; }

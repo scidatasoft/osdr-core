@@ -102,6 +102,8 @@ namespace Sds.Osdr.Generic.Domain
 
         public IList<Image> Images { get; protected set; } = new List<Image>();
 
+        public IDictionary<string, string> Metadata { get; private set; }
+
         /// <summary>
         /// Current file status
         /// </summary>
@@ -142,6 +144,13 @@ namespace Sds.Osdr.Generic.Domain
                 Images.Add(e.Image);
             }
 
+            UpdatedBy = e.UserId;
+            UpdatedDateTime = e.TimeStamp;
+        }
+
+        private void Apply(MetadataUpdated e)
+        {
+            Metadata = e.Metadata;
             UpdatedBy = e.UserId;
             UpdatedDateTime = e.TimeStamp;
         }
@@ -245,6 +254,11 @@ namespace Sds.Osdr.Generic.Domain
         public void GrantAccess(Guid userId, AccessPermissions accessPermissions)
         {
             ApplyChange(new PermissionsChanged(Id, userId, accessPermissions));
+        }
+
+        public void UpdateMetadata(Guid userId, IDictionary<string, string> metadata)
+        {
+            ApplyChange(new MetadataUpdated(Id, userId, metadata));
         }
     }
 }

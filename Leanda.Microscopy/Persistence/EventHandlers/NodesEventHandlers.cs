@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Leanda.Microscopy.Persistence.EventHandlers
 {
     public class NodesEventHandlers : IConsumer<MicroscopyFileCreated>,
-                                      IConsumer<MetadataUpdated>
+                                      IConsumer<BioMetadataUpdated>
     {
         protected readonly IMongoDatabase _database;
 
@@ -34,7 +34,7 @@ namespace Leanda.Microscopy.Persistence.EventHandlers
                 throw new ConcurrencyException(context.Message.Id);
         }
 
-        public async Task Consume(ConsumeContext<MetadataUpdated> context)
+        public async Task Consume(ConsumeContext<BioMetadataUpdated> context)
         {
             var filter = new BsonDocument("_id", context.Message.Id).Add("Version", context.Message.Version - 1);
             var update = Builders<BsonDocument>.Update
