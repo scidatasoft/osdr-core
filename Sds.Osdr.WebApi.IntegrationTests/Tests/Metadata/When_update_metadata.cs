@@ -40,26 +40,27 @@ namespace Sds.Osdr.WebApi.IntegrationTests
 
             JohnApi.PatchData(url, data).Wait();
 
-            //await JohnApi.RenameFolder(_folderId, "renamed folder");
+            Harness.WaitMetadataUpdated(FileId);
 
-            //Harness.WaitWhileFolderRenamed(_folderId);
+            var response = await JohnApi.GetFileEntityById(FileId);
+            response.EnsureSuccessStatusCode();
+            var json = JToken.Parse(await response.Content.ReadAsStringAsync());
 
-            //var response = await JohnApi.GetFolder(_folderId);
-            //         response.EnsureSuccessStatusCode();
-            //         var jsonFolder = JToken.Parse(await response.Content.ReadAsStringAsync());
-
-            //jsonFolder.Should().ContainsJson($@"
-            //{{
-            //	'id': '{_folderId}',
-            //	'createdBy': '{JohnId}',
-            //	'createdDateTime': *EXIST*,
-            //	'updatedBy': '{JohnId}',
-            //	'updatedDateTime': *EXIST*,
-            //	'ownedBy': '{JohnId}',
-            //	'name': 'renamed folder',
-            //	'status': 'Created',
-            //	'version': 2
-            //}}");
+            json.Should().ContainsJson($@"
+            {{
+            	'id': '{FileId}',
+            	'createdBy': '{JohnId}',
+            	'createdDateTime': *EXIST*,
+            	'updatedBy': '{JohnId}',
+            	'updatedDateTime': *EXIST*,
+            	'ownedBy': '{JohnId}',
+            	'version': 8,
+                'properties': {{
+                    'metadata':{{
+                        'test1': 'value1'
+                    }}
+                }}
+            }}");
         }
     }
 }
