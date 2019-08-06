@@ -389,6 +389,18 @@ namespace Sds.Osdr.WebApi.Controllers
                 });
             }
 
+            if(file.Metadata?.Count != 0)
+            {
+                Log.Information($"Update metadata for file {id}");
+                await _bus.Publish<UpdateMetadata>(new
+                {
+                    file.Metadata,
+                    Id = id,
+                    UserId = UserId.Value,
+                    ExpectedVersion = version
+                });
+            }
+
             if (file.ParentId != Guid.Empty)
             {
                 Log.Information($"Move file {id} to {file.ParentId}");
