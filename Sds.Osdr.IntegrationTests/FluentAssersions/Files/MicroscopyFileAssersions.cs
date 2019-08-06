@@ -39,7 +39,9 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                     { "MimeType", i.MimeType },
                     { "Scale", i.GetScale() }
                 })},
-                { "Metadata", file.Metadata }
+                { "Properties", new Dictionary<string, object>() {
+                    { "BioMetadata", file.BioMetadata }
+                }}
             });
         }
     }
