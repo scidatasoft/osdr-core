@@ -7,13 +7,13 @@ using System;
 using System.Threading.Tasks;
 using Sds.Osdr.Generic.Domain;
 
-namespace Sds.Osdr.Generic.BackEnd.CommandHandlers.Records
+namespace Sds.Osdr.Generic.BackEnd.CommandHandlers.Files
 {
-    public class UpdateFieldsCommandHandler : IConsumer<UpdateMetadata>
+    public class UpdateMetadataCommandHandler : IConsumer<UpdateMetadata>
     {
         private readonly ISession session;
 
-        public UpdateFieldsCommandHandler(ISession session)
+        public UpdateMetadataCommandHandler(ISession session)
         {
             this.session = session ?? throw new ArgumentNullException(nameof(session));
         }

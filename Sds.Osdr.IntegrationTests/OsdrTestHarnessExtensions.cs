@@ -610,5 +610,13 @@ namespace Sds.Osdr.IntegrationTests
                 throw new TimeoutException();
             }
         }
+
+        public static void WaitMetadataUpdated(this OsdrTestHarness harness, Guid id)
+        {
+            if (!harness.Received.Select<Generic.Domain.Events.Files.MetadataPersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+        }
     }
 }
