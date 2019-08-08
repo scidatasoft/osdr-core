@@ -34,7 +34,7 @@ namespace Leanda.Microscopy.Modules
 
         public bool IsSupported(BlobLoaded blob)
         {
-            return (new string[] { ".ims", ".czi", ".tif", ".lif", ".nd2" }).Contains(Path.GetExtension(blob.BlobInfo.FileName).ToLower());
+            return (new string[] { ".ims", ".czi", ".tif", ".lif", ".nd2", ".lsm" }).Contains(Path.GetExtension(blob.BlobInfo.FileName).ToLower());
         }
 
         public async Task Process(BlobLoaded blob)
