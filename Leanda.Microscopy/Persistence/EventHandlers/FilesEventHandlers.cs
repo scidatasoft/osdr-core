@@ -44,7 +44,7 @@ namespace Leanda.Microscopy.Persistence.EventHandlers
             var filter = new BsonDocument("_id", context.Message.Id).Add("Version", context.Message.Version - 1);
             var update = Builders<BsonDocument>.Update
                 //.Set("Properties", (new { BioMetadata = context.Message.Metadata.Select(m => new { Name = m.Key, Value = m.Value }) }).ToBsonDocument())
-                .Set("Properties", (new { BioMetadata = context.Message.Metadata.Select(m => new KeyValue<string> { Name = m.Key, Value = m.Value.ToString() }) }).ToBsonDocument())
+                .Set("Properties", (new { BioMetadata = context.Message.Metadata }).ToBsonDocument())
                 .Set("UpdatedBy", context.Message.UserId)
                 .Set("UpdatedDateTime", context.Message.TimeStamp.UtcDateTime)
                 .Set("Version", context.Message.Version);

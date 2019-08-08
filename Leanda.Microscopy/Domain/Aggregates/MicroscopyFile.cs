@@ -2,12 +2,13 @@
 using Leanda.Microscopy.Domain.Events;
 using System;
 using System.Collections.Generic;
+using Sds.Osdr.Domain;
 
 namespace Leanda.Microscopy.Domain
 {
     public class MicroscopyFile : File
     {
-        public IDictionary<string, object> BioMetadata { get; protected set; } = new Dictionary<string, object>();
+        public IList<KeyValue<string>> BioMetadata { get; protected set; } = new List<KeyValue<string>>();
 
         private void Apply(MicroscopyFileCreated e)
         {
@@ -32,7 +33,7 @@ namespace Leanda.Microscopy.Domain
 			ApplyChange(new MicroscopyFileCreated(Id));
 		}
 
-        public void UpdateBioMetadata(Guid userId, IDictionary<string, object> metadata)
+        public void UpdateBioMetadata(Guid userId, IList<KeyValue<string>> metadata)
         {
             ApplyChange(new BioMetadataUpdated(Id, userId, metadata));
         }

@@ -8,6 +8,7 @@ using MassTransit;
 using MassTransit.MongoDbIntegration.Saga;
 using Sds.Imaging.Domain.Commands;
 using Sds.Imaging.Domain.Events;
+using Sds.Osdr.Domain;
 using Sds.Osdr.Generic.Domain;
 using Sds.Osdr.Generic.Domain.Commands.Files;
 using Sds.Osdr.Generic.Domain.Events.Files;
@@ -16,6 +17,7 @@ using Sds.Osdr.Generic.Sagas.Events;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NodeStatusPersisted = Sds.Osdr.Generic.Domain.Events.Files.NodeStatusPersisted;
 using StatusPersisted = Sds.Osdr.Generic.Domain.Events.Files.StatusPersisted;
@@ -175,7 +177,7 @@ namespace Leanda.Microscopy.Sagas
                         {
                             Id = context.Instance.FileId,
                             UserId = context.Instance.UserId,
-                            Metadata = context.Data.Metadata
+                            Metadata = context.Data.Metadata.Select(i => new KeyValue<string> { Name = i.Key, Value = i.Value.ToString()})
                         });
                     }),
                 When(MetadataExtractionFailed)

@@ -1,4 +1,5 @@
 ﻿using Sds.CqrsLite.Events;
+using Sds.Osdr.Domain;
 using System;
 using System.Collections.Generic;
 
@@ -6,9 +7,9 @@ namespace Leanda.Microscopy.Domain.Events
 {
     public class BioMetadataUpdated : IUserEvent
     {
-        public readonly IDictionary<string, object> Metadata;
+        public readonly IList<KeyValue<string>> Metadata;
 
-        public BioMetadataUpdated(Guid id, Guid userId, IDictionary<string, object> metadata)
+        public BioMetadataUpdated(Guid id, Guid userId, IList<KeyValue<string>> metadata)
         {
             Id = id;
             UserId = userId;
