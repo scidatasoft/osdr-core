@@ -40,8 +40,11 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                     { "Scale", i.GetScale() }
                 })},
                 { "Properties", new Dictionary<string, object>() {
-                    { "BioMetadata", file.BioMetadata }
-                }}
+                    { "BioMetadata", file.BioMetadata.Select(i => new Dictionary<string, object> {
+                        { "Name", i.Name },
+                        { "Value", i.Value }
+                    })
+                }}}
             });
         }
     }
