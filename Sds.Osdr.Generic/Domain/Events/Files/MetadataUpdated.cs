@@ -1,4 +1,5 @@
 ﻿using Sds.CqrsLite.Events;
+using Sds.Osdr.Domain;
 using System;
 using System.Collections.Generic;
 
@@ -6,9 +7,9 @@ namespace Sds.Osdr.Generic.Domain.Events.Files
 {
     public class MetadataUpdated : IUserEvent
     {
-        public readonly IDictionary<string, string> Metadata;
+        public readonly IEnumerable<KeyValue<string>> Metadata;
 
-        public MetadataUpdated(Guid id, Guid userId, IDictionary<string, string> metadata)
+        public MetadataUpdated(Guid id, Guid userId, IEnumerable<KeyValue<string>> metadata)
         {
             Id = id;
             UserId = userId;

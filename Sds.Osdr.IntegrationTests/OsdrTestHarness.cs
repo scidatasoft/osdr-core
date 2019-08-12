@@ -186,6 +186,14 @@ namespace Sds.Osdr.IntegrationTests
                     e.Handler<Generic.Domain.Events.Files.PermissionChangedPersisted>(context => { Received.Add(context); return Task.CompletedTask; });
 
                     e.Handler<Generic.Domain.Events.Files.MetadataPersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Generic.Domain.Events.Files.FileNamePersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Generic.Domain.Events.Nodes.RenamedFilePersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Generic.Domain.Events.Nodes.MovedFilePersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Generic.Domain.Events.Files.FileParentPersisted>(context => { Received.Add(context); return Task.CompletedTask; });
                 });
 
                 x.UseConcurrencyLimit(mtSettings.ConcurrencyLimit);

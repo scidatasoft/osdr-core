@@ -14,29 +14,39 @@ using Xunit.Abstractions;
 
 namespace Sds.Osdr.WebApi.IntegrationTests.GenericFiles
 {
-    public class UploadPngFixture
+    public class MoveFileFixture
     {
         public Guid BlobId { get; set; }
         public Guid FileId { get; set; }
+        public Guid FolderId { get; set; }
 
-        public UploadPngFixture(OsdrWebTestHarness harness)
+        public MoveFileFixture(OsdrWebTestHarness harness)
         {
             BlobId = harness.JohnBlobStorageClient.AddResource(harness.JohnId.ToString(), "Chemical-diagram.png", new Dictionary<string, object>() { { "parentId", harness.JohnId } }).Result;
 
             FileId = harness.WaitWhileFileProcessed(BlobId);
+
+            var folderResponse = harness.JohnApi.CreateFolderEntity(harness.JohnId, "test1").Result;
+            var folderLocation = folderResponse.Headers.Location.ToString();
+            FolderId = Guid.Parse(folderLocation.Substring(folderLocation.LastIndexOf("/") + 1));
+            var file = harness.Session.Get<File>(FileId).Result;
+            var response = harness.JohnApi.SetParentFolder__New(FileId, file.Version, FolderId).Result;
+            harness.WaitWhileFileMoved(FileId);
         }
     }
 
     [Collection("OSDR Test Harness")]
-    public class UploadPng : OsdrWebTest, IClassFixture<UploadPngFixture>
+    public class MoveFileTests : OsdrWebTest, IClassFixture<MoveFileFixture>
     {
         private Guid BlobId { get; set; }
         private Guid FileId { get; set; }
+        public Guid FolderId { get; set; }
 
-        public UploadPng(OsdrWebTestHarness fixture, ITestOutputHelper output, UploadPngFixture initFixture) : base(fixture, output)
+        public MoveFileTests(OsdrWebTestHarness fixture, ITestOutputHelper output, MoveFileFixture initFixture) : base(fixture, output)
         {
             BlobId = initFixture.BlobId;
             FileId = initFixture.FileId;
+            FolderId = initFixture.FolderId;
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Generic)]
@@ -64,7 +74,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.GenericFiles
 				'createdDateTime': '{DateTime.UtcNow}',
 				'updatedBy': '{JohnId}',
 				'updatedDateTime': '{DateTime.UtcNow}',
-				'parentId': '{JohnId}',
+				'parentId': '{FolderId}',
 				'name': '{blobInfo.FileName}',
 				'status': '{FileStatus.Processed}',
 				'version': *EXIST*
@@ -97,7 +107,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.GenericFiles
 				'updatedBy': '{JohnId}',
 				'updatedDateTime': '{DateTime.UtcNow}',
 				'name': '{blobInfo.FileName}',
-				'parentId': '{JohnId}',
+				'parentId': '{FolderId}',
 				'version': *EXIST*
 			}}");
         }

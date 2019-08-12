@@ -204,7 +204,7 @@ namespace Sds.Osdr.Generic.Persistence.EventHandlers.Files
         {
             var filter = new BsonDocument("_id", context.Message.Id).Add("Version", context.Message.Version - 1);
             var update = Builders<BsonDocument>.Update
-                .Set("Properties.Metadata", context.Message.Metadata)
+                .Set("Properties", new { Metadata = context.Message.Metadata }.ToBsonDocument())
                 .Set("UpdatedBy", context.Message.UserId)
                 .Set("UpdatedDateTime", context.Message.TimeStamp.UtcDateTime)
                 .Set("Version", context.Message.Version);

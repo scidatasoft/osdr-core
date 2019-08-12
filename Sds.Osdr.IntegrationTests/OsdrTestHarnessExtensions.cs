@@ -494,6 +494,32 @@ namespace Sds.Osdr.IntegrationTests
             }
         }
 
+        public static void WaitWhileFileRenamed(this OsdrTestHarness harness, Guid id)
+        {
+            if (!harness.Received.Select<Generic.Domain.Events.Files.FileNamePersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+
+            if (!harness.Received.Select<Generic.Domain.Events.Nodes.RenamedFilePersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+        }
+
+        public static void WaitWhileFileMoved(this OsdrTestHarness harness, Guid id)
+        {
+            if (!harness.Received.Select<Generic.Domain.Events.Files.FileParentPersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+
+            if (!harness.Received.Select<Generic.Domain.Events.Nodes.MovedFilePersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+        }
+
         //public static void WaitWhileFolderShared(this BusTestHarness harness, Guid id)
         //{
         //    if (!harness.Published.Select<Generic.Domain.Events.Folders.PermissionChangedPersisted>(m => m.Context.Message.Id == id).Any())

@@ -14,26 +14,30 @@ using Xunit.Abstractions;
 
 namespace Sds.Osdr.WebApi.IntegrationTests.GenericFiles
 {
-    public class UploadPngFixture
+    public class UpdateFileNameFixture
     {
         public Guid BlobId { get; set; }
         public Guid FileId { get; set; }
 
-        public UploadPngFixture(OsdrWebTestHarness harness)
+        public UpdateFileNameFixture(OsdrWebTestHarness harness)
         {
             BlobId = harness.JohnBlobStorageClient.AddResource(harness.JohnId.ToString(), "Chemical-diagram.png", new Dictionary<string, object>() { { "parentId", harness.JohnId } }).Result;
 
             FileId = harness.WaitWhileFileProcessed(BlobId);
+
+            var file = harness.Session.Get<File>(FileId).Result;
+            var response = harness.JohnApi.SetFileName__New(FileId, file.Version, FileId.ToString()).Result;
+            harness.WaitWhileFileRenamed(FileId);
         }
     }
 
     [Collection("OSDR Test Harness")]
-    public class UploadPng : OsdrWebTest, IClassFixture<UploadPngFixture>
+    public class UpdateFileNameTests : OsdrWebTest, IClassFixture<UpdateFileNameFixture>
     {
         private Guid BlobId { get; set; }
         private Guid FileId { get; set; }
 
-        public UploadPng(OsdrWebTestHarness fixture, ITestOutputHelper output, UploadPngFixture initFixture) : base(fixture, output)
+        public UpdateFileNameTests(OsdrWebTestHarness fixture, ITestOutputHelper output, UpdateFileNameFixture initFixture) : base(fixture, output)
         {
             BlobId = initFixture.BlobId;
             FileId = initFixture.FileId;
@@ -65,7 +69,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.GenericFiles
 				'updatedBy': '{JohnId}',
 				'updatedDateTime': '{DateTime.UtcNow}',
 				'parentId': '{JohnId}',
-				'name': '{blobInfo.FileName}',
+				'name': '{FileId.ToString()}',
 				'status': '{FileStatus.Processed}',
 				'version': *EXIST*
 			}}");
@@ -96,7 +100,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.GenericFiles
 				'createdDateTime': '{DateTime.UtcNow}',
 				'updatedBy': '{JohnId}',
 				'updatedDateTime': '{DateTime.UtcNow}',
-				'name': '{blobInfo.FileName}',
+				'name': '{FileId.ToString()}',
 				'parentId': '{JohnId}',
 				'version': *EXIST*
 			}}");

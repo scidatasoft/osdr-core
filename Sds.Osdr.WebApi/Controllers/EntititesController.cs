@@ -347,80 +347,70 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <param name="version">Version object</param>
         /// <returns></returns>
         /// <response code="202">file updating started</response>
-        /// <response code="400">new file name is not valid</response>
+        /// <response code="404">file not found</response>
         [ProducesResponseType(202)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         [HttpPatch("files/{id}")]
-        public async Task<IActionResult> PatchFile(Guid id, [FromBody]JsonPatchDocument<UpdatedEntityData> request, int version)
+        public async Task<IActionResult> PatchFile(Guid id, [FromBody]UpdateEntityRequest request, int version)
         {
             BsonDocument filter = new OrganizeFilter(UserId.Value).ById(id);
 
-            var permissions = await Database.GetCollection<dynamic>("Files").Aggregate().Match(filter)
-                .Lookup<BsonDocument, BsonDocument>(nameof(AccessPermissions), "_id", "_id", nameof(AccessPermissions))
-                .Unwind(nameof(AccessPermissions), new AggregateUnwindOptions<BsonDocument> { PreserveNullAndEmptyArrays = true })
-                .Project("{AccessPermissions:1}")
+            var fileView = await Database.GetCollection<dynamic>("Files").Aggregate().Match(filter)
                 .FirstOrDefaultAsync();
 
-            if (permissions is null)
+            if (fileView is null)
                 return NotFound();
 
-            var file = new UpdatedEntityData() { Id = id };
-
-            if (permissions.Contains(nameof(AccessPermissions)))
-                file.Permissions = BsonSerializer.Deserialize<AccessPermissions>(permissions[nameof(AccessPermissions)].AsBsonDocument);
-
-            request.ApplyTo(file);
-
-            if (!string.IsNullOrEmpty(file.Name))
+            if (!string.IsNullOrEmpty(request.Name))
             {
-                if (_invalidName.IsMatch(file.Name?.Trim() ?? string.Empty))
+                if (_invalidName.IsMatch(request.Name?.Trim() ?? string.Empty))
                 {
-                    Log.Error($"Invalid file name {file.Name}");
+                    Log.Error($"Invalid file name {request.Name}");
                     return BadRequest();
                 }
 
-                Log.Information($"Renaming file {id} to { file.Name}");
+                Log.Information($"Renaming file {id} to { request.Name}");
                 await _bus.Publish<RenameFile>(new
                 {
                     Id = id,
                     UserId = UserId.Value,
-                    NewName = file.Name.Trim(),
+                    NewName = request.Name.Trim(),
                     ExpectedVersion = version
                 });
             }
 
-            if(file.Metadata?.Count != 0)
+            if(request.Metadata.Any())
             {
                 Log.Information($"Update metadata for file {id}");
                 await _bus.Publish<UpdateMetadata>(new
                 {
-                    file.Metadata,
+                    request.Metadata,
                     Id = id,
                     UserId = UserId.Value,
                     ExpectedVersion = version
                 });
             }
 
-            if (file.ParentId != Guid.Empty)
+            if (request.ParentId != Guid.Empty)
             {
-                Log.Information($"Move file {id} to {file.ParentId}");
+                Log.Information($"Move file {id} to {request.ParentId}");
                 await _bus.Publish<MoveFile>(new
                 {
                     Id = id,
                     UserId = UserId.Value,
-                    NewParentId = file.ParentId,
+                    NewParentId = request.ParentId,
                     ExpectedVersion = version
                 });
             }
 
-            if (request.Operations.Any(o => o.path.Contains("/Permissions")))
+            if (request.Permissions.IsPublic != null)
             {
                 Log.Information($"Grant access to file {id}");
                 await _bus.Publish<Generic.Domain.Commands.Files.GrantAccess>(new
                 {
                     Id = id,
                     UserId = UserId.Value,
-                    file.Permissions
+                    request.Permissions
                 });
             }
 
@@ -439,7 +429,7 @@ namespace Sds.Osdr.WebApi.Controllers
         [ProducesResponseType(202)]
         [ProducesResponseType(400)]
         [HttpPatch("folders/{id}")]
-        public async Task<IActionResult> PatchFolder(Guid id, [FromBody]JsonPatchDocument<UpdatedEntityData> request, int version)
+        public async Task<IActionResult> PatchFolder(Guid id, [FromBody]JsonPatchDocument<UpdateEntityRequest> request, int version)
         {
             Log.Information($"Updating folder {id}");
 
@@ -454,7 +444,7 @@ namespace Sds.Osdr.WebApi.Controllers
             if (folderToUpdate is null)
                 return NotFound();
 
-            var folder = new UpdatedEntityData() { Id = id };
+            var folder = new UpdateEntityRequest() { Id = id };
 
             if (folderToUpdate.Contains(nameof(AccessPermissions)))
                 folder.Permissions = BsonSerializer.Deserialize<AccessPermissions>(folderToUpdate[nameof(AccessPermissions)].AsBsonDocument);
@@ -519,7 +509,7 @@ namespace Sds.Osdr.WebApi.Controllers
         [ProducesResponseType(202)]
         [ProducesResponseType(400)]
         [HttpPatch("models/{id}")]
-        public async Task<IActionResult> PatchModel(Guid id, [FromBody]JsonPatchDocument<UpdatedEntityData> request, int version)
+        public async Task<IActionResult> PatchModel(Guid id, [FromBody]JsonPatchDocument<UpdateEntityRequest> request, int version)
         {
             Log.Information($"Updating model {id}");
 
@@ -534,7 +524,7 @@ namespace Sds.Osdr.WebApi.Controllers
             if (modelToUpdate is null)
                 return NotFound();
 
-            var model = new UpdatedEntityData() { Id = id };
+            var model = new UpdateEntityRequest() { Id = id };
 
             if (modelToUpdate.Contains(nameof(AccessPermissions)))
                 model.Permissions = BsonSerializer.Deserialize<AccessPermissions>(modelToUpdate[nameof(AccessPermissions)].AsBsonDocument);

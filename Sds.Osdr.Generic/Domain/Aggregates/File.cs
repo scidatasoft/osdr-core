@@ -1,4 +1,5 @@
 ﻿using CQRSlite.Domain;
+using Sds.Osdr.Domain;
 using Sds.Osdr.Generic.Domain.Events.Files;
 using Sds.Osdr.Generic.Domain.ValueObjects;
 using System;
@@ -102,7 +103,7 @@ namespace Sds.Osdr.Generic.Domain
 
         public IList<Image> Images { get; protected set; } = new List<Image>();
 
-        public IDictionary<string, string> Metadata { get; private set; }
+        public IEnumerable<KeyValue<string>> Metadata { get; private set; }
 
         /// <summary>
         /// Current file status
@@ -256,7 +257,7 @@ namespace Sds.Osdr.Generic.Domain
             ApplyChange(new PermissionsChanged(Id, userId, accessPermissions));
         }
 
-        public void UpdateMetadata(Guid userId, IDictionary<string, string> metadata)
+        public void UpdateMetadata(Guid userId, IEnumerable<KeyValue<string>> metadata)
         {
             ApplyChange(new MetadataUpdated(Id, userId, metadata));
         }

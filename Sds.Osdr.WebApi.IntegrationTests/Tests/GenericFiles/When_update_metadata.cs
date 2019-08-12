@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Sds.Osdr.WebApi.IntegrationTests
+namespace Sds.Osdr.WebApi.IntegrationTests.GenericFiles
 {
     [Collection("OSDR Test Harness")]
     public class UpdateMetadata : OsdrWebTest
@@ -26,17 +26,21 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             FileId = fixture.WaitWhileFileProcessed(BlobId);
         }
 
-        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
+        [Fact, WebApiTrait(TraitGroup.All)]
 		public async Task UpdateMetadata_UpdateGenericMetadata_ExpectedRenamedFolder()
 		{
             var processedFile = await Harness.Session.Get<File>(FileId);
 
             var url = $"/api/entities/files/{FileId}?version={processedFile.Version}";
-            var data = $"[{{" +
-                    $"'op':'replace'," +
-                    $"'path':'Metadata'," +
-                    $"'value': {{'test1':'value1'}}" +
-                $"}}]";
+            var data = $"{{" +
+                       $"    'Metadata':" +
+                       $"    [" +
+                       $"      {{" +
+                       $"          'name':'test1'," +
+                       $"          'value': 'value1'" +
+                       $"      }}" +
+                       $"    ]" +
+                       $"}}";
 
             JohnApi.PatchData(url, data).Wait();
 
@@ -56,9 +60,13 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             	'ownedBy': '{JohnId}',
             	'version': 8,
                 'properties': {{
-                    'metadata':{{
-                        'test1': 'value1'
-                    }}
+                    'metadata':
+                    [
+                        {{ 
+                            'name': 'test1',
+                            'value': 'value1'
+                        }}
+                    ]
                 }}
             }}");
         }

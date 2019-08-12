@@ -55,4 +55,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Tests\Metadata\" />
+  </ItemGroup>
+
 </Project>
