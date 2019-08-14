@@ -245,7 +245,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
                 'version': 11,
                 'method': 'NaiveBayes',
                 'className': 'ClassName',
-                'subSampleSize': '0,2',
+                'subSampleSize': '0.2',
                 'kFold': 4,
                 'fingerprints': [
                 {{
