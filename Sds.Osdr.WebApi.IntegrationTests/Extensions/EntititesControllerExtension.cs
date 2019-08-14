@@ -79,7 +79,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Extensions
         {
             var url = $"/api/entities/files/{fileId}?version={version}";
             var data = $"{{'Permissions':" +
-                            $"{{IsPublic': {isPublic.ToString().ToLower()}}}" +
+                            $"{{'IsPublic': {isPublic.ToString().ToLower()}}}" +
                 $"}}";
 
             return await client.PatchData(url, data);
