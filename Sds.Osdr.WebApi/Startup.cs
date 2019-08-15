@@ -156,18 +156,14 @@ namespace Sds.Osdr.WebApi
             //services.AddScoped(s => s.GetService<IConnectionMultiplexer>().GetDatabase());
             try
             {
-                var connectionString = Environment.ExpandEnvironmentVariables(Configuration["OsdrConnectionSettings:ConnectionString"]);
-                services.AddTransient<IBlobStorage, GridFsStorage>(
-                    x => new GridFsStorage(connectionString, Configuration["OsdrConnectionSettings:DatabaseName"])
-                );
-                Log.Information($"Connecting to MongoDB {connectionString}");
-                var mongoClient = new MongoClient(connectionString);
-                services.AddSingleton(mongoClient);
-                var database = Configuration["OsdrConnectionSettings:DatabaseName"];
-                Log.Information($"Using to MongoDB database {database}");
-                services.AddSingleton(service => service.GetService<MongoClient>().GetDatabase(database));
-                services.AddTransient<IOrganizeDataProvider>(service => new OrganizeDataProvider(mongoClient.GetDatabase(database), service.GetService<IBlobStorage>()));
+                var mongoConnectionString = Environment.ExpandEnvironmentVariables(Configuration["OsdrConnectionSettings:ConnectionString"]);
+                var mongoUrl = new MongoUrl(mongoConnectionString);
 
+                Log.Information($"Connecting to MongoDB {mongoConnectionString}");
+                services.AddTransient<IBlobStorage, GridFsStorage>(x => new GridFsStorage(x.GetService<IMongoDatabase>()));
+                services.AddSingleton(new MongoClient(mongoUrl));
+                services.AddSingleton(service => service.GetService<MongoClient>().GetDatabase(mongoUrl.DatabaseName));
+                services.AddTransient<IOrganizeDataProvider>(service => new OrganizeDataProvider(service.GetService<IMongoDatabase>(), service.GetService<IBlobStorage>()));
             }
             catch (Exception ex)
             {

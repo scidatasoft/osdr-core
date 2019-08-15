@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Flurl;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -24,12 +27,18 @@ namespace Sds.Osdr.IntegrationTests
 
     public class KeyCloalClient : HttpClient
     {
-        public Uri Authority { get; } = new Uri("http://keycloak:8080/auth/realms/OSDR/");
+        public string Authority { get; }
         public string ClientId { get; } = "osdr_webapi";
         public string ClientSecret { get; } = "52f5b3fc-2167-40b1-9508-6bb3091782bd";
 
         public KeyCloalClient() : base()
         {
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile($"appsettings.json", false, true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            Authority = Environment.ExpandEnvironmentVariables(configuration["KeyCloak:Authority"]);
         }
 
         public async Task<Token> GetToken(string username, string password)
@@ -38,8 +47,8 @@ namespace Sds.Osdr.IntegrationTests
             nvc.Add(new KeyValuePair<string, string>("username", username));
             nvc.Add(new KeyValuePair<string, string>("password", password));
             nvc.Add(new KeyValuePair<string, string>("grant_type", "password"));
-
-            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(Authority, "protocol/openid-connect/token")) { Content = new FormUrlEncodedContent(nvc) };
+            
+            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(Url.Combine(Authority, "protocol/openid-connect/token"))) { Content = new FormUrlEncodedContent(nvc) };
 
             DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{ClientId}:{ClientSecret}")));
 
@@ -53,7 +62,7 @@ namespace Sds.Osdr.IntegrationTests
             var nvc = new List<KeyValuePair<string, string>>();
             nvc.Add(new KeyValuePair<string, string>("grant_type", "client_credentials"));
 
-            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(Authority, "protocol/openid-connect/token")) { Content = new FormUrlEncodedContent(nvc) };
+            var request = new HttpRequestMessage(HttpMethod.Post, new Uri(Url.Combine(Authority, "protocol/openid-connect/token"))) { Content = new FormUrlEncodedContent(nvc) };
 
             DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{clientId}:{secret}")));
 
@@ -73,7 +82,7 @@ namespace Sds.Osdr.IntegrationTests
         {
             DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var userInfoResponse = await GetAsync(new Uri(Authority, "protocol/openid-connect/userinfo"));
+            var userInfoResponse = await GetAsync(new Uri(Url.Combine(Authority, "protocol/openid-connect/userinfo")));
 
             var json = await userInfoResponse.Content.ReadAsStringAsync();
 

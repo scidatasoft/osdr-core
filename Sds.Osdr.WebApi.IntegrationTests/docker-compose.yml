@@ -72,7 +72,6 @@ services:
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_REDIS=redis
@@ -94,7 +93,6 @@ services:
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_REDIS=redis
@@ -116,7 +114,7 @@ services:
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
     command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./Sds.Osdr.Domain.SagaHost
@@ -134,7 +132,7 @@ services:
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
     command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./Sds.Osdr.Persistence
@@ -154,7 +152,7 @@ services:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
       - OSDR_REDIS=redis
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       #- OSDR_ES=http://elasticsearch:9200
@@ -181,7 +179,7 @@ services:
     environment:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - SWAGGER_BASEPATH=/blob/v1
       - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
@@ -199,10 +197,11 @@ services:
     entrypoint: /bin/bash
     environment:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
+      - OSDR_BLOB_STORAGE_API=http://blob-storage-api:18006/api/blobs/
       - OSDR_REDIS=redis
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-      - OSDR_GRID_FS=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
+      - OSDR_GRID_FS=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_WEB_API=http://core-web-api:18006
@@ -223,8 +222,3 @@ services:
 
 networks:
   leanda-net:
-
-#volumes:
-#  test-results:
-#    external: true
-#    name: test-results
