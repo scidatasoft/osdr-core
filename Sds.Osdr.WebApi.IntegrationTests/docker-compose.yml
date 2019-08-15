@@ -205,9 +205,9 @@ services:
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_WEB_API=http://core-web-api:18006
-      - OSDR_LOG_LEVEL=Debug
-    command: ./wait-for-it.sh http://core-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console /Tests:PdfUpload_ValidPdf_GenerateExpectedFileEntity
-    #command: ./wait-for-it.sh http://core-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console;verbosity="normal"
+      - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
+    # command: ./wait-for-it.sh http://core-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console /Tests:PdfUpload_ValidPdf_GenerateExpectedFileEntity
+    command: ./wait-for-it.sh http://core-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console;verbosity="normal"
     #command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:"trx;LogFileName=webapi-integrationtests-results-${BUILD_NUMBER}.xml" /ResultsDirectory:/results
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs

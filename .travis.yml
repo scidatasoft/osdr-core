@@ -44,13 +44,13 @@ jobs:
         - docker build -t $LEANDA_WEBAPI_INTEGRATION_TESTS_IMAGE:ci -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
         - docker images
         - yes | cp -rf Sds.Osdr.WebApi.IntegrationTests/.env.travis-ci Sds.Osdr.WebApi.IntegrationTests/.env
-        - cd Sds.Osdr.WebApi.IntegrationTests && printenv && docker-compose config && docker-compose up --abort-on-container-exit
+        - cd Sds.Osdr.WebApi.IntegrationTests && docker-compose up --abort-on-container-exit
     - script:
         - docker load -i $DOCKER_CACHE_FILE
         - docker build -t leanda/integration:ci -f Sds.Osdr.IntegrationTests/Dockerfile .
         - docker images
         - yes | cp -rf Sds.Osdr.IntegrationTests/.env.travis-ci Sds.Osdr.IntegrationTests/.env
-        - cd Sds.Osdr.IntegrationTests && printenv && docker-compose config && docker-compose up --abort-on-container-exit
+        - cd Sds.Osdr.IntegrationTests && docker-compose up --abort-on-container-exit
       name: Run processing integration tests
     - stage: Deploy
       name: Deploy new images to docker hub
