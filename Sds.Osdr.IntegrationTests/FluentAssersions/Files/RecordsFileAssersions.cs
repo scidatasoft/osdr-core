@@ -68,7 +68,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                 }));
             }
 			
-            assertions.Subject.ShouldAllBeEquivalentTo(expected);
+            assertions.Subject.Should().BeEquivalentTo(expected);
         }
 
         public static void NodeShouldBeEquivalentTo(this GenericDictionaryAssertions<string, object> assertions, RecordsFile.Domain.RecordsFile file)
@@ -114,7 +114,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                 }));
             }
 
-            assertions.Subject.ShouldAllBeEquivalentTo(expected);
+            assertions.Subject.Should().BeEquivalentTo(expected);
         }
         public static void NodeShouldBeEquivalentToJson(this GenericCollectionAssertions<Newtonsoft.Json.Linq.JToken> assertions, Newtonsoft.Json.Linq.JObject record)
         {
@@ -157,7 +157,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
             var dAssertion = convertToDictionary((Newtonsoft.Json.Linq.JToken)assertions.Subject);
             var dRecord = convertToDictionary(record);
 
-            dAssertion.ShouldAllBeEquivalentTo(dRecord);
+            dAssertion.Should().BeEquivalentTo(dRecord);
         }
         public static void ContainsJson(this GenericCollectionAssertions<JToken> asserions, Dictionary<string, object> file)
         {

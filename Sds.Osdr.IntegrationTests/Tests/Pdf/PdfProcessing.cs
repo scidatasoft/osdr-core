@@ -46,7 +46,7 @@ namespace Sds.Osdr.IntegrationTests
 
             var file = await Session.Get<PdfFile>(FileId);
             file.Should().NotBeNull();
-            file.Should().ShouldBeEquivalentTo(new
+            file.Should().Should().BeEquivalentTo(new
             {
                 Id = FileId,
                 Type = FileType.Pdf,

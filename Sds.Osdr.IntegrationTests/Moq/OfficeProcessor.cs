@@ -47,7 +47,7 @@ namespace Sds.Osdr.Domain.IntegrationTests.Moq
             var meta = new List<Property>()
             {
                 new Property( "CreatedBy", "John Doe"),
-                new Property("CreatedDateTime", DateTimeOffset.UtcNow)
+                new Property("CreatedDateTime", DateTimeOffset.UtcNow.ToString())
             };
 
             await context.Publish<MetaExtracted>(new

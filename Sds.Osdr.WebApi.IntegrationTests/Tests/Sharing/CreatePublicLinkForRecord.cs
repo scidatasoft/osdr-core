@@ -57,8 +57,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Blobs
 
             var blobResponse = await UnauthorizedApi.GetBlobRecordEntityById(recordId, recordBlobId);
             blobResponse.EnsureSuccessStatusCode();
-            blobResponse.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
-            blobResponse.Content.Headers.ContentType.MediaType.ShouldBeEquivalentTo("chemical/x-mdl-molfile");
+            blobResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            blobResponse.Content.Headers.ContentType.MediaType.Should().Be("chemical/x-mdl-molfile");
             blobResponse.Content.Headers.ContentLength.Should().BeGreaterThan(1500);
             //blobResponse.Content.Headers.ContentDisposition.FileName.Should().NotBeNullOrEmpty();
         }
@@ -77,8 +77,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Blobs
 
             var blobResponse = await JohnApi.GetBlobRecordEntityById(recordId, recordBlobId);
             blobResponse.EnsureSuccessStatusCode();
-            blobResponse.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
-            blobResponse.Content.Headers.ContentType.MediaType.ShouldBeEquivalentTo("chemical/x-mdl-molfile");
+            blobResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            blobResponse.Content.Headers.ContentType.MediaType.Should().Be("chemical/x-mdl-molfile");
             blobResponse.Content.Headers.ContentLength.Should().BeGreaterThan(1500);
             //blobResponse.Content.Headers.ContentDisposition.FileName.Should().NotBeNullOrEmpty();
         }

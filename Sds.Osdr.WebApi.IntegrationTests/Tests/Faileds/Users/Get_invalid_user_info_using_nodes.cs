@@ -20,8 +20,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         public async Task WebApi_GetUserInfoUsingNodesEndpoint_ReturnsError()
         {
             var response = await UnauthorizedApi.GetNodeById(JohnId);
-            response.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
-            response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.Forbidden);
+            response.IsSuccessStatusCode.Should().Be(false);
+            response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         }
     }
 }

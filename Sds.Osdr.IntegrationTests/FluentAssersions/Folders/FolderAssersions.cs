@@ -11,7 +11,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
         {
             assertions.Subject.Should().NotBeNull();
 
-            assertions.Subject.ShouldAllBeEquivalentTo(new Dictionary<string, object>()
+            assertions.Subject.Should().BeEquivalentTo(new Dictionary<string, object>()
             {
                 { "_id", folder.Id},
                 { "CreatedBy", folder.CreatedBy },
@@ -31,7 +31,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
         {
             assertions.Subject.Should().NotBeNull();
 
-            assertions.Subject.ShouldAllBeEquivalentTo(new Dictionary<string, object>()
+            assertions.Subject.Should().BeEquivalentTo(new Dictionary<string, object>()
             {
                 { "_id", folder.Id},
                 { "Type", "Folder" },

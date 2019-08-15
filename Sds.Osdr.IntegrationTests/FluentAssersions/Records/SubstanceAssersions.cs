@@ -18,7 +18,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
             {
                 { "_id", record.Id},
                 { "Type", record.RecordType.ToString() },
-                { "Name", record.Index },
+                { "Name", record.Index.ToString() },
                 { "FileId", record.ParentId },
                 { "Blob", new Dictionary<string, object>() {
                     { "_id", record.BlobId },
@@ -74,7 +74,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                 }
             }
 
-            assertions.Subject.ShouldAllBeEquivalentTo(expected);
+            assertions.Subject.Should().BeEquivalentTo(expected);
         }
 
         public static void NodeShouldBeEquivalentTo(this GenericDictionaryAssertions<string, object> assertions, Record record)
@@ -86,7 +86,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                 { "_id", record.Id},
                 { "Type", "Record" },
                 { "SubType", record.RecordType.ToString() },
-                { "Name", record.Index },
+                { "Name", record.Index.ToString() },
                 { "Blob", new Dictionary<string, object>() {
                     { "_id", record.BlobId },
                     { "Bucket", record.Bucket },
@@ -115,7 +115,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                 }));
             }
 
-            assertions.Subject.ShouldAllBeEquivalentTo(expected);
+            assertions.Subject.Should().BeEquivalentTo(expected);
         }
 
         public static void EntityShouldBeEquivalentTo(this GenericDictionaryAssertions<string, object> assertions, InvalidRecord record)
@@ -138,7 +138,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                 { "Version", record.Version }
             };
 
-            assertions.Subject.ShouldAllBeEquivalentTo(expected);
+            assertions.Subject.Should().BeEquivalentTo(expected);
         }
 
         public static void NodeShouldBeEquivalentTo(this GenericDictionaryAssertions<string, object> assertions, InvalidRecord record)
@@ -150,7 +150,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                 { "_id", record.Id},
                 { "Type", "Record" },
                 { "SubType", record.RecordType.ToString() },
-                { "Name", record.Index },
+                { "Name", record.Index.ToString() },
                 { "OwnedBy", record.OwnedBy },
                 { "CreatedBy", record.CreatedBy },
                 { "CreatedDateTime", record.CreatedDateTime.UtcDateTime },
@@ -163,7 +163,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                 { "Version", record.Version }
             };
 
-            assertions.Subject.ShouldAllBeEquivalentTo(expected);
+            assertions.Subject.Should().BeEquivalentTo(expected);
         }
     }
 }

@@ -51,10 +51,10 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Blobs
 
             var blobResponse = await JohnApi.GetImagesFileEntityById(FileId, imageId);
             blobResponse.EnsureSuccessStatusCode();
-            blobResponse.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
-            blobResponse.Content.Headers.ContentType.MediaType.ShouldBeEquivalentTo("application/octet-stream");
+            blobResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            blobResponse.Content.Headers.ContentType.MediaType.Should().Be("application/octet-stream");
             blobResponse.Content.Headers.ContentLength.Should().BeGreaterThan(10000);
-            blobResponse.Content.Headers.ContentDisposition.FileName.ShouldBeEquivalentTo("Aspirin.mol.svg");
+            blobResponse.Content.Headers.ContentDisposition.FileName.Should().Be("Aspirin.mol.svg");
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Sharing)]
@@ -66,10 +66,10 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Blobs
 
             var blobResponse = await UnauthorizedApi.GetImagesFileEntityById(FileId, imageId);
             blobResponse.EnsureSuccessStatusCode();
-            blobResponse.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
-            blobResponse.Content.Headers.ContentType.MediaType.ShouldBeEquivalentTo("application/octet-stream");
+            blobResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            blobResponse.Content.Headers.ContentType.MediaType.Should().Be("application/octet-stream");
             blobResponse.Content.Headers.ContentLength.Should().BeGreaterThan(10000);
-            blobResponse.Content.Headers.ContentDisposition.FileName.ShouldBeEquivalentTo("Aspirin.mol.svg");
+            blobResponse.Content.Headers.ContentDisposition.FileName.Should().Be("Aspirin.mol.svg");
         }
     }
 }

@@ -36,10 +36,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             Harness.WaitWhileFolderDeleted(_folderId);
 
             var notFoundResponse = await JohnApi.GetFolder(_folderId);
-	        notFoundResponse.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
-            //Should not return Forbid status code
-            response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.Forbidden);
-//            responseBeNotFoundFolder.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotFound);
+	        notFoundResponse.IsSuccessStatusCode.Should().Be(false);
+            response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         }
     }
 }

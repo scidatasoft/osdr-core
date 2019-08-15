@@ -12,7 +12,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
     {
         public static void EntityShouldBeEquivalentTo(this GenericDictionaryAssertions<string, object> assertions, OfficeFile file)
         {
-            assertions.Subject.ShouldAllBeEquivalentTo(new Dictionary<string, object>
+            assertions.Subject.Should().BeEquivalentTo(new Dictionary<string, object>
             {
                 { "_id", file.Id},
                 { "Blob", new Dictionary<string, object>() {

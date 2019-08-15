@@ -39,7 +39,7 @@ namespace Sds.Osdr.IntegrationTests
             var folder = await Session.Get<Folder>(FolderId);
 
 			folder.Should().NotBeNull();
-			folder.Should().ShouldBeEquivalentTo(new {
+			folder.Should().BeEquivalentTo(new {
                 Id = FolderId,
                 OwnedBy = JohnId,
                 CreatedBy= JohnId,

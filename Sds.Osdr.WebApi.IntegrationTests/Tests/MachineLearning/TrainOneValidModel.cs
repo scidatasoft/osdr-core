@@ -219,7 +219,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             modelResponse.EnsureSuccessStatusCode();
             var modelJson = JToken.Parse(await modelResponse.Content.ReadAsStringAsync());
 
-            modelJson["status"].ToObject<string>().ShouldBeEquivalentTo("Processed");
+            modelJson["status"].ToObject<string>().Should().Be("Processed");
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.MachineLearning)]

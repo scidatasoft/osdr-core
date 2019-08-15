@@ -70,8 +70,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Streams
         public async Task Stream_UseJane_ReturnProhibitedAccess()
         {
             var response = await JaneApi.GetStreamFileEntityById(FileId, 0, 1);
-            response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.Forbidden);
-            response.ReasonPhrase.ShouldAllBeEquivalentTo("Forbidden");
+            response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+            response.ReasonPhrase.Should().Be("Forbidden");
         }
     }
 }

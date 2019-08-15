@@ -192,7 +192,7 @@ namespace Sds.Osdr.IntegrationTests
                 var file = await Harness.Session.Get<File>(fileId);
                 var fileEntity = Files.Find(new BsonDocument("_id", fileId)).FirstOrDefault() as IDictionary<string, object>;
 
-                fileEntity["OwnedBy"].ShouldBeEquivalentTo(JohnId);
+                fileEntity["OwnedBy"].Should().BeEquivalentTo(JohnId);
             }
 
             var reportFiles = Harness.GetDependentFiles(FolderId, FileType.Image, FileType.Tabular, FileType.Pdf);
@@ -201,7 +201,7 @@ namespace Sds.Osdr.IntegrationTests
                 var file = await Harness.Session.Get<File>(fileId);
                 var fileEntity = Files.Find(new BsonDocument("_id", fileId)).FirstOrDefault() as IDictionary<string, object>;
 
-                fileEntity["OwnedBy"].ShouldBeEquivalentTo(JohnId);
+                fileEntity["OwnedBy"].Should().BeEquivalentTo(JohnId);
             }
         }
     }

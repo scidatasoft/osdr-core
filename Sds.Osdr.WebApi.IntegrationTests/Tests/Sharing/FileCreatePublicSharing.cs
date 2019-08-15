@@ -54,7 +54,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
 
             var fileEntityResponse = await UnauthorizedApi.GetFileEntityById(FileId);
             fileEntityResponse.EnsureSuccessStatusCode();
-            fileEntityResponse.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
+            fileEntityResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             var fileEntity = JsonConvert.DeserializeObject<JObject>(await fileEntityResponse.Content.ReadAsStringAsync());
 
             fileEntity.Should().ContainsJson($@"
@@ -91,7 +91,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
 
             var fileEntityResponse = await UnauthorizedApi.GetNodeById(FileId);
             fileEntityResponse.EnsureSuccessStatusCode();
-            fileEntityResponse.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
+            fileEntityResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             var fileEntity = JsonConvert.DeserializeObject<JObject>(await fileEntityResponse.Content.ReadAsStringAsync());
 
             fileEntity.Should().ContainsJson($@"
@@ -254,18 +254,18 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             blobInfo.Should().NotBeNull();
 
             var response = await UnauthorizedApi.GetNodeEntityById(FileId);
-            response.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
-            response.StatusCode.ShouldBeEquivalentTo(400);
-            response.ReasonPhrase.ShouldAllBeEquivalentTo("Bad Request");
+            response.IsSuccessStatusCode.Should().Be(false);
+            response.StatusCode.Should().Be(400);
+            response.ReasonPhrase.Should().Be("Bad Request");
         }
 	    
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Sharing)]
         public async Task FileSharing_WithUnauthorizeUser_ReturnsRecordNotFound()
         {
             var response = await UnauthorizedApi.GetRecordEntityById(FileId);
-            response.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
-            response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotFound);
-            response.ReasonPhrase.ShouldAllBeEquivalentTo("Not Found");
+            response.IsSuccessStatusCode.Should().Be(false);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            response.ReasonPhrase.Should().Be("Not Found");
         }
     }
 }

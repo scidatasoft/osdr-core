@@ -47,7 +47,7 @@ namespace Sds.Osdr.IntegrationTests
             fileId.Should().NotBe(Guid.Empty);
 
             var file = await Session.Get<File>(fileId);
-            file.Should().ShouldBeEquivalentTo(new
+            file.Should().Should().BeEquivalentTo(new
             {
                 Id = fileId,
                 ParentId = FolderId,

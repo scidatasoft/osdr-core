@@ -18,7 +18,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
     {
         public static void EntityShouldBeEquivalentTo(this GenericDictionaryAssertions<string, object> assertions, File file)
         {
-            assertions.Subject.ShouldAllBeEquivalentTo(new Dictionary<string, object>()
+            assertions.Subject.Should().BeEquivalentTo(new Dictionary<string, object>()
             {
                 { "_id", file.Id},
                 { "Blob", new Dictionary<string, object>() {
@@ -50,7 +50,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
 
         public static void NodeShouldBeEquivalentTo(this GenericDictionaryAssertions<string, object> assertions, File file)
         {
-            assertions.Subject.ShouldAllBeEquivalentTo(new Dictionary<string, object>()
+            assertions.Subject.Should().BeEquivalentTo(new Dictionary<string, object>()
             {
                 { "_id", file.Id},
                 { "Type", "File" },
@@ -83,7 +83,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
 
         public static void OfficeNodeShouldBeEquivalentTo(this GenericDictionaryAssertions<string, object> assertions, OfficeFile file)
         {
-            assertions.Subject.ShouldAllBeEquivalentTo(new Dictionary<string, object>()
+            assertions.Subject.Should().BeEquivalentTo(new Dictionary<string, object>()
             {
                 { "_id", file.Id},
                 { "Type", "File" },
@@ -129,7 +129,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
 
         public static void FileViewShouldBeEquivalentTo(this GenericDictionaryAssertions<string, object> assertions, OfficeFile file)
         {
-            assertions.Subject.ShouldAllBeEquivalentTo(new Dictionary<string, object>
+            assertions.Subject.Should().BeEquivalentTo(new Dictionary<string, object>
             {
                 { "_id", file.Id},
                 { "Blob", new Dictionary<string, object>() {
@@ -213,7 +213,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                 }));
             }
 
-            assertions.Subject.ShouldAllBeEquivalentTo(expected);
+            assertions.Subject.Should().BeEquivalentTo(expected);
 
         }
 
@@ -258,7 +258,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                 }));
             }
 
-            assertions.Subject.ShouldAllBeEquivalentTo(expected);
+            assertions.Subject.Should().BeEquivalentTo(expected);
         }
         
         public static void PdfEntityShouldBeEquivalentTo(this GenericDictionaryAssertions<string, object> assertions, PdfFile file)
@@ -297,7 +297,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                 }));
             }
 
-            assertions.Subject.ShouldAllBeEquivalentTo(expected);
+            assertions.Subject.Should().BeEquivalentTo(expected);
         }
 
         public static void TabularEntityShouldBeEquivalentTo(this GenericDictionaryAssertions<string, object> assertions, TabularFile file)
@@ -336,7 +336,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                 }));
             }
 
-            assertions.Subject.ShouldAllBeEquivalentTo(expected);
+            assertions.Subject.Should().BeEquivalentTo(expected);
         }
         
         public static void ModelNodeShouldBeEquivalentTo(this GenericDictionaryAssertions<string, object> assertions, Model model)
@@ -372,7 +372,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
                     { "Bucket", i.Bucket }
                 }));
             }
-            assertions.Subject.ShouldAllBeEquivalentTo(expected);
+            assertions.Subject.Should().BeEquivalentTo(expected);
         }
 
         public struct Fingerprint
@@ -464,8 +464,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
             Log.Information($"Expected: {JsonConvert.SerializeObject(expected)}");
             Log.Information($"Subject: {JsonConvert.SerializeObject(assertions.Subject)}");
 
-            expected.ShouldAllBeEquivalentTo(assertions.Subject);
-            //assertions.Subject.ShouldAllBeEquivalentTo(expected);
+            expected.Should().BeEquivalentTo(assertions.Subject);
         }
     }
 }
