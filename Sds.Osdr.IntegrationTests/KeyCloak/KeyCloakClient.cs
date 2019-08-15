@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Sds.Osdr.IntegrationTests
@@ -47,12 +48,19 @@ namespace Sds.Osdr.IntegrationTests
             nvc.Add(new KeyValuePair<string, string>("username", username));
             nvc.Add(new KeyValuePair<string, string>("password", password));
             nvc.Add(new KeyValuePair<string, string>("grant_type", "password"));
-            
+
+            Log.Debug($"GetToken({username}, {password})");
+            Log.Debug($"URL: {Url.Combine(Authority, "protocol/openid-connect/token")}");
+
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(Url.Combine(Authority, "protocol/openid-connect/token"))) { Content = new FormUrlEncodedContent(nvc) };
 
-            DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{ClientId}:{ClientSecret}")));
+            DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{ClientId}:{ClientSecret}")));
 
-            var json = await SendAsync(request).Result.Content.ReadAsStringAsync();
+            var response = await SendAsync(request);
+
+            Log.Debug($"Response: {response})");
+
+            var json = await response.Content.ReadAsStringAsync();
 
             return JsonConvert.DeserializeObject<Token>(json);
         }
@@ -64,9 +72,11 @@ namespace Sds.Osdr.IntegrationTests
 
             var request = new HttpRequestMessage(HttpMethod.Post, new Uri(Url.Combine(Authority, "protocol/openid-connect/token"))) { Content = new FormUrlEncodedContent(nvc) };
 
-            DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{clientId}:{secret}")));
+            DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{clientId}:{secret}")));
 
-            var json = await SendAsync(request).Result.Content.ReadAsStringAsync();
+            var response = await SendAsync(request);
+
+            var json = await response.Content.ReadAsStringAsync();
 
             return JsonConvert.DeserializeObject<Token>(json);
         }
@@ -82,9 +92,9 @@ namespace Sds.Osdr.IntegrationTests
         {
             DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var userInfoResponse = await GetAsync(new Uri(Url.Combine(Authority, "protocol/openid-connect/userinfo")));
+            var response = await GetAsync(new Uri(Url.Combine(Authority, "protocol/openid-connect/userinfo")));
 
-            var json = await userInfoResponse.Content.ReadAsStringAsync();
+            var json = await response.Content.ReadAsStringAsync();
 
             return JsonConvert.DeserializeObject<UserInfo>(json);
         }
