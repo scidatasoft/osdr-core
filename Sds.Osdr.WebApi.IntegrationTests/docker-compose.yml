@@ -76,7 +76,7 @@ services:
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_REDIS=redis
       - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
-    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./Sds.Osdr.Domain.BackEnd
+    command: ./wait-for-it.sh rabbitmq:15672 -t 60 -- ./Sds.Osdr.Domain.BackEnd
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
@@ -97,7 +97,7 @@ services:
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_REDIS=redis
       - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
-    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./Sds.Osdr.Domain.FrontEnd
+    command: ./wait-for-it.sh rabbitmq:15672 -t 60 -- ./Sds.Osdr.Domain.FrontEnd
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
@@ -117,7 +117,7 @@ services:
       - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
-    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./Sds.Osdr.Domain.SagaHost
+    command: ./wait-for-it.sh rabbitmq:15672 -t 60 -- ./Sds.Osdr.Domain.SagaHost
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
@@ -135,7 +135,7 @@ services:
       - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
-    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./Sds.Osdr.Persistence
+    command: ./wait-for-it.sh rabbitmq:15672 -t 60 -- ./Sds.Osdr.Persistence
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
@@ -158,7 +158,7 @@ services:
       #- OSDR_ES=http://elasticsearch:9200
       - SWAGGER_BASEPATH=/osdr/v1
       - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
-    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./wait-for-it.sh keycloak:8080 -t 30 -- ./Sds.Osdr.WebApi
+    command: ./wait-for-it.sh rabbitmq:15672 -t 60 -- ./wait-for-it.sh keycloak:8080 -t 60 -- ./Sds.Osdr.WebApi
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
@@ -183,7 +183,7 @@ services:
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - SWAGGER_BASEPATH=/blob/v1
       - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
-    command: ./wait-for-it.sh rabbitmq:15672 -t 30 -- ./wait-for-it.sh keycloak:8080 -t 30 -- ./Sds.Storage.Blob.WebApi
+    command: ./wait-for-it.sh rabbitmq:15672 -t 60 -- ./wait-for-it.sh keycloak:8080 -t 60 -- ./Sds.Storage.Blob.WebApi
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
     networks:
@@ -206,9 +206,9 @@ services:
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_WEB_API=http://core-web-api:18006
       - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
-    # command: ./wait-for-it.sh http://core-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console /Tests:PdfUpload_ValidPdf_GenerateExpectedFileEntity
-    command: ./wait-for-it.sh http://core-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console;verbosity="normal"
-    #command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 30 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:"trx;LogFileName=webapi-integrationtests-results-${BUILD_NUMBER}.xml" /ResultsDirectory:/results
+    # command: ./wait-for-it.sh http://core-web-api:18006 -t 60 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console /Tests:PdfUpload_ValidPdf_GenerateExpectedFileEntity
+    command: ./wait-for-it.sh http://core-web-api:18006 -t 60 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:console;verbosity="normal"
+    #command: ./wait-for-it.sh http://osdr-service-web-api:18006 -t 60 -- dotnet vstest ./Sds.Osdr.WebApi.IntegrationTests.dll /logger:"trx;LogFileName=webapi-integrationtests-results-${BUILD_NUMBER}.xml" /ResultsDirectory:/results
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
       - /results:/results
