@@ -195,15 +195,25 @@ namespace Sds.Osdr.WebApi.Controllers
                 return NotFound();
             }
 
-            if (!string.IsNullOrEmpty(propertyPath))
+            try
             {
-                foreach (var property in propertyPath.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries))
+                var comparer = StringComparer.OrdinalIgnoreCase;
+                result = new Dictionary<string, object>((IDictionary<string, object>)result, comparer);
+                var propertyBreadcrumbs = propertyPath.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+                if (!string.IsNullOrEmpty(propertyPath))
                 {
-                    result = (((IDictionary<string, object>)result))[property.ToPascalCase()];
+                    for (int i = 0; i< propertyBreadcrumbs.Count() - 1; i++ )
+                    {
+                        result = new Dictionary<string, object>((IDictionary<string, object>)result[propertyBreadcrumbs[i]], comparer);
+                    }
+                    return Ok(result[propertyBreadcrumbs.Last()]);
                 }
+                return NotFound();
             }
-
-            return Ok(result);
+            catch(Exception e)
+            {
+                return NotFound();
+            }
         }
 
         /// <summary>
