@@ -26,7 +26,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.GenericFiles
             FileId = harness.WaitWhileFileProcessed(BlobId);
 
             var file = harness.Session.Get<File>(FileId).Result;
-            var response = harness.JohnApi.SetFileName__New(FileId, file.Version, FileId.ToString()).Result;
+            var response = harness.JohnApi.SetFileName(FileId, file.Version, FileId.ToString()).Result;
             harness.WaitWhileFileRenamed(FileId);
         }
     }

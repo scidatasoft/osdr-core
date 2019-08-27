@@ -25,7 +25,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Blobs
             FileId = harness.WaitWhileRecordsFileProcessed(BlobId);
 
             var file = harness.Session.Get<RecordsFile.Domain.RecordsFile>(FileId).Result;
-            var response = harness.JohnApi.SetPublicFileEntity__New(FileId, file.Version, true).Result;
+            var response = harness.JohnApi.SetPublicFileEntity(FileId, file.Version, true).Result;
             harness.WaitWhileFileShared(FileId);
         }
     }

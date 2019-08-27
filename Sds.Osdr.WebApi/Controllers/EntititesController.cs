@@ -349,78 +349,79 @@ namespace Sds.Osdr.WebApi.Controllers
             return AcceptedAtRoute("GetSingleEntity", new { type = "folders", id = folderId }, null);
         }
 
-        /// <summary>
-        /// Update File
-        /// </summary>
-        /// <param name="id">File identifier</param>
-        /// <param name="request">Request with json patch object</param>
-        /// <param name="version">Version object</param>
-        /// <returns></returns>
-        /// <response code="202">file updating started</response>
-        /// <response code="404">file not found</response>
         [ProducesResponseType(202)]
         [ProducesResponseType(404)]
         [HttpPatch("files/{id}")]
-        public async Task<IActionResult> PatchFile(Guid id, [FromBody]UpdateEntityRequest request, int version)
+        public async Task<IActionResult> PatchFile(Guid id, [FromBody]JsonPatchDocument<UpdateEntityRequest> request, int version)
         {
             BsonDocument filter = new OrganizeFilter(UserId.Value).ById(id);
 
-            var fileView = await Database.GetCollection<dynamic>("Files").Aggregate().Match(filter)
+            var permissions = await Database.GetCollection<dynamic>("Files").Aggregate().Match(filter)
+                .Lookup<BsonDocument, BsonDocument>(nameof(AccessPermissions), "_id", "_id", nameof(AccessPermissions))
+                .Unwind(nameof(AccessPermissions), new AggregateUnwindOptions<BsonDocument> { PreserveNullAndEmptyArrays = true })
+                .Project("{AccessPermissions:1}")
                 .FirstOrDefaultAsync();
 
-            if (fileView is null)
+            if (permissions is null)
                 return NotFound();
 
-            if (!string.IsNullOrEmpty(request.Name))
+            var file = new UpdateEntityRequest() { Id = id };
+
+            if (permissions.Contains(nameof(AccessPermissions)))
+                file.Permissions = BsonSerializer.Deserialize<AccessPermissions>(permissions[nameof(AccessPermissions)].AsBsonDocument);
+
+            request.ApplyTo(file);
+
+            if (!string.IsNullOrEmpty(file.Name))
             {
-                if (_invalidName.IsMatch(request.Name?.Trim() ?? string.Empty))
+                if (_invalidName.IsMatch(file.Name?.Trim() ?? string.Empty))
                 {
-                    Log.Error($"Invalid file name {request.Name}");
+                    Log.Error($"Invalid file name {file.Name}");
                     return BadRequest();
                 }
 
-                Log.Information($"Renaming file {id} to { request.Name}");
+                Log.Information($"Renaming file {id} to { file.Name}");
                 await _bus.Publish<RenameFile>(new
                 {
                     Id = id,
                     UserId = UserId.Value,
-                    NewName = request.Name.Trim(),
+                    NewName = file.Name.Trim(),
                     ExpectedVersion = version
                 });
             }
 
-            if(request.Metadata.Any())
+            if (file.Metadata.Any())
             {
                 Log.Information($"Update metadata for file {id}");
                 await _bus.Publish<UpdateMetadata>(new
                 {
-                    request.Metadata,
+                    file.Metadata,
                     Id = id,
                     UserId = UserId.Value,
                     ExpectedVersion = version
                 });
             }
 
-            if (request.ParentId != Guid.Empty)
+            if (file.ParentId != Guid.Empty)
             {
-                Log.Information($"Move file {id} to {request.ParentId}");
+                Log.Information($"Move file {id} to {file.ParentId}");
                 await _bus.Publish<MoveFile>(new
                 {
                     Id = id,
                     UserId = UserId.Value,
-                    NewParentId = request.ParentId,
+                    NewParentId = file.ParentId,
                     ExpectedVersion = version
                 });
             }
 
-            if (request.Permissions.IsPublic != null)
+            if (request.Operations.Any(o => o.path.Contains("/Permissions")))
             {
                 Log.Information($"Grant access to file {id}");
                 await _bus.Publish<Generic.Domain.Commands.Files.GrantAccess>(new
                 {
                     Id = id,
                     UserId = UserId.Value,
-                    request.Permissions
+                    file.Permissions
                 });
             }
 

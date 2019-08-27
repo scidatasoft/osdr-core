@@ -32,15 +32,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests.GenericFiles
             var processedFile = await Harness.Session.Get<File>(FileId);
 
             var url = $"/api/entities/files/{FileId}?version={processedFile.Version}";
-            var data = $"{{" +
-                       $"    'Metadata':" +
-                       $"    [" +
-                       $"      {{" +
-                       $"          'name':'test1'," +
-                       $"          'value': 'value1'" +
-                       $"      }}" +
-                       $"    ]" +
-                       $"}}";
+
+            var data = $"[{{'op':'replace','path':'Metadata','value':[{{'name':'test1', 'value': 'value1'}}]}}]";
 
             JohnApi.PatchData(url, data).Wait();
 

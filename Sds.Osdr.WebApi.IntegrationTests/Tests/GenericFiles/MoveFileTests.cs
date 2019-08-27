@@ -30,7 +30,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.GenericFiles
             var folderLocation = folderResponse.Headers.Location.ToString();
             FolderId = Guid.Parse(folderLocation.Substring(folderLocation.LastIndexOf("/") + 1));
             var file = harness.Session.Get<File>(FileId).Result;
-            var response = harness.JohnApi.SetParentFolder__New(FileId, file.Version, FolderId).Result;
+            var response = harness.JohnApi.SetParentFolder(FileId, file.Version, FolderId).Result;
             harness.WaitWhileFileMoved(FileId);
         }
     }
