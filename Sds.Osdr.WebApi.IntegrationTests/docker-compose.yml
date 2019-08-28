@@ -183,6 +183,7 @@ services:
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - SWAGGER_BASEPATH=/blob/v1
       - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
+      - MAX_BLOB_SIZE=419430400
     command: ./wait-for-it.sh rabbitmq:15672 -t 60 -- ./wait-for-it.sh keycloak:8080 -t 60 -- ./Sds.Storage.Blob.WebApi
     volumes:
       - ${OSDR_LOG_FOLDER}:/logs
