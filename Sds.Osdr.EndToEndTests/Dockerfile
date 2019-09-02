@@ -4,6 +4,7 @@ ARG RID=linux-x64
 
 WORKDIR /build
 
+COPY Leanda.Microscopy/Leanda.Microscopy.csproj Leanda.Microscopy/
 COPY Sds.Osdr.Chemicals/Sds.Osdr.Chemicals.csproj Sds.Osdr.Chemicals/
 COPY Sds.Osdr.Crystals/Sds.Osdr.Crystals.csproj Sds.Osdr.Crystals/
 COPY Sds.Osdr.Domain/Sds.Osdr.Domain.csproj Sds.Osdr.Domain/
@@ -20,10 +21,12 @@ COPY Sds.Osdr.Tabular/Sds.Osdr.Tabular.csproj Sds.Osdr.Tabular/
 COPY Sds.Osdr.WebPage/Sds.Osdr.WebPage.csproj Sds.Osdr.WebPage/
 COPY Sds.Osdr.IntegrationTests/Sds.Osdr.IntegrationTests.csproj Sds.Osdr.IntegrationTests/
 COPY Sds.Osdr.WebApi.IntegrationTests/Sds.Osdr.WebApi.IntegrationTests.csproj Sds.Osdr.WebApi.IntegrationTests/
+COPY Sds.Osdr.EndToEndTests/Sds.Osdr.EndToEndTests.csproj Sds.Osdr.EndToEndTests/
 COPY Nuget.config .
 
-RUN dotnet restore --configfile Nuget.config Sds.Osdr.WebApi.IntegrationTests/Sds.Osdr.WebApi.IntegrationTests.csproj
+RUN dotnet restore --configfile Nuget.config Sds.Osdr.EndToEndTests/Sds.Osdr.EndToEndTests.csproj
 
+COPY Leanda.Microscopy Leanda.Microscopy
 COPY Sds.Osdr.Chemicals Sds.Osdr.Chemicals
 COPY Sds.Osdr.Crystals Sds.Osdr.Crystals
 COPY Sds.Osdr.Domain Sds.Osdr.Domain
@@ -40,8 +43,9 @@ COPY Sds.Osdr.Tabular Sds.Osdr.Tabular
 COPY Sds.Osdr.WebPage Sds.Osdr.WebPage
 COPY Sds.Osdr.IntegrationTests Sds.Osdr.IntegrationTests
 COPY Sds.Osdr.WebApi.IntegrationTests Sds.Osdr.WebApi.IntegrationTests
+COPY Sds.Osdr.EndToEndTests Sds.Osdr.EndToEndTests
 
-RUN dotnet publish Sds.Osdr.WebApi.IntegrationTests/Sds.Osdr.WebApi.IntegrationTests.csproj -r $RID -c Release -o /dist
+RUN dotnet publish Sds.Osdr.EndToEndTests/Sds.Osdr.EndToEndTests.csproj -r $RID -c Release -o /dist
 
 # Build runtime image
 FROM microsoft/dotnet:2.1-sdk
@@ -55,4 +59,4 @@ RUN curl https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for
 
 COPY --from=build-env /dist ./
 
-ENTRYPOINT ["dotnet", "vstest", "./Sds.Osdr.WebApi.IntegrationTests.dll"]
+ENTRYPOINT ["dotnet", "vstest", "./Sds.Osdr.EndToEndTests.dll"]
