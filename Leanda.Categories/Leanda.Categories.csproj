@@ -5,11 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Domain\Aggregates\" />
     <Folder Include="Domain\Commands\" />
-    <Folder Include="Domain\Events\" />
     <Folder Include="BackEnd\" />
     <Folder Include="Persistence\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Sds.CqrsLite.MassTransit" Version="3.0.1" />
+    <PackageReference Include="Sds.Domain" Version="1.13.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sds.Osdr.Domain\Sds.Osdr.Domain.csproj" />
   </ItemGroup>
 
 </Project>
