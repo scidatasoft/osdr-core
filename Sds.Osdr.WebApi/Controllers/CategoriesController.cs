@@ -1,23 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Leanda.Categories.Domain.Commands;
+using Leanda.Categories.Domain.ValueObjects;
+using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Nest;
-using Sds.Osdr.WebApi.Extensions;
-using Sds.Osdr.WebApi.Requests;
+using Microsoft.AspNetCore.Routing;
+using MongoDB.Driver;
+using Sds.Osdr.WebApi.Filters;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Sds.Osdr.WebApi.Responses;
-using Serilog;
-using Sds.Osdr.WebApi.Filters;
-using Microsoft.AspNetCore.Routing;
-using System.Dynamic;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-using Leanda.Categories.Domain.ValueObjects;
 using System.Threading.Tasks;
-using MassTransit;
-using Leanda.Categories.Domain.Commands;
-using MongoDB.Driver;
 
 namespace Sds.Osdr.WebApi.Controllers
 {
@@ -30,11 +21,11 @@ namespace Sds.Osdr.WebApi.Controllers
 
         //IElasticClient _elasticClient;
         private IUrlHelper _urlHelper;
-        public CategoriesController(IMongoDatabase database, IBusControl bus /*IElasticClient elasticClient, IUrlHelper urlHelper*/) : base(database)
+        public CategoriesController(IMongoDatabase database, IBusControl bus /*IElasticClient elasticClient*/, IUrlHelper urlHelper) : base(database)
         {
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+            _urlHelper = urlHelper ?? throw new ArgumentNullException(nameof(urlHelper));
 
-            //_urlHelper = urlHelper ?? throw new ArgumentNullException(nameof(urlHelper));
             //_elasticClient = elasticClient ?? throw new ArgumentNullException(nameof(elasticClient));
         }
 
@@ -43,7 +34,7 @@ namespace Sds.Osdr.WebApi.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public IActionResult GetAllCategoryTree()
+        public async Task<IActionResult> GetAllCategoryTree()
         {
             //  TODO: Connect to MongoDB and return all available categories here. Pagination required.
 
@@ -59,7 +50,7 @@ namespace Sds.Osdr.WebApi.Controllers
         {
             Guid categoriesTreeId = Guid.NewGuid();
 
-            await _bus.Publish<CreateCategoriesTree>(new
+            await _bus.Publish<CreateCategoryTree>(new
             {
                 Id = categoriesTreeId,
                 UserId = UserId,
@@ -75,7 +66,7 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <param name="id">Caregories tree aggregate ID</param>
         /// <returns></returns>
         [HttpGet("{id}/tree", Name = "GetCategoriesTree")]
-        public IActionResult GetCategoriesTree(Guid id)
+        public async Task<IActionResult> GetCategoriesTree(Guid id)
         {
             //  TODO: Connect to MongoDB and return requested Categories Tree by ID
 
@@ -87,15 +78,17 @@ namespace Sds.Osdr.WebApi.Controllers
         /// </summary>
         /// <param name="id">Categories tree ID</param>
         /// <param name="nodes">New categories tree nodes</param>
+        /// <param name="version">Carrent cattegories tree object version</param>
         /// <returns></returns>
         [HttpPut("{id}/tree")]
-        public async Task<IActionResult> UpdateCategoriesTree(Guid id, [FromBody] List<TreeNode> nodes)
+        public async Task<IActionResult> UpdateCategoriesTree(Guid id, [FromBody] List<TreeNode> nodes, int version)
         {
-            await _bus.Publish<UpdateCategoriesTree>(new
+            await _bus.Publish<UpdateCategoryTree>(new
             {
                 Id = id,
                 UserId = UserId,
-                Nodes = nodes
+                Nodes = nodes,
+                ExpectedVersion = version
             });
 
             return Accepted();
@@ -107,16 +100,18 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <param name="id">Categories tree ID</param>
         /// <param name="nodeId">Categories tree node ID</param>
         /// <param name="nodes">New categories tree nodes</param>
+        /// <param name="version">Carrent cattegories tree object version</param>
         /// <returns></returns>
         [HttpPut("{id}/tree/{nodeId}")]
-        public async Task<IActionResult> UpdateCategoriesTreeNode(Guid id, Guid nodeId, [FromBody] List<TreeNode> nodes)
+        public async Task<IActionResult> UpdateCategoriesTreeNode(Guid id, Guid nodeId, [FromBody] List<TreeNode> nodes, int version)
         {
-            await _bus.Publish<UpdateCategoriesTree>(new
+            await _bus.Publish<UpdateCategoryTree>(new
             {
                 Id = id,
                 ParentId = nodeId,
                 UserId = UserId,
-                Nodes = nodes
+                Nodes = nodes,
+                ExpectedVersion = version
             });
 
             return Accepted();

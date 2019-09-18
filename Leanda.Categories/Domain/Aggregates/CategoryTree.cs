@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Leanda.Categories.Domain
 {
-	public class CategoriesTree : AggregateRoot
+	public class CategoryTree : AggregateRoot
     {
         /// <summary>
         /// User Id of the person who created the file
@@ -30,7 +30,7 @@ namespace Leanda.Categories.Domain
 
         public List<TreeNode> Nodes { get; protected set; }
 
-        private void Apply(CategoriesTreeCreated e)
+        private void Apply(CategoryTreeCreated e)
         {
             CreatedBy = e.UserId;
             CreatedDateTime = e.TimeStamp;
@@ -39,7 +39,7 @@ namespace Leanda.Categories.Domain
             Nodes = e.Nodes;
         }
 
-        private void Apply(CategoriesTreeUpdated e)
+        private void Apply(CategoryTreeUpdated e)
         {
             UpdatedBy = e.UserId;
             UpdatedDateTime = e.TimeStamp;
@@ -54,21 +54,21 @@ namespace Leanda.Categories.Domain
             }
 		}
 
-        protected CategoriesTree()
+        protected CategoryTree()
         {
             CreatedDateTime = DateTime.MinValue;
             Nodes = new List<TreeNode>();
         }
 
-        public CategoriesTree(Guid id, Guid userId, List<TreeNode> nodes)
+        public CategoryTree(Guid id, Guid userId, List<TreeNode> nodes)
         {
             Id = id;
-            ApplyChange(new CategoriesTreeCreated(Id, userId, nodes));
+            ApplyChange(new CategoryTreeCreated(Id, userId, nodes));
         }
 
         public void Update(Guid userId, Guid? parentId, List<TreeNode> nodes)
         {
-            ApplyChange(new CategoriesTreeUpdated(Id, userId, parentId, nodes));
+            ApplyChange(new CategoryTreeUpdated(Id, userId, parentId, nodes));
         }
     }
 }

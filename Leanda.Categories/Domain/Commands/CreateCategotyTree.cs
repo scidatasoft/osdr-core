@@ -5,10 +5,9 @@ using System.Collections.Generic;
 
 namespace Leanda.Categories.Domain.Commands
 {
-    public interface UpdateCategoriesTree : CorrelatedBy<Guid>
+    public interface CreateCategoryTree : CorrelatedBy<Guid>
     {
         Guid Id { get; }
-        Guid? ParentId { get; set; }
         List<TreeNode> Nodes { get; set; }
         Guid UserId { get; }
 	}

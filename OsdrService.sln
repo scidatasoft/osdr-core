@@ -53,7 +53,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sds.Osdr.WebApi.Integration
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sds.Osdr.EndToEndTests", "Sds.Osdr.EndToEndTests\Sds.Osdr.EndToEndTests.csproj", "{FBB6AE94-F960-420C-A56D-507E6FF3C66B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Leanda.Categories", "Leanda.Categories\Leanda.Categories.csproj", "{3DDC1FE0-5DEC-4CCB-80A1-C7EC8C83305C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leanda.CategoryTree", "Leanda.Categories\Leanda.CategoryTree.csproj", "{3DDC1FE0-5DEC-4CCB-80A1-C7EC8C83305C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
