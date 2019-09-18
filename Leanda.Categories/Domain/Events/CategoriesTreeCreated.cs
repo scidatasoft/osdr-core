@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace Leanda.Categories.Domain.Events
 {
-    public class CategoriesCreated : IUserEvent
+    public class CategoriesTreeCreated : IUserEvent
 	{
         public List<TreeNode> Nodes { get; set; }
 
-        public CategoriesCreated(Guid id, Guid userId, List<TreeNode> nodes)
+        public CategoriesTreeCreated(Guid id, Guid userId, List<TreeNode> nodes)
         {
             Id = id;
             Nodes = nodes;

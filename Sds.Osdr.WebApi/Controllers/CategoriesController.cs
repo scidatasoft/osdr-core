@@ -13,6 +13,9 @@ using Microsoft.AspNetCore.Routing;
 using System.Dynamic;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
+using Leanda.Categories.Domain.ValueObjects;
+using System.Threading.Tasks;
+using MassTransit;
 
 namespace Sds.Osdr.WebApi.Controllers
 {
@@ -21,25 +24,87 @@ namespace Sds.Osdr.WebApi.Controllers
     [UserInfoRequired]
     public class CategoriesController : ControllerBase
     {
+        private IBusControl _bus;
+
         //IElasticClient _elasticClient;
         private IUrlHelper _urlHelper;
-        public CategoriesController(/*IElasticClient elasticClient, IUrlHelper urlHelper*/)
+        public CategoriesController(IBusControl bus /*IElasticClient elasticClient, IUrlHelper urlHelper*/)
         {
+            _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+
             //_urlHelper = urlHelper ?? throw new ArgumentNullException(nameof(urlHelper));
             //_elasticClient = elasticClient ?? throw new ArgumentNullException(nameof(elasticClient));
         }
 
-        [HttpGet("tree")]
-        public IActionResult GetTree()
+        /// <summary>
+        /// Returns all available categories
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("")]
+        public IActionResult GetAllCategoryTree()
         {
-            return Ok("Hi");
+            //  TODO: Connect to MongoDB and return all available categories here. Pagination required.
+
+            return Ok();
         }
 
-        [HttpPost("tree")]
-        public IActionResult PostTree()
+        /// <summary>
+        /// Create new category tree
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("")]
+        public async Task<IActionResult> CreateCategoryTree([FromBody] List<TreeNode> nodes)
         {
 
-            return Ok("Hi");
+            await _bus.Publish<CreateFolder>(new
+            {
+                Id = folderId,
+                UserId = UserId,
+                Name = request.Name,
+                ParentId = request.ParentId
+            });
+
+            return AcceptedAtRoute("GetSingleEntity", new { type = "folders", id = folderId }, null);
+        }
+
+        /// <summary>
+        /// Get categories tree by Id
+        /// </summary>
+        /// <param name="id">Caregories tree aggregate ID</param>
+        /// <returns></returns>
+        [HttpGet("{id}/tree")]
+        public IActionResult GetTree(Guid id)
+        {
+            //  TODO: Connect to MongoDB and return requested Categories Tree by ID
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Update categories tree
+        /// </summary>
+        /// <param name="id">Categories tree ID</param>
+        /// <param name="nodes">New categories tree nodes</param>
+        /// <returns></returns>
+        [HttpPut("{id}/tree")]
+        public IActionResult UpdateCategoriesTree(Guid id, [FromBody] List<TreeNode> nodes)
+        {
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Update categories tree node
+        /// </summary>
+        /// <param name="id">Categories tree ID</param>
+        /// <param name="nodeId">Categories tree node ID</param>
+        /// <param name="nodes">New categories tree nodes</param>
+        /// <returns></returns>
+        [HttpPut("{id}/tree/{nodeId}")]
+        public IActionResult UpdateCategoriesTreeNode(Guid id, Guid nodeId, [FromBody] List<TreeNode> nodes)
+        {
+
+            return Ok();
         }
     }
 }
