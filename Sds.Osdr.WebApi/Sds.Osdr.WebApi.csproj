@@ -75,6 +75,7 @@
     <None Include="Responses\FolderContentItem.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Leanda.Categories\Leanda.Categories.csproj" />
     <ProjectReference Include="..\Sds.Osdr.Domain\Sds.Osdr.Domain.csproj" />
     <ProjectReference Include="..\Sds.Osdr.MachineLearning\Sds.Osdr.MachineLearning.csproj" />
     <ProjectReference Include="..\Sds.Osdr.WebPage\Sds.Osdr.WebPage.csproj" />

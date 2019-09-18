@@ -16,19 +16,21 @@ using System.Text.RegularExpressions;
 using Leanda.Categories.Domain.ValueObjects;
 using System.Threading.Tasks;
 using MassTransit;
+using Leanda.Categories.Domain.Commands;
+using MongoDB.Driver;
 
 namespace Sds.Osdr.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [Authorize]
     [UserInfoRequired]
-    public class CategoriesController : ControllerBase
+    public class CategoriesController : MongoDbController
     {
         private IBusControl _bus;
 
         //IElasticClient _elasticClient;
         private IUrlHelper _urlHelper;
-        public CategoriesController(IBusControl bus /*IElasticClient elasticClient, IUrlHelper urlHelper*/)
+        public CategoriesController(IMongoDatabase database, IBusControl bus /*IElasticClient elasticClient, IUrlHelper urlHelper*/) : base(database)
         {
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
 
@@ -40,7 +42,7 @@ namespace Sds.Osdr.WebApi.Controllers
         /// Returns all available categories
         /// </summary>
         /// <returns></returns>
-        [HttpGet("")]
+        [HttpGet]
         public IActionResult GetAllCategoryTree()
         {
             //  TODO: Connect to MongoDB and return all available categories here. Pagination required.
@@ -52,19 +54,19 @@ namespace Sds.Osdr.WebApi.Controllers
         /// Create new category tree
         /// </summary>
         /// <returns></returns>
-        [HttpPost("")]
+        [HttpPost]
         public async Task<IActionResult> CreateCategoryTree([FromBody] List<TreeNode> nodes)
         {
+            Guid categoriesTreeId = Guid.NewGuid();
 
-            await _bus.Publish<CreateFolder>(new
+            await _bus.Publish<CreateCategoriesTree>(new
             {
-                Id = folderId,
+                Id = categoriesTreeId,
                 UserId = UserId,
-                Name = request.Name,
-                ParentId = request.ParentId
+                Nodes = nodes
             });
 
-            return AcceptedAtRoute("GetSingleEntity", new { type = "folders", id = folderId }, null);
+            return AcceptedAtRoute("GetCategoriesTree", new { id = categoriesTreeId }, null);
         }
 
         /// <summary>
@@ -72,8 +74,8 @@ namespace Sds.Osdr.WebApi.Controllers
         /// </summary>
         /// <param name="id">Caregories tree aggregate ID</param>
         /// <returns></returns>
-        [HttpGet("{id}/tree")]
-        public IActionResult GetTree(Guid id)
+        [HttpGet("{id}/tree", Name = "GetCategoriesTree")]
+        public IActionResult GetCategoriesTree(Guid id)
         {
             //  TODO: Connect to MongoDB and return requested Categories Tree by ID
 
@@ -87,10 +89,16 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <param name="nodes">New categories tree nodes</param>
         /// <returns></returns>
         [HttpPut("{id}/tree")]
-        public IActionResult UpdateCategoriesTree(Guid id, [FromBody] List<TreeNode> nodes)
+        public async Task<IActionResult> UpdateCategoriesTree(Guid id, [FromBody] List<TreeNode> nodes)
         {
+            await _bus.Publish<UpdateCategoriesTree>(new
+            {
+                Id = id,
+                UserId = UserId,
+                Nodes = nodes
+            });
 
-            return Ok();
+            return Accepted();
         }
 
         /// <summary>
@@ -101,10 +109,17 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <param name="nodes">New categories tree nodes</param>
         /// <returns></returns>
         [HttpPut("{id}/tree/{nodeId}")]
-        public IActionResult UpdateCategoriesTreeNode(Guid id, Guid nodeId, [FromBody] List<TreeNode> nodes)
+        public async Task<IActionResult> UpdateCategoriesTreeNode(Guid id, Guid nodeId, [FromBody] List<TreeNode> nodes)
         {
+            await _bus.Publish<UpdateCategoriesTree>(new
+            {
+                Id = id,
+                ParentId = nodeId,
+                UserId = UserId,
+                Nodes = nodes
+            });
 
-            return Ok();
+            return Accepted();
         }
     }
 }
