@@ -83,6 +83,7 @@ namespace Sds.Osdr.Persistence
                 Assembly.LoadFrom("Sds.Osdr.MachineLearning.dll"),
                 Assembly.LoadFrom("Sds.Osdr.WebPage.dll"),
                 Assembly.LoadFrom("Leanda.Microscopy.dll"),
+                Assembly.LoadFrom("Leanda.CategoryTree.dll"),
             };
 
             Log.Information($"Registered modules:");

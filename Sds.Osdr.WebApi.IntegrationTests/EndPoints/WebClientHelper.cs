@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -52,6 +53,11 @@ namespace Sds.Osdr.WebApi.IntegrationTests.EndPoints
             var response = await client.PostAsync(new Uri(BaseUri, url), httpContent);
 
             return  response;
+        }
+
+        public async Task<HttpResponseMessage> PostData(string url, object data)
+        {
+            return await PostData(url, JsonConvert.SerializeObject(data));
         }
     }
 }

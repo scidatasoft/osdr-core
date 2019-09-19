@@ -6,15 +6,15 @@ using MongoDB.Driver;
 using System;
 using System.Threading.Tasks;
 
-namespace Leanda.Categories.Domain.Persistence.EventHandlers
+namespace Leanda.Categories.Persistence.EventHandlers
 {
-    public class FolderEventHandlers : IConsumer<CategoryTreeCreated>,
+    public class CategoryTreeEventHandlers : IConsumer<CategoryTreeCreated>,
 		                               IConsumer<CategoryTreeUpdated>
     {
 		private readonly IMongoDatabase _database;
         private readonly IMongoCollection<BsonDocument> _categoryTreeCollection;
 
-        public FolderEventHandlers(IMongoDatabase database)
+        public CategoryTreeEventHandlers(IMongoDatabase database)
         {
             _database = database ?? throw new ArgumentNullException(nameof(database));
             _categoryTreeCollection = _database.GetCollection<BsonDocument>("CategoryTrees");

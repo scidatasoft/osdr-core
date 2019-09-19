@@ -1,4 +1,5 @@
-﻿using MassTransit;
+﻿using Leanda.Categories.Domain.Events;
+using MassTransit;
 using Newtonsoft.Json;
 using Sds.MassTransit.Extensions;
 using Sds.Osdr.Generic.Domain.Commands.Folders;
@@ -640,6 +641,14 @@ namespace Sds.Osdr.IntegrationTests
         public static void WaitMetadataUpdated(this OsdrTestHarness harness, Guid id)
         {
             if (!harness.Received.Select<Generic.Domain.Events.Files.MetadataPersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+        }
+
+        public static void WaitWhileCategoryTreePersisted(this OsdrTestHarness harness, Guid id)
+        {
+            if (!harness.Received.Select<CategoryTreePersisted>(m => m.Context.Message.Id == id).Any())
             {
                 throw new TimeoutException();
             }

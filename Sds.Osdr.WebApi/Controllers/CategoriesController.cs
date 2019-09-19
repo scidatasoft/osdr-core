@@ -4,6 +4,7 @@ using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Sds.Osdr.WebApi.Filters;
 using System;
@@ -17,14 +18,16 @@ namespace Sds.Osdr.WebApi.Controllers
     [UserInfoRequired]
     public class CategoriesController : MongoDbController
     {
-        private IBusControl _bus;
+        private IBusControl Bus;
+        private IMongoCollection<BsonDocument> CategoryTreeCollection;
 
         //IElasticClient _elasticClient;
         private IUrlHelper _urlHelper;
         public CategoriesController(IMongoDatabase database, IBusControl bus /*IElasticClient elasticClient*/, IUrlHelper urlHelper) : base(database)
         {
-            _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+            Bus = bus ?? throw new ArgumentNullException(nameof(bus));
             _urlHelper = urlHelper ?? throw new ArgumentNullException(nameof(urlHelper));
+            CategoryTreeCollection = Database.GetCollection<BsonDocument>("CategoryTrees");
 
             //_elasticClient = elasticClient ?? throw new ArgumentNullException(nameof(elasticClient));
         }
@@ -50,14 +53,14 @@ namespace Sds.Osdr.WebApi.Controllers
         {
             Guid categoriesTreeId = Guid.NewGuid();
 
-            await _bus.Publish<CreateCategoryTree>(new
+            await Bus.Publish<CreateCategoryTree>(new
             {
                 Id = categoriesTreeId,
                 UserId = UserId,
                 Nodes = nodes
             });
 
-            return AcceptedAtRoute("GetCategoriesTree", new { id = categoriesTreeId }, null);
+            return CreatedAtRoute("GetCategoriesTree", new { id = categoriesTreeId }, categoriesTreeId.ToString());
         }
 
         /// <summary>
@@ -68,7 +71,13 @@ namespace Sds.Osdr.WebApi.Controllers
         [HttpGet("{id}/tree", Name = "GetCategoriesTree")]
         public async Task<IActionResult> GetCategoriesTree(Guid id)
         {
-            //  TODO: Connect to MongoDB and return requested Categories Tree by ID
+            var trees = await CategoryTreeCollection.FindAsync(new BsonDocument("_id", id));
+            var tree = trees.SingleOrDefault();
+
+            if (tree == null)
+            {
+                return BadRequest();
+            }
 
             return Ok();
         }
@@ -83,7 +92,7 @@ namespace Sds.Osdr.WebApi.Controllers
         [HttpPut("{id}/tree")]
         public async Task<IActionResult> UpdateCategoriesTree(Guid id, [FromBody] List<TreeNode> nodes, int version)
         {
-            await _bus.Publish<UpdateCategoryTree>(new
+            await Bus.Publish<UpdateCategoryTree>(new
             {
                 Id = id,
                 UserId = UserId,
@@ -105,7 +114,7 @@ namespace Sds.Osdr.WebApi.Controllers
         [HttpPut("{id}/tree/{nodeId}")]
         public async Task<IActionResult> UpdateCategoriesTreeNode(Guid id, Guid nodeId, [FromBody] List<TreeNode> nodes, int version)
         {
-            await _bus.Publish<UpdateCategoryTree>(new
+            await Bus.Publish<UpdateCategoryTree>(new
             {
                 Id = id,
                 ParentId = nodeId,

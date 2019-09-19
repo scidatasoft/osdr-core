@@ -1,5 +1,6 @@
 ﻿using CQRSlite.Domain;
 using CQRSlite.Domain.Exception;
+using Leanda.Categories.Domain;
 using Leanda.Categories.Domain.Commands;
 using Leanda.Categories.Domain.Events;
 using MassTransit;
@@ -7,7 +8,7 @@ using Serilog;
 using System;
 using System.Threading.Tasks;
 
-namespace Leanda.Categories.Domain.FrontEnd.CommandHandlers
+namespace Leanda.Categories.BackEnd.CommandHandlers
 {
     public class CategoryTreeCommandHandler : IConsumer<CreateCategoryTree>,
                                               IConsumer<UpdateCategoryTree> 

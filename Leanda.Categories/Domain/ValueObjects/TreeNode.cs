@@ -10,7 +10,7 @@ namespace Leanda.Categories.Domain.ValueObjects
         public string Title { get; private set; }
         public List<TreeNode> Children { get; set; }
 
-        public TreeNode(Guid id, string title, List<TreeNode> children)
+        public TreeNode(Guid id, string title, List<TreeNode> children = null)
         {
             Id = id;
             Title = title;

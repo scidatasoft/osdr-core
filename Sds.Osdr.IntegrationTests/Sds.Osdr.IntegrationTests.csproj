@@ -36,6 +36,7 @@
     <PackageReference Include="FluentAssertions" Version="5.8.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Leanda.Categories\Leanda.CategoryTree.csproj" />
     <ProjectReference Include="..\Leanda.Microscopy\Leanda.Microscopy.csproj" />
     <ProjectReference Include="..\Sds.Osdr.Chemicals\Sds.Osdr.Chemicals.csproj" />
     <ProjectReference Include="..\Sds.Osdr.Crystals\Sds.Osdr.Crystals.csproj" />
