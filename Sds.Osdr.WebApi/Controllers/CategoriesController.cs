@@ -71,15 +71,23 @@ namespace Sds.Osdr.WebApi.Controllers
         [HttpGet("{id}/tree", Name = "GetCategoriesTree")]
         public async Task<IActionResult> GetCategoriesTree(Guid id)
         {
-            var trees = await CategoryTreeCollection.FindAsync(new BsonDocument("_id", id));
-            var tree = trees.SingleOrDefault();
+            var tree = await CategoryTreeCollection.Find(new BsonDocument("_id", id))
+                .Project<dynamic>(@"{
+                    CreatedBy:1,
+                    CreatedDateTime:1,
+                    UpdatedBy:1,
+                    UpdatedDateTime: 1,
+                    Version: 1,
+                    Nodes:1
+                }")
+                .FirstOrDefaultAsync();
 
             if (tree == null)
             {
                 return BadRequest();
             }
 
-            return Ok();
+            return Ok(tree);
         }
 
         /// <summary>
