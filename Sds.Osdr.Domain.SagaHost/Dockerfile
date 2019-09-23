@@ -6,6 +6,7 @@ ARG RID=linux-x64
 WORKDIR /build
 
 COPY Leanda.Microscopy/Leanda.Microscopy.csproj Leanda.Microscopy/
+COPY Leanda.Categories/Leanda.CategoryTree.csproj Leanda.Categories/
 COPY Sds.Osdr.Chemicals/Sds.Osdr.Chemicals.csproj Sds.Osdr.Chemicals/
 COPY Sds.Osdr.Crystals/Sds.Osdr.Crystals.csproj Sds.Osdr.Crystals/
 COPY Sds.Osdr.Domain/Sds.Osdr.Domain.csproj Sds.Osdr.Domain/
@@ -26,6 +27,7 @@ COPY Nuget.config .
 RUN dotnet restore --configfile Nuget.config Sds.Osdr.Domain.SagaHost/Sds.Osdr.Domain.SagaHost.csproj
 
 COPY Leanda.Microscopy Leanda.Microscopy
+COPY Leanda.Categories Leanda.Categories
 COPY Sds.Osdr.Chemicals Sds.Osdr.Chemicals
 COPY Sds.Osdr.Crystals Sds.Osdr.Crystals
 COPY Sds.Osdr.Domain Sds.Osdr.Domain
