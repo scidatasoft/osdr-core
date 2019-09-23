@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit" Version="5.2.0" />
+    <PackageReference Include="MassTransit" Version="5.1.4" />
     <PackageReference Include="Sds.CqrsLite.MassTransit" Version="3.0.1" />
     <PackageReference Include="Sds.Domain" Version="1.13.3" />
     <PackageReference Include="Sds.MassTransit.MongoDb" Version="3.0.2" />
