@@ -6,4 +6,4 @@ docker build -t leanda/core-web-api:latest -f Sds.Osdr.WebApi/Dockerfile .
 docker build -t leanda/integration:latest -f Sds.Osdr.IntegrationTests/Dockerfile .
 docker build -t leanda/webapi-integration:latest -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
 docker build -t leanda/e2e-tests:latest -f Sds.Osdr.EndToEndTests/Dockerfile .
-docker image ls leanda/core-*
+docker image ls leanda/*
