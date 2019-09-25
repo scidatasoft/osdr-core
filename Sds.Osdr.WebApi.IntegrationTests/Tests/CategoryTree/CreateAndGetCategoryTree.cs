@@ -45,7 +45,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
 
             var content = await response.Content.ReadAsStringAsync();
             var jsonCategory = JToken.Parse(await response.Content.ReadAsStringAsync());
-
+             
             jsonCategory.Should().ContainsJson($@"
             {{
             	'id': '{categoryId}',
