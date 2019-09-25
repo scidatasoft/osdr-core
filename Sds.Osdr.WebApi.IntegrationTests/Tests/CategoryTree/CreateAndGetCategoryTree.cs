@@ -1,5 +1,8 @@
-﻿using Leanda.Categories.Domain.ValueObjects;
+﻿using FluentAssertions;
+using Leanda.Categories.Domain.ValueObjects;
+using Newtonsoft.Json.Linq;
 using Sds.Osdr.IntegrationTests;
+using Sds.Osdr.IntegrationTests.FluentAssersions;
 using Sds.Osdr.IntegrationTests.Traits;
 using System;
 using System.Collections.Generic;
@@ -10,15 +13,15 @@ using Xunit.Abstractions;
 namespace Sds.Osdr.WebApi.IntegrationTests
 {
     [Collection("OSDR Test Harness")]
-    public class CreateCategoryTree : OsdrWebTest
+    public class CreateAndGetCategoryTree : OsdrWebTest
     {
         private Guid categoryId;
 
-        public CreateCategoryTree(OsdrWebTestHarness fixture, ITestOutputHelper output) : base(fixture, output)
+        public CreateAndGetCategoryTree(OsdrWebTestHarness fixture, ITestOutputHelper output) : base(fixture, output)
         {
             var categories = new List<TreeNode>()
             {
-                new TreeNode(categoryId, "Projects", new List<TreeNode>()
+                new TreeNode(Guid.NewGuid(), "Projects", new List<TreeNode>()
                 {
                     new TreeNode(Guid.NewGuid(), "Projects One"),
                     new TreeNode(Guid.NewGuid(), "Projects Two")
@@ -29,32 +32,30 @@ namespace Sds.Osdr.WebApi.IntegrationTests
 
             var content = response.Content.ReadAsStringAsync().Result;
 
-            Guid.TryParse(content, out categoryId);
+            categoryId = Guid.Parse(content);
 
             Harness.WaitWhileCategoryTreePersisted(categoryId);
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
-        public async Task CategoryTreeOperations_CreateNewCategoryTree_ExpectedCreatedFolder()
+        public async Task CategoryTreeOperations_CreateNewCategoryTree_ExpectedCreatedCategory()
         {
             var response = await JohnApi.GetData($"/api/categories/{categoryId}/tree");
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
-            //var jsonFolder = JToken.Parse(await response.Content.ReadAsStringAsync());
+            var jsonCategory = JToken.Parse(await response.Content.ReadAsStringAsync());
 
-            //      jsonFolder.Should().ContainsJson($@"
-            //{{
-            //	'id': '{_folderId}',
-            //	'createdBy': '{JohnId}',
-            //	'createdDateTime': *EXIST*,
-            //	'updatedBy': '{JohnId}',
-            //	'updatedDateTime': *EXIST*,
-            //	'ownedBy': '{JohnId}',
-            //	'name': 'new folder',
-            //	'status': 'Created',
-            //	'version': 1
-            //}}");
+            jsonCategory.Should().ContainsJson($@"
+            {{
+            	'id': '{categoryId}',
+            	'createdBy': '{JohnId}',
+            	'createdDateTime': *EXIST*,
+            	'updatedBy': '{JohnId}',
+            	'updatedDateTime': *EXIST*,
+            	'version': 1,
+                'nodes': *EXIST*
+            }}");
         }
     }
 }

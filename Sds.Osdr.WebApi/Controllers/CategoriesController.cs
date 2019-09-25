@@ -39,9 +39,15 @@ namespace Sds.Osdr.WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllCategoryTree()
         {
-            //  TODO: Connect to MongoDB and return all available categories here. Pagination required.
+            var result = await CategoryTreeCollection.Find(_ => true).Project<dynamic>(@"{
+                    CreatedBy:1,
+                    CreatedDateTime:1,
+                    UpdatedBy:1,
+                    UpdatedDateTime:1,
+                    Version:1
+                }").ToListAsync();
 
-            return Ok();
+            return Ok(result);
         }
 
         /// <summary>
@@ -76,8 +82,8 @@ namespace Sds.Osdr.WebApi.Controllers
                     CreatedBy:1,
                     CreatedDateTime:1,
                     UpdatedBy:1,
-                    UpdatedDateTime: 1,
-                    Version: 1,
+                    UpdatedDateTime:1,
+                    Version:1,
                     Nodes:1
                 }")
                 .FirstOrDefaultAsync();
