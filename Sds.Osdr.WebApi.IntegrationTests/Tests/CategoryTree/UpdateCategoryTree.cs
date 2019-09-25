@@ -48,7 +48,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
 
             response = JohnApi.PutData($"/api/categories/{categoryId}/tree", categories).Result;
 
-            Harness.WaitWhileCategoryTreePersisted(categoryId);
+            Harness.WaitWhileCategoryTreeUpdatedPersisted(categoryId);
         }
 
 

@@ -653,5 +653,13 @@ namespace Sds.Osdr.IntegrationTests
                 throw new TimeoutException();
             }
         }
+
+        public static void WaitWhileCategoryTreeUpdatedPersisted(this OsdrTestHarness harness, Guid id)
+        {
+            if (!harness.Received.Select<CategoryTreeUpdatedPersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+        }
     }
 }

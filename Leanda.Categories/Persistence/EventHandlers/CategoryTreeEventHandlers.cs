@@ -58,7 +58,7 @@ namespace Leanda.Categories.Persistence.EventHandlers
             if (element == null)
                 throw new ConcurrencyException(context.Message.Id);
 
-            await context.Publish<CategoryTreePersisted>(new
+            await context.Publish<CategoryTreeUpdatedPersisted>(new
             {
                 Id = context.Message.Id,
                 TimeStamp = DateTimeOffset.UtcNow,
