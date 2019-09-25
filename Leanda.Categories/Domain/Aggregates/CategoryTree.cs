@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Leanda.Categories.Domain
 {
-	public class CategoryTree : AggregateRoot
+    public class CategoryTree : AggregateRoot
     {
         /// <summary>
         /// User Id of the person who created the file
@@ -44,7 +44,7 @@ namespace Leanda.Categories.Domain
             UpdatedBy = e.UserId;
             UpdatedDateTime = e.TimeStamp;
 
-            if(e.ParentId == null)
+            if (e.ParentId == null)
             {
                 Nodes = e.Nodes;
             }
@@ -52,12 +52,10 @@ namespace Leanda.Categories.Domain
             {
                 // TODO: find node by parentId and replace children
             }
-		}
+        }
 
         protected CategoryTree()
         {
-            CreatedDateTime = DateTime.MinValue;
-            Nodes = new List<TreeNode>();
         }
 
         public CategoryTree(Guid id, Guid userId, List<TreeNode> nodes)

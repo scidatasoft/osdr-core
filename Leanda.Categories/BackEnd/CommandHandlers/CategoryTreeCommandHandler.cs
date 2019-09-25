@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Leanda.Categories.BackEnd.CommandHandlers
 {
     public class CategoryTreeCommandHandler : IConsumer<CreateCategoryTree>,
-                                              IConsumer<UpdateCategoryTree> 
+                                              IConsumer<UpdateCategoryTree>
     {
         private readonly ISession _session;
 
@@ -31,26 +31,11 @@ namespace Leanda.Categories.BackEnd.CommandHandlers
 
         public async Task Consume(ConsumeContext<UpdateCategoryTree> context)
         {
-            try
-            {
-                var tree = await _session.Get<CategoryTree>(context.Message.Id);
+            var tree = await _session.Get<CategoryTree>(context.Message.Id);
 
-                tree.Update(context.Message.UserId, context.Message.ParentId, context.Message.Nodes);
+            tree.Update(context.Message.UserId, context.Message.ParentId, context.Message.Nodes);
 
-                await _session.Commit();
-            }
-            catch (ConcurrencyException)
-            {
-                Log.Error($"Error update category tree {context.Message.Id} unexpected version {context.Message.ExpectedVersion}");
-
-                await context.Publish<UnexpectedVersion>(new
-                {
-                    Id = context.Message.Id,
-                    UserId = context.Message.UserId,
-                    Version = context.Message.ExpectedVersion,
-                    TimeStamp = DateTimeOffset.UtcNow
-                });
-            }
+            await _session.Commit();
         }
     }
 }

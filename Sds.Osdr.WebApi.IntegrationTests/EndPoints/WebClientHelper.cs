@@ -45,7 +45,31 @@ namespace Sds.Osdr.WebApi.IntegrationTests.EndPoints
 
             return response;
         }
-		
+
+        public async Task<HttpResponseMessage> PutData(string url, string stringContent)
+        {
+            var content = new StringContent(stringContent);
+
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+            var request = new HttpRequestMessage(new HttpMethod("PUT"), new Uri(BaseUri, url))
+            {
+                Content = content
+            };
+
+            HttpResponseMessage response = new HttpResponseMessage();
+
+            response = await client.SendAsync(request);
+
+            return response;
+        }
+
+
+        public async Task<HttpResponseMessage> PutData(string url, object data)
+        {
+            return await PutData(url, JsonConvert.SerializeObject(data));
+        }
+
         public async Task<HttpResponseMessage> PostData(string url, string data)
         {
             var httpContent = new StringContent(data);
