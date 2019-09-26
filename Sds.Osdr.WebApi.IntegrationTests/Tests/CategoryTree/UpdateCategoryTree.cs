@@ -28,7 +28,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
                 })
             };
 
-            var response = JohnApi.PostData("/api/categories", categories).Result;
+            var response = JohnApi.PostData("/api/categories/tree", categories).Result;
 
             var content = response.Content.ReadAsStringAsync().Result;
 
@@ -46,7 +46,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
                 })
             };
 
-            response = JohnApi.PutData($"/api/categories/{categoryId}/tree", categories).Result;
+            response = JohnApi.PutData($"/api/categories/tree/{categoryId}", categories).Result;
 
             Harness.WaitWhileCategoryTreeUpdatedPersisted(categoryId);
         }
@@ -55,7 +55,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task CategoryTreeOperations_UpdateCategoryTree_ExpectedUpdatedCategory()
         {
-            var response = await JohnApi.GetData($"/api/categories/{categoryId}/tree");
+            var response = await JohnApi.GetData($"/api/categories/tree/{categoryId}");
             response.EnsureSuccessStatusCode();
 
             var jsonCategory = JToken.Parse(await response.Content.ReadAsStringAsync());

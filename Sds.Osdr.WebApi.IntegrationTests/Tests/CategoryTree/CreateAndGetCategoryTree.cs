@@ -28,7 +28,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
                 })
             };
 
-            var response = JohnApi.PostData("/api/categories", categories).Result;
+            var response = JohnApi.PostData("/api/categories/tree", categories).Result;
 
             var content = response.Content.ReadAsStringAsync().Result;
 
@@ -40,7 +40,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task CategoryTreeOperations_CreateNewCategoryTree_ExpectedCreatedCategory()
         {
-            var response = await JohnApi.GetData($"/api/categories/{categoryId}/tree");
+            var response = await JohnApi.GetData($"/api/categories/tree/{categoryId}");
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();

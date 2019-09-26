@@ -34,9 +34,8 @@ namespace Sds.Osdr.WebApi.Controllers
 
         /// <summary>
         /// Returns all available categories
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
+        /// </summary>/// <returns></returns>
+        [HttpGet("tree")]
         public async Task<IActionResult> GetAllCategoryTree()
         {
             var result = await CategoryTreeCollection.Find(_ => true).Project<dynamic>(@"{
@@ -54,7 +53,7 @@ namespace Sds.Osdr.WebApi.Controllers
         /// Create new category tree
         /// </summary>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("tree")]
         public async Task<IActionResult> CreateCategoryTree([FromBody] List<TreeNode> nodes)
         {
             Guid categoriesTreeId = Guid.NewGuid();
@@ -74,7 +73,7 @@ namespace Sds.Osdr.WebApi.Controllers
         /// </summary>
         /// <param name="id">Caregories tree aggregate ID</param>
         /// <returns></returns>
-        [HttpGet("{id}/tree", Name = "GetCategoriesTree")]
+        [HttpGet("tree/{id}", Name = "GetCategoriesTree")]
         public async Task<IActionResult> GetCategoriesTree(Guid id)
         {
             var tree = await CategoryTreeCollection.Find(new BsonDocument("_id", id))
@@ -103,7 +102,7 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <param name="nodes">New categories tree nodes</param>
         /// <param name="version">Carrent cattegories tree object version</param>
         /// <returns></returns>
-        [HttpPut("{id}/tree")]
+        [HttpPut("tree/{id}")]
         public async Task<IActionResult> UpdateCategoriesTree(Guid id, [FromBody] List<TreeNode> nodes, int version)
         {
             await Bus.Publish<UpdateCategoryTree>(new
@@ -125,7 +124,7 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <param name="nodes">New categories tree nodes</param>
         /// <param name="version">Carrent cattegories tree object version</param>
         /// <returns></returns>
-        [HttpPut("{id}/tree/{nodeId}")]
+        [HttpPut("tree/{id}/{nodeId}")]
         public async Task<IActionResult> UpdateCategoriesTreeNode(Guid id, Guid nodeId, [FromBody] List<TreeNode> nodes, int version)
         {
             await Bus.Publish<UpdateCategoryTree>(new
