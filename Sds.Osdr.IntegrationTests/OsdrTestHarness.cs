@@ -196,6 +196,8 @@ namespace Sds.Osdr.IntegrationTests
                     e.Handler<Generic.Domain.Events.Files.FileParentPersisted>(context => { Received.Add(context); return Task.CompletedTask; });
 
                     e.Handler<Leanda.Categories.Domain.Events.CategoryTreePersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Leanda.Categories.Domain.Events.CategoryTreeUpdatedPersisted>(context => { Received.Add(context); return Task.CompletedTask; });
                 });
 
                 x.UseConcurrencyLimit(mtSettings.ConcurrencyLimit);
