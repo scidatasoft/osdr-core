@@ -21,10 +21,10 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         {
             var categories = new List<TreeNode>()
             {
-                new TreeNode(Guid.NewGuid(), "Projects", new List<TreeNode>()
+                new TreeNode("Projects", new List<TreeNode>()
                 {
-                    new TreeNode(Guid.NewGuid(), "Projects One"),
-                    new TreeNode(Guid.NewGuid(), "Projects Two")
+                    new TreeNode("Projects One"),
+                    new TreeNode("Projects Two")
                 })
             };
 

@@ -57,7 +57,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             	    'createdDateTime': *EXIST*,
             	    'updatedBy': '{JohnId}',
             	    'updatedDateTime': *EXIST*,
-            	    'version': 1
+            	    'version': *EXIST*
                 }}");
             }
 

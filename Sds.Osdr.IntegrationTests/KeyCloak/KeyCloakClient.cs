@@ -38,8 +38,7 @@ namespace Sds.Osdr.IntegrationTests
                 .AddJsonFile($"appsettings.json", false, true)
                 .AddEnvironmentVariables()
                 .Build();
-
-            Authority = Environment.ExpandEnvironmentVariables(configuration["KeyCloak:Authority"]);
+            Authority = Environment.ExpandEnvironmentVariables(configuration["IdentityServer:Authority"]);
         }
 
         public async Task<Token> GetToken(string username, string password)
