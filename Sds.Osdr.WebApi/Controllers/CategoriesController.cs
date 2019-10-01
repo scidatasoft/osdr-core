@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Sds.Osdr.WebApi.Extensions;
 using System.Linq;
+using CQRSlite.Domain;
+using Leanda.Categories.Domain;
 
 namespace Sds.Osdr.WebApi.Controllers
 {
@@ -23,15 +25,16 @@ namespace Sds.Osdr.WebApi.Controllers
     {
         private IBusControl Bus;
         private IMongoCollection<BsonDocument> CategoryTreeCollection;
+        private readonly ISession _session;
 
         //IElasticClient _elasticClient;
         private IUrlHelper _urlHelper;
-        public CategoriesController(IMongoDatabase database, IBusControl bus /*IElasticClient elasticClient*/, IUrlHelper urlHelper) : base(database)
+        public CategoriesController(IMongoDatabase database, IBusControl bus /*IElasticClient elasticClient*/, IUrlHelper urlHelper, ISession session) : base(database)
         {
             Bus = bus ?? throw new ArgumentNullException(nameof(bus));
             _urlHelper = urlHelper ?? throw new ArgumentNullException(nameof(urlHelper));
             CategoryTreeCollection = Database.GetCollection<BsonDocument>("CategoryTrees");
-
+            _session = session ?? throw new ArgumentNullException(nameof(session));
             //_elasticClient = elasticClient ?? throw new ArgumentNullException(nameof(elasticClient));
         }
 
@@ -75,7 +78,7 @@ namespace Sds.Osdr.WebApi.Controllers
             {
                 Id = categoriesTreeId,
                 UserId,
-                Nodes = ApplyIdsToNodes(nodes)
+                Nodes = nodes.ApplyIdsToNodes()
             });
 
             return CreatedAtRoute("GetCategoriesTree", new { id = categoriesTreeId }, categoriesTreeId.ToString());
@@ -118,26 +121,28 @@ namespace Sds.Osdr.WebApi.Controllers
         [HttpPut("tree/{id}")]
         public async Task<IActionResult> UpdateCategoriesTree(Guid id, [FromBody] List<TreeNode> nodes, int version)
         {
-            var tree = await CategoryTreeCollection.Find(new BsonDocument("_id", id))
-                .Project<dynamic>(@"{
-                    Nodes:1
-                }")
-                .FirstOrDefaultAsync();
+            var tree = await _session.Get<CategoryTree>(id);
+
             if(tree == null)
             {
                 return NotFound();
             }
 
-            var ids = GetNodesId(nodes);
-            var guids = ids.ToList();
+            var aggregateIds = tree.Nodes.GetNodeIds();
+            var requestIds = nodes.GetNodeIds();
 
-
+            if(!requestIds.All(i => aggregateIds.Contains(i)))
+            {
+                var invalidIds = requestIds.Where(i => !aggregateIds.Contains(i));
+                
+                return BadRequest($"Can not find node with id(-s) {string.Join(", ", invalidIds)}");
+            }
             
             await Bus.Publish<UpdateCategoryTree>(new
             {
                 Id = id,
                 UserId = UserId,
-                Nodes = nodes,
+                Nodes = nodes.ApplyIdsToNodes(),
                 ExpectedVersion = version
             });
 
@@ -187,39 +192,6 @@ namespace Sds.Osdr.WebApi.Controllers
             int pageNumber = uriType == PaginationUriType.PreviousPage ? request.PageNumber - 1 : request.PageNumber + 1;
 
             return _urlHelper.Link(action, routeValueDictionary);
-        }
-
-        private List<TreeNode> ApplyIdsToNodes(List<TreeNode> nodes)
-        {
-            foreach(var node in nodes)
-            {
-                node.Id = Guid.NewGuid();
-                if (node.Children != null && node.Children.Any())
-                {
-                    node.Children = ApplyIdsToNodes(node?.Children);
-                }
-            }
-            return nodes;
-        }
-
-        private IEnumerable<Guid> GetNodesId(List<TreeNode> nodes)
-        {
-            foreach (var node in nodes)
-            {
-                if(node.Id != default(Guid))
-                {
-                    yield return node.Id;
-                }
-
-                if (node.Children != null && node.Children.Any())
-                {
-                    var enumer = GetNodesId(node?.Children).GetEnumerator();
-                    while(enumer.MoveNext())
-                    {
-                        yield return enumer.Current;
-                    }
-                }
-            }
         }
     }
 }
