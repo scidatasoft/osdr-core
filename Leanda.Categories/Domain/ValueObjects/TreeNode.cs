@@ -37,7 +37,7 @@ namespace Leanda.Categories.Domain.ValueObjects
 
     public static class EnumerableTreeNodeExtensions
     {
-        public static List<TreeNode> ApplyIdsToNodes(this List<TreeNode> nodes)
+        public static void InitNodeIds(this IEnumerable<TreeNode> nodes)
         {
             foreach (var node in nodes)
             {
@@ -48,13 +48,12 @@ namespace Leanda.Categories.Domain.ValueObjects
                 
                 if (node.Children != null && node.Children.Any())
                 {
-                    node.Children = ApplyIdsToNodes(node?.Children);
+                    node.Children.InitNodeIds();
                 }
             }
-            return nodes;
         }
 
-        public static IEnumerable<Guid> GetNodeIds(this List<TreeNode> nodes)
+        public static IEnumerable<Guid> GetNodeIds(this IEnumerable<TreeNode> nodes)
         {
             foreach (var node in nodes)
             {
@@ -65,16 +64,16 @@ namespace Leanda.Categories.Domain.ValueObjects
 
                 if (node.Children != null && node.Children.Any())
                 {
-                    var enumer = GetNodeIds(node?.Children).GetEnumerator();
-                    while (enumer.MoveNext())
+                    var guids = node.Children.GetNodeIds();
+                    foreach(var id in guids)
                     {
-                        yield return enumer.Current;
+                        yield return id;
                     }
                 }
             }
         }
 
-        public static bool ContainsTree(this List<TreeNode> nodes, Guid id)
+        public static bool ContainsTree(this IEnumerable<TreeNode> nodes, Guid id)
         {
             foreach (var node in nodes)
             {
@@ -82,7 +81,7 @@ namespace Leanda.Categories.Domain.ValueObjects
                 {
                     return true;
                 }
-                return ContainsTree(node.Children, id);
+                return node.Children.ContainsTree(id);
             }
             return false;
         }

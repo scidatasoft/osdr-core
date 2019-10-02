@@ -14,13 +14,12 @@ using Xunit.Abstractions;
 
 namespace Sds.Osdr.WebApi.IntegrationTests
 {
-    [Collection("OSDR Test Harness")]
-    public class UpdateCategoryTree : OsdrWebTest
+    public class UpdateCategoryTreeFixture
     {
-        private Guid categoryId;
+        public Guid CategoryId;
 
-        public UpdateCategoryTree(OsdrWebTestHarness fixture, ITestOutputHelper output) : base(fixture, output)
-        { 
+        public UpdateCategoryTreeFixture(OsdrWebTestHarness harness)
+        {
             var categories = new List<TreeNode>()
             {
                 new TreeNode("Projects", new List<TreeNode>()
@@ -30,15 +29,15 @@ namespace Sds.Osdr.WebApi.IntegrationTests
                 })
             };
 
-            var response = JohnApi.PostData("/api/categories/tree", categories).Result;
+            var response = harness.JohnApi.PostData("/api/categories/tree", categories).Result;
 
             var content = response.Content.ReadAsStringAsync().Result;
 
-            categoryId = Guid.Parse(content);
+            CategoryId = Guid.Parse(content);
 
-            Harness.WaitWhileCategoryTreePersisted(categoryId);
+            harness.WaitWhileCategoryTreePersisted(CategoryId);
 
-            var nodeIds = GetNodeIdsForCategory(categoryId).Result.ToList();
+            var nodeIds = GetNodeIdsForCategory(harness, CategoryId).Result.ToList();
 
             var guidOne = nodeIds.ElementAt(0);
             var guidTwo = nodeIds.ElementAt(1);
@@ -61,23 +60,44 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             ]";
             categories = JsonConvert.DeserializeObject<List<TreeNode>>(json);
 
-            response = JohnApi.PutData($"/api/categories/tree/{categoryId}", categories).Result;
+            response = harness.JohnApi.PutData($"/api/categories/tree/{CategoryId}", categories).Result;
 
-            Harness.WaitWhileCategoryTreeUpdatedPersisted(categoryId);
+            harness.WaitWhileCategoryTreeUpdatedPersisted(CategoryId);
+        }
+
+        private async Task<IEnumerable<Guid>> GetNodeIdsForCategory(OsdrWebTestHarness harness, Guid categoryId)
+        {
+            var response = await harness.JohnApi.GetData($"/api/categories/tree/{categoryId}");
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            var treeJson = JsonConvert.DeserializeObject<Dictionary<string, object>>(json)["nodes"].ToString();
+            var tree = JsonConvert.DeserializeObject<List<TreeNode>>(treeJson);
+            return tree.GetNodeIds();
+        }
+    }
+
+    [Collection("OSDR Test Harness")]
+    public class UpdateCategoryTree : OsdrWebTest, IClassFixture<UpdateCategoryTreeFixture>
+    {
+        private Guid CategoryId;
+
+        public UpdateCategoryTree(OsdrWebTestHarness harness, ITestOutputHelper output, UpdateCategoryTreeFixture fixture) : base(harness, output)
+        {
+            CategoryId = fixture.CategoryId;
         }
 
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
-        public async Task CategoryTreeOperations_UpdateCategoryTree_ExpectedUpdatedCategory()
+        public async Task CategoryTree_UpdateCategoryTree_BuiltExpectedDocument()
         {
-            var response = await JohnApi.GetData($"/api/categories/tree/{categoryId}");
+            var response = await JohnApi.GetData($"/api/categories/tree/{CategoryId}");
             response.EnsureSuccessStatusCode();
 
             var jsonCategory = JToken.Parse(await response.Content.ReadAsStringAsync());
 
             jsonCategory.Should().ContainsJson($@"
             {{
-            	'id': '{categoryId}',
+            	'id': '{CategoryId}',
             	'createdBy': '{JohnId}',
             	'createdDateTime': *EXIST*,
             	'updatedBy': '{JohnId}',
@@ -85,16 +105,6 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             	'version': 2,
                 'nodes': *EXIST*
             }}");
-        }
-
-        private async Task<IEnumerable<Guid>> GetNodeIdsForCategory(Guid categoryId)
-        {
-            var response = await JohnApi.GetData($"/api/categories/tree/{categoryId}");
-            response.EnsureSuccessStatusCode();
-            var json = await response.Content.ReadAsStringAsync();
-            var treeJson = JsonConvert.DeserializeObject<Dictionary<string, object>>(json)["nodes"].ToString();
-            var tree = JsonConvert.DeserializeObject<List<TreeNode>>(treeJson);
-            return tree.GetNodeIds();
         }
     }
 } 

@@ -83,6 +83,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
 				}}
 			}}");
         }
+
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Chemical)]
         public async Task ChemicalProcessing_ValidMol_GenerateExpectedFileNode()
         {

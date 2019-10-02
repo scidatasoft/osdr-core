@@ -12,12 +12,11 @@ using Xunit.Abstractions;
 
 namespace Sds.Osdr.WebApi.IntegrationTests
 {
-    [Collection("OSDR Test Harness")]
-    public class CreateAndGetCategoryTree : OsdrWebTest
+    public class CreateAndGetCategoryTreeFixture
     {
-        private Guid categoryId;
+        public Guid CategoryId;
 
-        public CreateAndGetCategoryTree(OsdrWebTestHarness fixture, ITestOutputHelper output) : base(fixture, output)
+        public CreateAndGetCategoryTreeFixture(OsdrWebTestHarness harness)
         {
             var categories = new List<TreeNode>()
             {
@@ -28,19 +27,30 @@ namespace Sds.Osdr.WebApi.IntegrationTests
                 })
             };
 
-            var response = JohnApi.PostData("/api/categories/tree", categories).Result;
+            var response = harness.JohnApi.PostData("/api/categories/tree", categories).Result;
 
             var content = response.Content.ReadAsStringAsync().Result;
 
-            categoryId = Guid.Parse(content);
+            CategoryId = Guid.Parse(content);
 
-            Harness.WaitWhileCategoryTreePersisted(categoryId);
+            harness.WaitWhileCategoryTreePersisted(CategoryId);
+        }
+    }
+
+    [Collection("OSDR Test Harness")]
+    public class CreateAndGetCategoryTree : OsdrWebTest, IClassFixture<CreateAndGetCategoryTreeFixture>
+    {
+        private Guid CategoryId;
+
+        public CreateAndGetCategoryTree(OsdrWebTestHarness harness, ITestOutputHelper output, CreateAndGetCategoryTreeFixture fixture) : base(harness, output)
+        {
+            CategoryId = fixture.CategoryId;
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
-        public async Task CategoryTreeOperations_CreateNewCategoryTree_ExpectedCreatedCategory()
+        public async Task CategoryTree_CreateNewCategoryTree_BuiltExpectedDocument()
         {
-            var response = await JohnApi.GetData($"/api/categories/tree/{categoryId}");
+            var response = await JohnApi.GetData($"/api/categories/tree/{CategoryId}");
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
@@ -48,7 +58,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
              
             jsonCategory.Should().ContainsJson($@"
             {{
-            	'id': '{categoryId}',
+            	'id': '{CategoryId}',
             	'createdBy': '{JohnId}',
             	'createdDateTime': *EXIST*,
             	'updatedBy': '{JohnId}',

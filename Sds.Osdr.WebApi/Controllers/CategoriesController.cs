@@ -74,11 +74,13 @@ namespace Sds.Osdr.WebApi.Controllers
         {
             Guid categoriesTreeId = Guid.NewGuid();
 
+            nodes.InitNodeIds();
+
             await Bus.Publish<CreateCategoryTree>(new
             {
                 Id = categoriesTreeId,
                 UserId,
-                Nodes = nodes.ApplyIdsToNodes()
+                Nodes = nodes
             });
 
             return CreatedAtRoute("GetCategoriesTree", new { id = categoriesTreeId }, categoriesTreeId.ToString());
@@ -135,14 +137,16 @@ namespace Sds.Osdr.WebApi.Controllers
             {
                 var invalidIds = requestIds.Where(i => !aggregateIds.Contains(i));
                 
-                return BadRequest($"Can not find node with id(-s) {string.Join(", ", invalidIds)}");
+                return BadRequest($"Can not find nodes with ids {string.Join(", ", invalidIds)}");
             }
-            
+
+            nodes.InitNodeIds();
+
             await Bus.Publish<UpdateCategoryTree>(new
             {
                 Id = id,
                 UserId = UserId,
-                Nodes = nodes.ApplyIdsToNodes(),
+                Nodes = nodes,
                 ExpectedVersion = version
             });
 
