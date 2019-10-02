@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 namespace Leanda.Categories.Persistence.EventHandlers
 {
     public class CategoryTreeEventHandlers : IConsumer<CategoryTreeCreated>,
-		                               IConsumer<CategoryTreeUpdated>
+                                       IConsumer<CategoryTreeUpdated>,
+                                       IConsumer<CategoryTreeDeleted>
     {
 		private readonly IMongoDatabase _database;
         private readonly IMongoCollection<BsonDocument> _categoryTreeCollection;
@@ -44,16 +45,33 @@ namespace Leanda.Categories.Persistence.EventHandlers
         }
 
         public async Task Consume(ConsumeContext<CategoryTreeUpdated> context)
-		{
+        {
             var filter = new BsonDocument("_id", context.Message.Id).Add("Version", context.Message.Version - 1);
 
             var update = Builders<BsonDocument>.Update
-				.Set("Nodes", context.Message.Nodes)
-				.Set("UpdatedBy", context.Message.UserId)
-				.Set("UpdatedDateTime", context.Message.TimeStamp.UtcDateTime)
-				.Set("Version", context.Message.Version);
+                .Set("Nodes", context.Message.Nodes)
+                .Set("UpdatedBy", context.Message.UserId)
+                .Set("UpdatedDateTime", context.Message.TimeStamp.UtcDateTime)
+                .Set("Version", context.Message.Version);
 
             var element = await _categoryTreeCollection.FindOneAndUpdateAsync(filter, update);
+
+            if (element == null)
+                throw new ConcurrencyException(context.Message.Id);
+
+            await context.Publish<CategoryTreeUpdatedPersisted>(new
+            {
+                Id = context.Message.Id,
+                TimeStamp = DateTimeOffset.UtcNow,
+                Version = context.Message.Version
+            });
+        }
+
+        public async Task Consume(ConsumeContext<CategoryTreeDeleted> context)
+        {
+            var filter = new BsonDocument("_id", context.Message.Id).Add("Version", context.Message.Version - 1);
+
+            var element =  _categoryTreeCollection.FindOneAndDelete(filter);
 
             if (element == null)
                 throw new ConcurrencyException(context.Message.Id);

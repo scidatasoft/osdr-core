@@ -138,5 +138,29 @@ namespace Sds.Osdr.WebApi.Controllers
 
             return Accepted();
         }
+
+        [HttpDelete("tree/{id}")]
+        public async Task<IActionResult> DeleteCategoriesTreeNode(Guid id, int version)
+        {
+            await Bus.Publish<DeleteCategoryTree>(new
+            {
+                Id = id,
+                UserId = UserId,
+                ExpectedVersion = version
+            });
+
+            return Accepted();
+        }
+
+        [HttpDelete("tree/{id}/{nodeId}")]
+        public async Task<IActionResult> DeleteCategoriesTreeNode(Guid id, Guid nodeId, int version)
+        {
+            await Bus.Publish<DeleteCategoryTree>(new
+            {
+
+            });
+
+            return Accepted();
+        }
     }
 }

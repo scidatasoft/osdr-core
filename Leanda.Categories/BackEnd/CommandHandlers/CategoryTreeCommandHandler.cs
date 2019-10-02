@@ -11,7 +11,8 @@ using System.Threading.Tasks;
 namespace Leanda.Categories.BackEnd.CommandHandlers
 {
     public class CategoryTreeCommandHandler : IConsumer<CreateCategoryTree>,
-                                              IConsumer<UpdateCategoryTree>
+                                              IConsumer<UpdateCategoryTree>,
+                                              IConsumer<DeleteCategoryTree>
     {
         private readonly ISession _session;
 
@@ -34,6 +35,15 @@ namespace Leanda.Categories.BackEnd.CommandHandlers
             var tree = await _session.Get<CategoryTree>(context.Message.Id);
 
             tree.Update(context.Message.UserId, context.Message.ParentId, context.Message.Nodes);
+
+            await _session.Commit();
+        }
+
+        public async Task Consume(ConsumeContext<DeleteCategoryTree> context)
+        {
+            var tree = await _session.Get<CategoryTree>(context.Message.Id);
+
+            tree.Delete(context.Message.UserId);
 
             await _session.Commit();
         }

@@ -68,5 +68,10 @@ namespace Leanda.Categories.Domain
         {
             ApplyChange(new CategoryTreeUpdated(Id, userId, parentId, nodes));
         }
+
+        public void Delete(Guid userId)
+        {
+            ApplyChange(new CategoryTreeDeleted(Id, userId));
+        }
     }
 }
