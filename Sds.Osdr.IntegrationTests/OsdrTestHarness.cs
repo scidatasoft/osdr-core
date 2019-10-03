@@ -88,7 +88,7 @@ namespace Sds.Osdr.IntegrationTests
             services.AddSingleton<IRepository, Repository>();
             services.AddSingleton<EventStore.IEventStore>(new EventStore.EventStore(Environment.ExpandEnvironmentVariables(configuration["EventStore:ConnectionString"])));
 
-            var mongoUrl = new MongoUrl(Environment.ExpandEnvironmentVariables(configuration["OsdrConnectionSettings:ConnectionString"]));
+            var mongoUrl = new MongoUrl(Environment.ExpandEnvironmentVariables(configuration["MongoDb:ConnectionString"]));
 
             services.AddSingleton(new MongoClient(mongoUrl));
             services.AddScoped(service => service.GetService<MongoClient>().GetDatabase(mongoUrl.DatabaseName));
