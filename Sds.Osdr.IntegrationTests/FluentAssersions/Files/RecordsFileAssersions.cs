@@ -219,6 +219,7 @@ namespace Sds.Osdr.IntegrationTests.FluentAssersions
             file = file.Replace("*EXIST*", "'*no_valid_field*'");
             ContainsJson(asserions, JObject.Parse(file), ignoreFields);
         }
+
         public static void ContainsJson(this GenericDictionaryAssertions<string, JToken> assertions, string file, List<string> ignoreFields = null)
         {
             file = file.Replace("*EXIST*", "'*no_valid_field*'");
