@@ -145,7 +145,7 @@ namespace Sds.Osdr.WebApi.Controllers
             await Bus.Publish<DeleteCategoryTree>(new
             {
                 Id = id,
-                UserId = UserId,
+                UserId,
                 ExpectedVersion = version
             });
 
@@ -157,7 +157,10 @@ namespace Sds.Osdr.WebApi.Controllers
         {
             await Bus.Publish<DeleteCategoryTree>(new
             {
-
+                Id = id,
+                NodeId = nodeId,
+                UserId,
+                ExpectedVersion = version
             });
 
             return Accepted();

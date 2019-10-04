@@ -26,8 +26,22 @@ namespace Sds.Osdr.WebApi.IntegrationTests.EndPoints
 
             var response = await client.SendAsync(request);
 
-            return  response;
+            return response;
         }
+
+        public async Task<HttpResponseMessage> DeleteData(string url)
+        {
+            var request = new HttpRequestMessage(new HttpMethod("DELETE"), new Uri(BaseUri, url));
+
+            request.Content = new StringContent("");
+
+            request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+            var response = await client.SendAsync(request);
+
+            return response;
+        }
+
         public async Task<HttpResponseMessage> PatchData(string url, string stringContent)
         {
             var content = new StringContent(stringContent);

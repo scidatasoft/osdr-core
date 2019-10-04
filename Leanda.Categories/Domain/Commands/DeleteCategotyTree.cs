@@ -8,7 +8,7 @@ namespace Leanda.Categories.Domain.Commands
     public interface DeleteCategoryTree : CorrelatedBy<Guid>
     {
         Guid Id { get; }
-        Guid NodeId { get; }
+        Guid? NodeId { get; }
         Guid UserId { get; }
 	}
 }

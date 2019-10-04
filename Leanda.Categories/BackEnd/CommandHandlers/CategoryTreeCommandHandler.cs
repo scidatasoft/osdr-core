@@ -43,7 +43,7 @@ namespace Leanda.Categories.BackEnd.CommandHandlers
         {
             var tree = await _session.Get<CategoryTree>(context.Message.Id);
 
-            tree.Delete(context.Message.UserId);
+            tree.Delete(context.Message.UserId, context.Message.NodeId);
 
             await _session.Commit();
         }

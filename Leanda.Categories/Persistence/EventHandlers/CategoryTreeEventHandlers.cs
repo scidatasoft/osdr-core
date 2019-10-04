@@ -12,7 +12,7 @@ namespace Leanda.Categories.Persistence.EventHandlers
                                        IConsumer<CategoryTreeUpdated>,
                                        IConsumer<CategoryTreeDeleted>
     {
-		private readonly IMongoDatabase _database;
+        private readonly IMongoDatabase _database;
         private readonly IMongoCollection<BsonDocument> _categoryTreeCollection;
 
         public CategoryTreeEventHandlers(IMongoDatabase database)
@@ -21,20 +21,20 @@ namespace Leanda.Categories.Persistence.EventHandlers
             _categoryTreeCollection = _database.GetCollection<BsonDocument>("CategoryTrees");
         }
 
-		public async Task Consume(ConsumeContext<CategoryTreeCreated> context)
-		{
-			var tree = new
-			{
-				CreatedBy = context.Message.UserId,
-				CreatedDateTime = context.Message.TimeStamp.UtcDateTime,
+        public async Task Consume(ConsumeContext<CategoryTreeCreated> context)
+        {
+            var tree = new
+            {
+                CreatedBy = context.Message.UserId,
+                CreatedDateTime = context.Message.TimeStamp.UtcDateTime,
                 UpdatedBy = context.Message.UserId,
                 UpdatedDateTime = context.Message.TimeStamp.UtcDateTime,
                 Id = context.Message.Id,
-				Version = context.Message.Version,
+                Version = context.Message.Version,
                 Nodes = context.Message.Nodes
-			}.ToBsonDocument();
+            }.ToBsonDocument();
 
-			await _categoryTreeCollection.InsertOneAsync(tree);
+            await _categoryTreeCollection.InsertOneAsync(tree);
 
             await context.Publish<CategoryTreePersisted>(new
             {
@@ -71,16 +71,20 @@ namespace Leanda.Categories.Persistence.EventHandlers
         {
             var filter = new BsonDocument("_id", context.Message.Id).Add("Version", context.Message.Version - 1);
 
-            var element =  _categoryTreeCollection.FindOneAndDelete(filter);
-
-            if (element == null)
-                throw new ConcurrencyException(context.Message.Id);
-
-            await context.Publish<CategoryTreeUpdatedPersisted>(new
+            if (!context.Message.NodeId.HasValue)
             {
-                Id = context.Message.Id,
+                var element = _categoryTreeCollection.FindOneAndDelete(filter);
+                if (element == null)
+                    throw new ConcurrencyException(context.Message.Id);
+            }
+
+
+            await context.Publish<CategoryTreeDeletePersisted>(new
+            {
+                context.Message.Id,
+                context.Message.NodeId,
                 TimeStamp = DateTimeOffset.UtcNow,
-                Version = context.Message.Version
+                context.Message.Version
             });
         }
     }
