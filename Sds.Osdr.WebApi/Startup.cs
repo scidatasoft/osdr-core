@@ -48,6 +48,10 @@ using Microsoft.AspNetCore.SignalR;
 using System.Net.WebSockets;
 using System.Threading;
 using Microsoft.AspNetCore.Http.Features;
+using CQRSlite.Events;
+using CQRSlite.Domain;
+using ISession = CQRSlite.Domain.ISession;
+using Sds.CqrsLite.EventStore;
 
 namespace Sds.Osdr.WebApi
 {
@@ -145,7 +149,12 @@ namespace Sds.Osdr.WebApi
             try
             {
                 var settings = Environment.ExpandEnvironmentVariables(Configuration["EventStore:ConnectionString"]);
-                services.AddSingleton<IEventStore>(new EventStore.EventStore(settings));
+                services.AddSingleton<EventStore.IEventStore>(new EventStore.EventStore(settings));
+
+                services.AddSingleton<CQRSlite.Events.IEventStore>(y => new GetEventStore(Environment.ExpandEnvironmentVariables(Configuration["EventStore:ConnectionString"])));
+                services.AddSingleton<IEventPublisher, CqrsLite.MassTransit.MassTransitBus>();
+                services.AddTransient<ISession, Session>();
+                services.AddSingleton<IRepository, Repository>();
             }
             catch (Exception e)
             {

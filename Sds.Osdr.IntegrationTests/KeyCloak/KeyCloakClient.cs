@@ -38,7 +38,6 @@ namespace Sds.Osdr.IntegrationTests
                 .AddJsonFile($"appsettings.json", false, true)
                 .AddEnvironmentVariables()
                 .Build();
-
             Authority = Environment.ExpandEnvironmentVariables(configuration["KeyCloak:Authority"]);
         }
 

@@ -53,6 +53,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.9" />
     <PackageReference Include="NEST" Version="6.0.2" />
     <PackageReference Include="Sds.ChemicalExport.Domain" Version="0.14.0-develop" />
+    <PackageReference Include="Sds.CqrsLite.EventStore" Version="2.0.4" />
     <PackageReference Include="Sds.EventStore.GetEventStore" Version="0.8.0" />
     <PackageReference Include="Sds.MassTransit.RabbitMq" Version="3.0.4" />
     <PackageReference Include="Sds.Reflection" Version="1.0.3" />
