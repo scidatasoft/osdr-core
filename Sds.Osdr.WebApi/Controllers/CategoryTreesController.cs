@@ -21,7 +21,7 @@ namespace Sds.Osdr.WebApi.Controllers
     [Route("api/[controller]")]
     [Authorize]
     [UserInfoRequired]
-    public class CategoriesController : MongoDbController, IPaginationController
+    public class CategoryTreesController : MongoDbController, IPaginationController
     {
         private IBusControl Bus;
         private IMongoCollection<BsonDocument> CategoryTreeCollection;
@@ -29,7 +29,7 @@ namespace Sds.Osdr.WebApi.Controllers
 
         //IElasticClient _elasticClient;
         private IUrlHelper _urlHelper;
-        public CategoriesController(IMongoDatabase database, IBusControl bus /*IElasticClient elasticClient*/, IUrlHelper urlHelper, ISession session) : base(database)
+        public CategoryTreesController(IMongoDatabase database, IBusControl bus /*IElasticClient elasticClient*/, IUrlHelper urlHelper, ISession session) : base(database)
         {
             Bus = bus ?? throw new ArgumentNullException(nameof(bus));
             _urlHelper = urlHelper ?? throw new ArgumentNullException(nameof(urlHelper));
@@ -224,5 +224,6 @@ namespace Sds.Osdr.WebApi.Controllers
 
             return _urlHelper.Link(action, routeValueDictionary);
         }
+
     }
 }

@@ -29,7 +29,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
                 })
             };
 
-            var response = harness.JohnApi.PostData("/api/categories/tree", categories).Result;
+            var response = harness.JohnApi.PostData("/api/categorytrees/tree", categories).Result;
 
             var content = response.Content.ReadAsStringAsync().Result;
 
@@ -60,16 +60,17 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             ]";
             categories = JsonConvert.DeserializeObject<List<TreeNode>>(json);
 
-            response = harness.JohnApi.PutData($"/api/categories/tree/{CategoryId}", categories).Result;
+            response = harness.JohnApi.PutData($"/api/categorytrees/tree/{CategoryId}", categories).Result;
 
             harness.WaitWhileCategoryTreeUpdatedPersisted(CategoryId);
         }
 
         private async Task<IEnumerable<Guid>> GetNodeIdsForCategory(OsdrWebTestHarness harness, Guid categoryId)
         {
-            var response = await harness.JohnApi.GetData($"/api/categories/tree/{categoryId}");
+            var response = await harness.JohnApi.GetData($"/api/categorytrees/tree/{categoryId}");
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
+            json = json.Replace("_id", "id");
             var treeJson = JsonConvert.DeserializeObject<Dictionary<string, object>>(json)["nodes"].ToString();
             var tree = JsonConvert.DeserializeObject<List<TreeNode>>(treeJson);
             return tree.GetNodeIds();
@@ -90,14 +91,14 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task CategoryTree_UpdateCategoryTree_BuiltExpectedDocument()
         {
-            var response = await JohnApi.GetData($"/api/categories/tree/{CategoryId}");
+            var response = await JohnApi.GetData($"/api/categorytrees/tree/{CategoryId}");
             response.EnsureSuccessStatusCode();
 
             var jsonCategory = JToken.Parse(await response.Content.ReadAsStringAsync());
 
             jsonCategory.Should().ContainsJson($@"
             {{
-            	'id': '{CategoryId}',
+            	'_id': '{CategoryId}',
             	'createdBy': '{JohnId}',
             	'createdDateTime': *EXIST*,
             	'updatedBy': '{JohnId}',

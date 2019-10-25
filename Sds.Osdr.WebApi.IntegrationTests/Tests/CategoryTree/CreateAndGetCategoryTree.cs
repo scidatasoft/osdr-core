@@ -27,7 +27,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
                 })
             };
 
-            var response = harness.JohnApi.PostData("/api/categories/tree", categories).Result;
+            var response = harness.JohnApi.PostData("/api/categorytrees/tree", categories).Result;
 
             var content = response.Content.ReadAsStringAsync().Result;
 
@@ -50,7 +50,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task CategoryTree_CreateNewCategoryTree_BuiltExpectedDocument()
         {
-            var response = await JohnApi.GetData($"/api/categories/tree/{CategoryId}");
+            var response = await JohnApi.GetData($"/api/categorytrees/tree/{CategoryId}");
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
@@ -58,7 +58,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
              
             jsonCategory.Should().ContainsJson($@"
             {{
-            	'id': '{CategoryId}',
+            	'_id': '{CategoryId}',
             	'createdBy': '{JohnId}',
             	'createdDateTime': *EXIST*,
             	'updatedBy': '{JohnId}',
