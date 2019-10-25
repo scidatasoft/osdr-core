@@ -43,10 +43,10 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         {
             var response = await JohnApi.DeleteData($"/api/categorytrees/tree/{categoryId}");
             response.EnsureSuccessStatusCode();
+            Harness.WaitWhileCategoryTreeDeletePersisted(categoryId);
 
             response = await JohnApi.GetData($"/api/categorytrees/tree/{categoryId}");
-            var content = await response.Content.ReadAsStringAsync();
-            content.Should().BeEmpty();
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
         }
     }
 }
