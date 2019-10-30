@@ -28,7 +28,7 @@ namespace Leanda.Categories.Domain
         /// </summary>
         public DateTimeOffset UpdatedDateTime { get; protected set; }
 
-        public List<Guid> CategoriesIds { get; protected set; }
+        public IEnumerable<Guid> CategoriesIds { get; protected set; }
 
         private void Apply(EntityCategoriesCreated e)
         {

@@ -2,7 +2,7 @@
 
 namespace Leanda.Categories.Domain.Events
 {
-    public class EntityCategoriesAddPersisted
+    public interface IEntityCategoriesAddPersisted
     {
     }
 }

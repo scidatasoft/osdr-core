@@ -34,7 +34,7 @@ namespace Leanda.Categories.Persistence.EventHandlers
 
             await _categoryTreeCollection.InsertOneAsync(entityCategories);
 
-            await context.Publish<EntityCategoriesAddPersisted>(new
+            await context.Publish<IEntityCategoriesAddPersisted>(new
             {
                 Id = context.Message.Id,
                 TimeStamp = DateTimeOffset.UtcNow,
