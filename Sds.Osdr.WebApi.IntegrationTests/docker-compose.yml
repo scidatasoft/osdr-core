@@ -66,6 +66,18 @@ services:
     depends_on:
       - postgres
 
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.4
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9201:9201"
+      - "9200:9200"
+      - "9301:9300"
+    networks:
+      - leanda-net
+
   core-backend:
     container_name: core-backend
     image: leanda/core-backend:${TAG_VERSION-latest}
