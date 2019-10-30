@@ -43,7 +43,7 @@ namespace Leanda.Categories.Domain
         {
         }
 
-        public EntityCategories(Guid id, Guid userId, List<Guid> categoriesIds)
+        public EntityCategories(Guid id, Guid userId, IEnumerable<Guid> categoriesIds)
         {
             Id = id;
             ApplyChange(new EntityCategoriesCreated(Id, userId, categoriesIds));

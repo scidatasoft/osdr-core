@@ -9,7 +9,7 @@ namespace Leanda.Categories.Domain.Events
 	{
         public IEnumerable<Guid> CategoriesIds { get; set; }
 
-        public EntityCategoriesCreated(Guid id, Guid userId, List<Guid> categoriesIds)
+        public EntityCategoriesCreated(Guid id, Guid userId, IEnumerable<Guid> categoriesIds)
         {
             Id = id;
             CategoriesIds = categoriesIds;
