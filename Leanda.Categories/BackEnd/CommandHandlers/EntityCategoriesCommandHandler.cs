@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Leanda.Categories.BackEnd.CommandHandlers
 {
-    public class EntityCategoriesCommandHandler : IConsumer<AddCategoriesToEntity>
+    public class EntityCategoriesCommandHandler : IConsumer<AddEntityCategories>
     {
         private readonly ISession _session;
 
@@ -19,7 +19,7 @@ namespace Leanda.Categories.BackEnd.CommandHandlers
             _session = session ?? throw new ArgumentNullException(nameof(session));
         }
 
-        public async Task Consume(ConsumeContext<AddCategoriesToEntity> context)
+        public async Task Consume(ConsumeContext<AddEntityCategories> context)
         {
             var entityCategory = new EntityCategories(context.Message.Id, userId: context.Message.UserId, categoriesIds: context.Message.CategoriesIds);
 

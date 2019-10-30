@@ -10,20 +10,21 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Sds.Osdr.WebApi.IntegrationTests
 {
-    public class AddCategoriesToEntityFixture
+    public class GetCategoriesIdsByEntityIdFixture
     {
         public Guid CategoryId;
         public Guid BlobId { get; set; }
         public Guid FileId { get; set; }
 
 
-        public AddCategoriesToEntityFixture(OsdrWebTestHarness harness)
+        public GetCategoriesIdsByEntityIdFixture(OsdrWebTestHarness harness)
         {
             var categories = new List<TreeNode>()
             {
@@ -49,14 +50,14 @@ namespace Sds.Osdr.WebApi.IntegrationTests
     }
 
     [Collection("OSDR Test Harness")]
-    public class AddCategoriesToEntity : OsdrWebTest, IClassFixture<AddCategoriesToEntityFixture>
+    public class GetCategoriesIdsByEntityId : OsdrWebTest, IClassFixture<GetCategoriesIdsByEntityIdFixture>
     {
         private Guid CategoryId;
         public Guid BlobId { get; set; }
         public Guid FileId { get; set; }
 
 
-        public AddCategoriesToEntity(OsdrWebTestHarness harness, ITestOutputHelper output, AddCategoriesToEntityFixture fixture) : base(harness, output)
+        public GetCategoriesIdsByEntityId(OsdrWebTestHarness harness, ITestOutputHelper output, GetCategoriesIdsByEntityIdFixture fixture) : base(harness, output)
         {
             CategoryId = fixture.CategoryId;
             BlobId = fixture.BlobId;
@@ -64,27 +65,34 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
-        public async Task AddOneCategoryToEntity()
+        public async Task GetCategoriesIdsByEntityIdTest()
         {
             var fileNodeResponse = await JohnApi.GetNodeById(FileId);
             var fileNode = JsonConvert.DeserializeObject<JObject>(await fileNodeResponse.Content.ReadAsStringAsync());
             var fileNodeId = Guid.Parse(fileNode.Value<string>("id"));
 
-            var response = JohnApi.PostData("/api/categoryentities/entities/" + fileNodeId, new List<Guid> { CategoryId }).Result;
+            await JohnApi.PostData($"/api/categoryentities/entities/{fileNodeId}/categories", new List<Guid> { CategoryId });
+            GetNodeByCategoryId(CategoryId.ToString());
 
 
-            // Try to Get nodes by category id
+            var response = JohnApi.GetData($"/api/categoryentities/entities/{fileNodeId}/categories").Result;
+            var content = response.Content.ReadAsStringAsync().Result;
+            var categoriesIds = JsonConvert.DeserializeObject<IEnumerable<string>>(content);
+            categoriesIds.Any(x => x == CategoryId.ToString()).Should().BeTrue();
+        }
+
+        JObject GetNodeByCategoryId(string categoryId)
+        {
             var nodesFromES = new List<JObject>();
             for (int i = 0; i < 5; i++)
             {
                 Thread.Sleep(1000);
-                var getResponse = JohnApi.GetData("/api/categoryentities/entities/" + CategoryId).Result;
-                var nodesResponseContent = await getResponse.Content.ReadAsStringAsync();
+                var getResponse = JohnApi.GetData($"/api/categoryentities/categories/{categoryId}").Result;
+                var nodesResponseContent = getResponse.Content.ReadAsStringAsync().Result;
                 nodesFromES = JsonConvert.DeserializeObject<List<JObject>>(nodesResponseContent);
-                if (nodesFromES.Count == 0) continue;
+                if (nodesFromES.Count != 0) return nodesFromES[0];
             }
-            nodesFromES.Count.Should().BePositive();
-            nodesFromES[0].Value<string>("_id").Should().Be(fileNodeId.ToString());
+            return null;
         }
     }
 }
