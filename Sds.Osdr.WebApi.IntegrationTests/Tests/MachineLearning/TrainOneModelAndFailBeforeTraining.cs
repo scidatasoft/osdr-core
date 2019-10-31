@@ -31,7 +31,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             FolderId = initFixture.FolderId;
         }
         
-        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.MachineLearning)]
+        [Fact(Skip = "Ignore"), WebApiTrait(TraitGroup.All, TraitGroup.MachineLearning)]
         public async Task MlProcessing_InvalidModelTraining_There_Are_No_Errors()
         {
             Harness.GetFaults().Should().BeEmpty();

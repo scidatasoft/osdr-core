@@ -34,7 +34,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             FolderId = initFixture.FolderId;
         }
         
-        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.MachineLearning)]
+        [Fact(Skip = "Ignore"), WebApiTrait(TraitGroup.All, TraitGroup.MachineLearning)]
         public async Task MlProcessing_ReverseEvnetsOrder_ThereAreNoErrors()
         {
             Harness.GetFaults().Should().BeEmpty();
