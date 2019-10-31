@@ -167,7 +167,7 @@ services:
       - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
-      #- OSDR_ES=http://elasticsearch:9200
+      - OSDR_ES=http://elasticsearch:9200
       - SWAGGER_BASEPATH=/osdr/v1
       - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
     command: ./wait-for-it.sh rabbitmq:15672 -t 60 -- ./wait-for-it.sh keycloak:8080 -t 60 -- ./Sds.Osdr.WebApi
