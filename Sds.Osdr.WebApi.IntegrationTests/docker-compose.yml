@@ -204,22 +204,6 @@ services:
     ports:
       - "18006:18006"
 
-  categories-service:
-    container_name: categories-service
-    image: leanda/categories-service:latest
-    entrypoint: /bin/bash
-    environment:
-      - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
-      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
-      - OSDR_ES=http://elasticsearch:9200
-      - OSDR_LOG_LEVEL=${OSDR_LOG_LEVEL}
-    command: ./wait-for-it.sh rabbitmq:15672 -t 60 -- ./wait-for-it.sh elasticsearch:9200 -t 60 -- ./Leanda.Categories.Processing
-    volumes:
-      - ${OSDR_LOG_FOLDER}:/logs
-    networks:
-      - leanda-net
-
   integration:
     container_name: webapi-integration
     image: leanda/webapi-integration:${TAG_VERSION-latest}

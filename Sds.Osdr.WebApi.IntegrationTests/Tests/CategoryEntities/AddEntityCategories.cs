@@ -74,7 +74,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             FileNodeId = fixture.FileNodeId;
         }
 
-        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
+        [Fact(Skip = "Ignore"), WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task AddOneCategoryToEntity()
         {
             // Try to Get nodes by category id

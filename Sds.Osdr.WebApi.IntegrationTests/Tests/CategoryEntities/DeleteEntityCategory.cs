@@ -63,7 +63,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             FileId = fixture.FileId;
         }
 
-        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
+        [Fact(Skip = "Ignore"), WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task DeleteOneCategoryToEntity()
         {
             var fileNodeResponse = await JohnApi.GetNodeById(FileId);
