@@ -75,7 +75,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             var categoryId1 = JObject.Parse(treeContent)["nodes"][0]["children"][0]["_id"].ToString();
             var categoryId2 = JObject.Parse(treeContent)["nodes"][0]["children"][1]["_id"].ToString();
 
-            // add categories to entity
+            // add categories to entity 
             await JohnApi.PostData($"/api/categoryentities/entities/{fileNodeId}/categories", new List<string> { categoryId1, categoryId2 });
             // check if node exists by categoryId1
             var firstCategoryAddedNode = GetNodeByCategoryId(categoryId1);
