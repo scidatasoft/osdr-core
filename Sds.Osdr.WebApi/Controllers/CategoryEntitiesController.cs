@@ -156,6 +156,7 @@ namespace Sds.Osdr.WebApi.Controllers
             return Ok();
         }
 
+        [NonAction]
         public string CreatePageUri(PaginationRequest request, PaginationUriType uriType, string action, Guid? containerId = null, string filter = null, IEnumerable<string> fields = null)
         {
             int pageNumber = uriType == PaginationUriType.PreviousPage ? request.PageNumber - 1 : request.PageNumber + 1;
@@ -164,6 +165,7 @@ namespace Sds.Osdr.WebApi.Controllers
 
         }
 
+        [NonAction]
         public string CreatePageUri(PaginationRequest request, PaginationUriType uriType, string action, RouteValueDictionary routeValueDictionary)
         {
             int pageNumber = uriType == PaginationUriType.PreviousPage ? request.PageNumber - 1 : request.PageNumber + 1;

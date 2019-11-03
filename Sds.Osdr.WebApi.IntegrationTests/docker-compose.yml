@@ -203,6 +203,12 @@ services:
       - leanda-net
     ports:
       - "18006:18006"
+    depends_on:
+      - keycloak
+      - rabbitmq
+      - eventstore
+      - redis
+      - mongo
 
   integration:
     container_name: webapi-integration
