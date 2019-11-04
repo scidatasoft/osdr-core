@@ -22,7 +22,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             var response = await JohnApi.GetFolder(Guid.NewGuid());
 	        response.EnsureSuccessStatusCode();
             //Should not return Forbid status code
-            response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotFound);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }
 }

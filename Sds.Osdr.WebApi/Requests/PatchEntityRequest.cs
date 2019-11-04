@@ -8,7 +8,7 @@ namespace Sds.Osdr.WebApi.Requests
 {
     public class PatchEntityRequest
     {
-        public JsonPatchDocument<UpdatedEntityData> PatchDocument { get; set; }
+        public JsonPatchDocument<UpdateEntityRequest> PatchDocument { get; set; }
         public int Version { get; set; }
     }
 }

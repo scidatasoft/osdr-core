@@ -81,7 +81,6 @@ namespace Sds.Osdr.IntegrationTests.Moq
                     MimeType = "image/svg+xml"
                 };
 
-                //await _eventPublisher.Publish(new ImageGenerated(Guid.NewGuid(), context.Message.Bucket, Guid.NewGuid(), image, context.Message.CorrelationId, context.Message.UserId));
                 await context.Publish<ImageGenerated>(new
                 {
                     Id = context.Message.Id,

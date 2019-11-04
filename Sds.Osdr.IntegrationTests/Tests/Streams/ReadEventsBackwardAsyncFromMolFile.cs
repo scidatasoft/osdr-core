@@ -43,8 +43,8 @@ namespace Sds.Osdr.IntegrationTests
             var events = await EventStore.ReadEventsBackwardAsync(file.Id, 0, 1);
             var oneEvent = events.First();
 
-            oneEvent.Id.ShouldBeEquivalentTo(FileId);
-            oneEvent.Version.ShouldBeEquivalentTo(1);
+            oneEvent.Id.Should().Be(FileId);
+            oneEvent.Version.Should().Be(1);
         }
         
         [Fact, ProcessingTrait(TraitGroup.All, TraitGroup.Chemical)]

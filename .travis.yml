@@ -1,0 +1,81 @@
+language: minimal
+
+services:
+  - docker
+
+branches:
+  only:
+    - master
+
+os:
+  - linux
+
+env:
+  global:
+    - DATE=`TZ=America/New_York date "+%Y-%m-%d-%H%M"`
+    - DOCKER_CACHE_FILE=/home/travis/docker/docker-cache.tar
+    - LEANDA_PERSISTENCE_IMAGE="leanda/core-persistence"
+    - LEANDA_FRONTEND_IMAGE="leanda/core-frontend"
+    - LEANDA_BACKEND_IMAGE="leanda/core-backend"
+    - LEANDA_SAGAHOST_IMAGE="leanda/core-sagahost"
+    - LEANDA_WEBAPI_IMAGE="leanda/core-web-api"
+    - LEANDA_WEBAPI_INTEGRATION_TESTS_IMAGE="leanda/webapi-integration"
+
+cache:
+  directories:
+    - /home/travis/docker/
+
+jobs:
+  include:
+    - stage: Build
+      name: Build Leanda Back-End, Front-End, Sagahost, Persistence and Web API services
+      script: 
+        - docker build -t $LEANDA_PERSISTENCE_IMAGE:ci -f Sds.Osdr.Persistence/Dockerfile .
+        - docker build -t $LEANDA_FRONTEND_IMAGE:ci -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
+        - docker build -t $LEANDA_BACKEND_IMAGE:ci -f Sds.Osdr.Domain.BackEnd/Dockerfile .
+        - docker build -t $LEANDA_SAGAHOST_IMAGE:ci -f Sds.Osdr.Domain.SagaHost/Dockerfile .
+        - docker build -t $LEANDA_WEBAPI_IMAGE:ci -f Sds.Osdr.WebApi/Dockerfile .
+        - if [ -d $DOCKER_CACHE_FILE ]; then rm $DOCKER_CACHE_FILE; fi
+        - docker save -o $DOCKER_CACHE_FILE $LEANDA_PERSISTENCE_IMAGE:ci $LEANDA_FRONTEND_IMAGE:ci $LEANDA_BACKEND_IMAGE:ci $LEANDA_SAGAHOST_IMAGE:ci $LEANDA_WEBAPI_IMAGE:ci
+    - stage: Integration tests
+      name: Run Web API integration tests
+      script:
+        - docker load -i $DOCKER_CACHE_FILE
+        - docker build -t $LEANDA_WEBAPI_INTEGRATION_TESTS_IMAGE:ci -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
+        - docker images
+        - yes | cp -rf Sds.Osdr.WebApi.IntegrationTests/.env.travis-ci Sds.Osdr.WebApi.IntegrationTests/.env
+        - cd Sds.Osdr.WebApi.IntegrationTests && docker-compose up --abort-on-container-exit
+    - script:
+        - docker load -i $DOCKER_CACHE_FILE
+        - docker build -t leanda/integration:ci -f Sds.Osdr.IntegrationTests/Dockerfile .
+        - docker images
+        - yes | cp -rf Sds.Osdr.IntegrationTests/.env.travis-ci Sds.Osdr.IntegrationTests/.env
+        - cd Sds.Osdr.IntegrationTests && docker-compose up --abort-on-container-exit
+      name: Run processing integration tests
+    - stage: Deploy
+      name: Deploy new images to docker hub
+      script:
+        - docker load -i $DOCKER_CACHE_FILE
+        - docker tag $LEANDA_PERSISTENCE_IMAGE:ci $LEANDA_PERSISTENCE_IMAGE:latest
+        - docker tag $LEANDA_PERSISTENCE_IMAGE:ci $LEANDA_PERSISTENCE_IMAGE:$DATE
+        - docker tag $LEANDA_FRONTEND_IMAGE:ci $LEANDA_FRONTEND_IMAGE:latest
+        - docker tag $LEANDA_FRONTEND_IMAGE:ci $LEANDA_FRONTEND_IMAGE:$DATE
+        - docker tag $LEANDA_BACKEND_IMAGE:ci $LEANDA_BACKEND_IMAGE:latest
+        - docker tag $LEANDA_BACKEND_IMAGE:ci $LEANDA_BACKEND_IMAGE:$DATE
+        - docker tag $LEANDA_SAGAHOST_IMAGE:ci $LEANDA_SAGAHOST_IMAGE:latest
+        - docker tag $LEANDA_SAGAHOST_IMAGE:ci $LEANDA_SAGAHOST_IMAGE:$DATE
+        - docker tag $LEANDA_WEBAPI_IMAGE:ci $LEANDA_WEBAPI_IMAGE:latest
+        - docker tag $LEANDA_WEBAPI_IMAGE:ci $LEANDA_WEBAPI_IMAGE:$DATE
+        - docker images
+        - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        - docker push $LEANDA_PERSISTENCE_IMAGE:latest
+        - docker push $LEANDA_PERSISTENCE_IMAGE:$DATE
+        - docker push $LEANDA_FRONTEND_IMAGE:latest
+        - docker push $LEANDA_FRONTEND_IMAGE:$DATE
+        - docker push $LEANDA_BACKEND_IMAGE:latest
+        - docker push $LEANDA_BACKEND_IMAGE:$DATE
+        - docker push $LEANDA_SAGAHOST_IMAGE:latest
+        - docker push $LEANDA_SAGAHOST_IMAGE:$DATE
+        - docker push $LEANDA_WEBAPI_IMAGE:latest
+        - docker push $LEANDA_WEBAPI_IMAGE:$DATE
+        - rm -f $DOCKER_CACHE_FILE

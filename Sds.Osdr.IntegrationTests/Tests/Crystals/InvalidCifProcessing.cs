@@ -55,7 +55,7 @@ namespace Sds.Osdr.IntegrationTests
 			var file = await Session.Get<RecordsFile.Domain.RecordsFile>(FileId);
 
 			file.Should().NotBeNull();
-			file.ShouldBeEquivalentTo(new
+			file.Should().BeEquivalentTo(new
 			{
 				Id = FileId,
 				Type = FileType.Records,

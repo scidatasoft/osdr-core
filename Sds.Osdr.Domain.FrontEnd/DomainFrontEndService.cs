@@ -88,6 +88,7 @@ namespace Sds.Osdr.Domain.FrontEnd
                 Assembly.LoadFrom("Sds.Osdr.Tabular.dll"),
                 Assembly.LoadFrom("Sds.Osdr.MachineLearning.dll"),
                 Assembly.LoadFrom("Sds.Osdr.WebPage.dll"),
+                Assembly.LoadFrom("Leanda.Microscopy.dll"),
             };
 
             Log.Information($"Registered modules:");

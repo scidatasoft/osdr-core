@@ -1,4 +1,5 @@
-﻿using MassTransit;
+﻿using Leanda.Categories.Domain.Events;
+using MassTransit;
 using Newtonsoft.Json;
 using Sds.MassTransit.Extensions;
 using Sds.Osdr.Generic.Domain.Commands.Folders;
@@ -494,6 +495,32 @@ namespace Sds.Osdr.IntegrationTests
             }
         }
 
+        public static void WaitWhileFileRenamed(this OsdrTestHarness harness, Guid id)
+        {
+            if (!harness.Received.Select<Generic.Domain.Events.Files.FileNamePersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+
+            if (!harness.Received.Select<Generic.Domain.Events.Nodes.RenamedFilePersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+        }
+
+        public static void WaitWhileFileMoved(this OsdrTestHarness harness, Guid id)
+        {
+            if (!harness.Received.Select<Generic.Domain.Events.Files.FileParentPersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+
+            if (!harness.Received.Select<Generic.Domain.Events.Nodes.MovedFilePersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+        }
+
         //public static void WaitWhileFolderShared(this BusTestHarness harness, Guid id)
         //{
         //    if (!harness.Published.Select<Generic.Domain.Events.Folders.PermissionChangedPersisted>(m => m.Context.Message.Id == id).Any())
@@ -606,6 +633,38 @@ namespace Sds.Osdr.IntegrationTests
         public static void WaitWhileBlobLoaded(this OsdrTestHarness harness, Guid blobId)
         {
             if (!harness.Received.Select<BlobLoaded>(m => m.Context.Message.BlobInfo.Id == blobId).Any())
+            {
+                throw new TimeoutException();
+            }
+        }
+
+        public static void WaitMetadataUpdated(this OsdrTestHarness harness, Guid id)
+        {
+            if (!harness.Received.Select<Generic.Domain.Events.Files.MetadataPersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+        }
+
+        public static void WaitWhileCategoryTreePersisted(this OsdrTestHarness harness, Guid id)
+        {
+            if (!harness.Received.Select<CategoryTreePersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+        }
+
+        public static void WaitWhileCategoryTreeUpdatedPersisted(this OsdrTestHarness harness, Guid id)
+        {
+            if (!harness.Received.Select<CategoryTreeUpdatedPersisted>(m => m.Context.Message.Id == id).Any())
+            {
+                throw new TimeoutException();
+            }
+        }
+
+        public static void WaitWhileCategoryTreeDeletePersisted(this OsdrTestHarness harness, Guid id)
+        {
+            if (!harness.Received.Select<CategoryTreeDeletePersisted>(m => m.Context.Message.Id == id).Any())
             {
                 throw new TimeoutException();
             }

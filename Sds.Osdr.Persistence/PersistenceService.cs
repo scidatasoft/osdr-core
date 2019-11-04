@@ -60,8 +60,11 @@ namespace Sds.Osdr.Persistence
             services.AddOptions();
             services.Configure<MassTransitSettings>(Configuration.GetSection("MassTransit"));
 
-            services.AddSingleton(new MongoClient(Environment.ExpandEnvironmentVariables(Configuration["ConnectionSettings:ConnectionString"])));
-            services.AddScoped(service => service.GetService<MongoClient>().GetDatabase(Configuration["ConnectionSettings:DatabaseName"]));
+            var mongoConnectionString = Environment.ExpandEnvironmentVariables(Configuration["ConnectionSettings:ConnectionString"]);
+            var mongoUrl = new MongoUrl(mongoConnectionString);
+
+            services.AddSingleton(new MongoClient(mongoUrl));
+            services.AddScoped(service => service.GetService<MongoClient>().GetDatabase(mongoUrl.DatabaseName));
 
             services.AddAllConsumers();
 
@@ -79,6 +82,8 @@ namespace Sds.Osdr.Persistence
                 Assembly.LoadFrom("Sds.Osdr.Tabular.dll"),
                 Assembly.LoadFrom("Sds.Osdr.MachineLearning.dll"),
                 Assembly.LoadFrom("Sds.Osdr.WebPage.dll"),
+                Assembly.LoadFrom("Leanda.Microscopy.dll"),
+                Assembly.LoadFrom("Leanda.CategoryTree.dll"),
             };
 
             Log.Information($"Registered modules:");
@@ -162,8 +167,7 @@ namespace Sds.Osdr.Persistence
                     
                     foreach (var field in collectionIndexes)
                     {
-                        mongoCollection.Indexes.CreateOneAsync(Builders<BsonDocument>.IndexKeys
-                            .Ascending(_ => _[field])).GetAwaiter().GetResult();
+                        mongoCollection.Indexes.CreateOneAsync(Builders<BsonDocument>.IndexKeys.Ascending(_ => _[field])).GetAwaiter().GetResult();
                     }
                     
                     Console.Write("");

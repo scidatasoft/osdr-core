@@ -103,9 +103,7 @@ namespace Sds.Osdr.IntegrationTests
 
             services.AddSingleton<IConsumerScopeProvider, DependencyInjectionConsumerScopeProvider>();
 
-            var integrationTestsAssembly = Assembly.LoadFrom("Sds.Osdr.IntegrationTests.dll");
-
-            services.AddAllConsumers(integrationTestsAssembly);
+            OnInit(services);
 
             services.AddSingleton(container => Bus.Factory.CreateUsingRabbitMq(x =>
             {
@@ -113,22 +111,7 @@ namespace Sds.Osdr.IntegrationTests
 
                 IRabbitMqHost host = x.Host(new Uri(Environment.ExpandEnvironmentVariables(mtSettings.ConnectionString)), h => { });
 
-                x.RegisterConsumers(host, container, e =>
-                {
-                    e.UseDelayedRedelivery(r =>
-                    {
-                        r.Interval(mtSettings.RedeliveryCount, TimeSpan.FromMilliseconds(mtSettings.RedeliveryInterval));
-                        r.Handle<ConcurrencyException>();
-                    });
-                    e.UseMessageRetry(r =>
-                    {
-                        r.Interval(mtSettings.RetryCount, TimeSpan.FromMilliseconds(mtSettings.RetryInterval));
-                        r.Handle<ConcurrencyException>();
-                    });
-
-                    e.PrefetchCount = mtSettings.PrefetchCount;
-                    e.UseInMemoryOutbox();
-                }, integrationTestsAssembly);
+                OnBusCreation(x, host, container);
 
                 x.ReceiveEndpoint(host, "processing_fault_queue", e =>
                 {
@@ -201,6 +184,22 @@ namespace Sds.Osdr.IntegrationTests
                     e.Handler<Generic.Domain.Events.Nodes.PermissionChangedPersisted>(context => { Received.Add(context); return Task.CompletedTask; });
 
                     e.Handler<Generic.Domain.Events.Files.PermissionChangedPersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Generic.Domain.Events.Files.MetadataPersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Generic.Domain.Events.Files.FileNamePersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Generic.Domain.Events.Nodes.RenamedFilePersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Generic.Domain.Events.Nodes.MovedFilePersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Generic.Domain.Events.Files.FileParentPersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Leanda.Categories.Domain.Events.CategoryTreePersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Leanda.Categories.Domain.Events.CategoryTreeUpdatedPersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Leanda.Categories.Domain.Events.CategoryTreeDeletePersisted>(context => { Received.Add(context); return Task.CompletedTask; });
                 });
 
                 x.UseConcurrencyLimit(mtSettings.ConcurrencyLimit);
@@ -223,6 +222,37 @@ namespace Sds.Osdr.IntegrationTests
                 .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 10000)).WhenTypeIs<DateTime>()
                 .Using<DateTimeOffset>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 10000)).WhenTypeIs<DateTimeOffset>()
             );
+        }
+
+        protected virtual void OnInit(IServiceCollection services)
+        {
+            var integrationTestsAssembly = Assembly.LoadFrom("Sds.Osdr.IntegrationTests.dll");
+
+            services.AddAllConsumers(integrationTestsAssembly);
+        }
+
+        protected virtual void OnBusCreation(IRabbitMqBusFactoryConfigurator config, IRabbitMqHost host, IServiceProvider container)
+        {
+            var integrationTestsAssembly = Assembly.LoadFrom("Sds.Osdr.IntegrationTests.dll");
+
+            var mtSettings = container.GetService<IOptions<MassTransitSettings>>().Value;
+
+            config.RegisterConsumers(host, container, e =>
+            {
+                e.UseDelayedRedelivery(r =>
+                {
+                    r.Interval(mtSettings.RedeliveryCount, TimeSpan.FromMilliseconds(mtSettings.RedeliveryInterval));
+                    r.Handle<ConcurrencyException>();
+                });
+                e.UseMessageRetry(r =>
+                {
+                    r.Interval(mtSettings.RetryCount, TimeSpan.FromMilliseconds(mtSettings.RetryInterval));
+                    r.Handle<ConcurrencyException>();
+                });
+
+                e.PrefetchCount = mtSettings.PrefetchCount;
+                e.UseInMemoryOutbox();
+            }, integrationTestsAssembly);
         }
 
         protected void Seed()

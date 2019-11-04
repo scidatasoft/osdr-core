@@ -72,6 +72,7 @@ namespace Sds.Osdr.Generic.Modules
             services.AddScoped<BackEnd.CommandHandlers.Files.AddImageCommandHandler>();
             services.AddScoped<BackEnd.CommandHandlers.Files.ChangeStatusCommandHandler>();
             services.AddScoped<BackEnd.CommandHandlers.Files.GrantAccessCommandHandler>();
+            services.AddScoped<BackEnd.CommandHandlers.Files.UpdateMetadataCommandHandler>();
             services.AddScoped<BackEnd.CommandHandlers.Folders.GrantAccessCommandHandler>();
             services.AddScoped<BackEnd.CommandHandlers.UserNotifications.DeleteUserNotificationCommandHandler>();
 
@@ -103,6 +104,7 @@ namespace Sds.Osdr.Generic.Modules
             services.AddScoped<BackEnd.CommandHandlers.Files.AddImageCommandHandler>();
             services.AddScoped<BackEnd.CommandHandlers.Files.ChangeStatusCommandHandler>();
             services.AddScoped<BackEnd.CommandHandlers.Files.GrantAccessCommandHandler>();
+            services.AddScoped<BackEnd.CommandHandlers.Files.UpdateMetadataCommandHandler>();
             services.AddScoped<BackEnd.CommandHandlers.Folders.GrantAccessCommandHandler>();
             services.AddScoped<BackEnd.CommandHandlers.UserNotifications.DeleteUserNotificationCommandHandler>();
 
@@ -158,6 +160,7 @@ namespace Sds.Osdr.Generic.Modules
 
             //  register backend consumers...
             configurator.RegisterScopedConsumer<BackEnd.CommandHandlers.Files.AddImageCommandHandler>(provider, null, c => c.UseCqrsLite());
+            configurator.RegisterScopedConsumer<BackEnd.CommandHandlers.Files.UpdateMetadataCommandHandler>(provider, null, c => c.UseCqrsLite());
             configurator.RegisterScopedConsumer<BackEnd.CommandHandlers.Files.ChangeStatusCommandHandler>(provider, null, c => c.UseCqrsLite());
             configurator.RegisterScopedConsumer<BackEnd.CommandHandlers.Files.GrantAccessCommandHandler>(provider, null, c => c.UseCqrsLite());
             configurator.RegisterScopedConsumer<BackEnd.CommandHandlers.Folders.GrantAccessCommandHandler>(provider, null, c => c.UseCqrsLite());
@@ -184,6 +187,7 @@ namespace Sds.Osdr.Generic.Modules
         {
             //  register backend consumers...
             configurator.RegisterScopedConsumer<BackEnd.CommandHandlers.Files.AddImageCommandHandler>(host, provider, endpointConfigurator, c => c.UseCqrsLite());
+            configurator.RegisterScopedConsumer<BackEnd.CommandHandlers.Files.UpdateMetadataCommandHandler>(host, provider, endpointConfigurator, c => c.UseCqrsLite());
             configurator.RegisterScopedConsumer<BackEnd.CommandHandlers.Files.ChangeStatusCommandHandler>(host, provider, endpointConfigurator, c => c.UseCqrsLite());
             configurator.RegisterScopedConsumer<BackEnd.CommandHandlers.Files.GrantAccessCommandHandler>(host, provider, endpointConfigurator, c => c.UseCqrsLite());
             configurator.RegisterScopedConsumer<BackEnd.CommandHandlers.Folders.GrantAccessCommandHandler>(host, provider, endpointConfigurator, c => c.UseCqrsLite());

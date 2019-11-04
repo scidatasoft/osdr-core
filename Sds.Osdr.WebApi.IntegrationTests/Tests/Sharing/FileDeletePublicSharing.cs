@@ -47,8 +47,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Files
         public async Task FileSharing_WithUnauthorizeUser_ReturnsExpectedNotFoundFileEntity()
         {
             var response = await UnauthorizedApi.GetFileEntityById(FileId);
-            response.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
-            response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotFound);
+            response.IsSuccessStatusCode.Should().Be(false);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
             //response.ReasonPhrase.ShouldAllBeEquivalentTo("Not Found");
         }
 
@@ -57,7 +57,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Files
         {
             var response = await UnauthorizedApi.GetNodeById(FileId);
             var sharedInfo = JsonConvert.DeserializeObject<JObject>(await response.Content.ReadAsStringAsync());
-            response.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
+            response.IsSuccessStatusCode.Should().Be(false);
 //			response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotFound);
 //			response.ReasonPhrase.ShouldAllBeEquivalentTo("Not Found");
         }
@@ -82,7 +82,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Files
         public async Task FileSharing_WithUnauthorizeUser_ReturnsExpectedNotFoundRecordEntity()
         {
             var response = await UnauthorizedApi.GetNodesById(FileId);
-            response.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
+            response.IsSuccessStatusCode.Should().Be(false);
 //			response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotFound);
 //			response.ReasonPhrase.ShouldAllBeEquivalentTo("Not Found");
         }
@@ -97,7 +97,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Files
             recordId.Should().NotBeEmpty();
 			
             var response = await UnauthorizedApi.GetNodeById(recordId);
-            response.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
+            response.IsSuccessStatusCode.Should().Be(false);
 //			response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotFound);
 //			response.ReasonPhrase.ShouldAllBeEquivalentTo("Not Found");
         }
@@ -106,7 +106,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Files
         public async Task BlobRecordSharing_WithUnauthorizeUser_ReturnsExpectedNotFound()
         {
             var response = await UnauthorizedApi.GetBlobRecordEntityById(FileId, BlobId);
-            response.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
+            response.IsSuccessStatusCode.Should().Be(false);
 //			response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotFound);
 //			response.ReasonPhrase.ShouldAllBeEquivalentTo("Not Found");
         }
@@ -115,7 +115,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Files
         public async Task BlobFileSharing_WithUnauthorizeUser_ReturnsExpectedNotFound()
         {
             var response = await UnauthorizedApi.GetBlobFileEntityById(FileId, BlobId);
-            response.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
+            response.IsSuccessStatusCode.Should().Be(false);
 //            response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotFound);
 //            response.ReasonPhrase.ShouldAllBeEquivalentTo("Not Found");
         }
@@ -128,7 +128,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Files
             var imageId = file["images"].First()["id"].ToObject<Guid>();
 			
             var response = await UnauthorizedApi.GetImagesFileEntityById(FileId, imageId);
-            response.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
+            response.IsSuccessStatusCode.Should().Be(false);
 //            response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotFound);
 //            response.ReasonPhrase.ShouldAllBeEquivalentTo("Not Found");
         }
@@ -146,7 +146,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Files
             var imageId = record["images"].First()["id"].ToObject<Guid>();
 
             var response = await UnauthorizedApi.GetImagesRecordEntityById(recordId, imageId);
-            response.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
+            response.IsSuccessStatusCode.Should().Be(false);
 //            response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotFound);
 //            response.ReasonPhrase.ShouldAllBeEquivalentTo("Not Found");
         }

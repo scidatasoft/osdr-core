@@ -48,8 +48,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Blobs
         {
             var blobResponse = await JohnApi.GetBlobFileEntityById(FileId, BlobId);
             blobResponse.EnsureSuccessStatusCode();
-            blobResponse.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
-            blobResponse.Content.Headers.ContentType.MediaType.ShouldBeEquivalentTo("application/octet-stream");
+            blobResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            blobResponse.Content.Headers.ContentType.MediaType.Should().Be("application/octet-stream");
             blobResponse.Content.Headers.ContentLength.Should().BeGreaterThan(1500);
             //blobResponse.Content.Headers.ContentDisposition.FileName.ShouldBeEquivalentTo("Aspirin.mol");
         }
@@ -59,8 +59,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Blobs
         {
             var blobResponse = await JaneApi.GetBlobFileEntityById(FileId, BlobId);
             blobResponse.EnsureSuccessStatusCode();
-            blobResponse.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
-            blobResponse.Content.Headers.ContentType.MediaType.ShouldBeEquivalentTo("application/octet-stream");
+            blobResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            blobResponse.Content.Headers.ContentType.MediaType.Should().Be("application/octet-stream");
             blobResponse.Content.Headers.ContentLength.Should().BeGreaterThan(1500);
             //blobResponse.Content.Headers.ContentDisposition.FileName.ShouldBeEquivalentTo("Aspirin.mol");
         }
@@ -89,8 +89,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Blobs
         {
             var blobResponse = await UnauthorizedApi.GetBlobFileEntityById(FileId, BlobId);
             blobResponse.EnsureSuccessStatusCode();
-            blobResponse.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
-            blobResponse.Content.Headers.ContentType.MediaType.ShouldBeEquivalentTo("application/octet-stream");
+            blobResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            blobResponse.Content.Headers.ContentType.MediaType.Should().Be("application/octet-stream");
             blobResponse.Content.Headers.ContentLength.Should().BeGreaterThan(1500);
             //blobResponse.Content.Headers.ContentDisposition.FileName.ShouldBeEquivalentTo("Aspirin.mol");
         }
@@ -99,9 +99,9 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Tests.Blobs
         public async Task FileSharing_WithAuthorizeUser_ReturnsRecordNotFound()
         {
             var blobResponse = await JohnApi.GetBlobRecordEntityById(FileId, BlobId);
-            blobResponse.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
-            blobResponse.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotFound);
-            blobResponse.ReasonPhrase.ShouldAllBeEquivalentTo("Not Found");
+            blobResponse.IsSuccessStatusCode.Should().Be(false);
+            blobResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            blobResponse.ReasonPhrase.Should().Be("Not Found");
         }
     }
 }

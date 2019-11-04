@@ -58,7 +58,7 @@ namespace Sds.Osdr.IntegrationTests
 			var file = await Session.Get<RecordsFile.Domain.RecordsFile>(FileId);
 
 			file.Should().NotBeNull();
-			file.Should().ShouldBeEquivalentTo(new
+			file.Should().Should().BeEquivalentTo(new
 			{
 				Id = FileId,
 				Type = FileType.Records,
@@ -138,7 +138,7 @@ namespace Sds.Osdr.IntegrationTests
 			var recordId = Harness.GetProcessedRecords(FileId).First();
 			var record = await Session.Get<Spectrum>(recordId);
 			record.Should().NotBeNull();
-			record.Should().ShouldBeEquivalentTo(new
+			record.Should().Should().BeEquivalentTo(new
 			{
 				Id = recordId,
 				RecordType = RecordType.Spectrum,

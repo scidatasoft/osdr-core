@@ -1,8 +1,9 @@
-docker build -t docker.your-company.com/osdr-service-persistence:ci-local -f Sds.Osdr.Persistence/Dockerfile .
-docker build -t docker.your-company.com/osdr-service-frontend:ci-local -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
-docker build -t docker.your-company.com/osdr-service-backend:ci-local -f Sds.Osdr.Domain.BackEnd/Dockerfile .
-docker build -t docker.your-company.com/osdr-service-sagahost:ci-local -f Sds.Osdr.Domain.SagaHost/Dockerfile .
-docker build -t docker.your-company.com/osdr-service-web-api:ci-local -f Sds.Osdr.WebApi/Dockerfile .
-docker build -t docker.your-company.com/osdr-service-integration:ci-local -f Sds.Osdr.IntegrationTests/Dockerfile .
-docker build -t docker.your-company.com/osdr-service-webapi-integration:ci-local -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
-docker image ls docker.your-company.com/osdr-service-*
+docker build -t leanda/core-persistence:latest -f Sds.Osdr.Persistence/Dockerfile .
+docker build -t leanda/core-frontend:latest -f Sds.Osdr.Domain.FrontEnd/Dockerfile .
+docker build -t leanda/core-backend:latest -f Sds.Osdr.Domain.BackEnd/Dockerfile .
+docker build -t leanda/core-sagahost:latest -f Sds.Osdr.Domain.SagaHost/Dockerfile .
+docker build -t leanda/core-web-api:latest -f Sds.Osdr.WebApi/Dockerfile .
+docker build -t leanda/integration:latest -f Sds.Osdr.IntegrationTests/Dockerfile .
+docker build -t leanda/webapi-integration:latest -f Sds.Osdr.WebApi.IntegrationTests/Dockerfile .
+docker build -t leanda/e2e-tests:latest -f Sds.Osdr.EndToEndTests/Dockerfile .
+docker image ls leanda/*

@@ -54,7 +54,7 @@ namespace Sds.Osdr.IntegrationTests
 
             var file = await Session.Get<TabularFile>(FileId);
 			file.Should().NotBeNull();
-			file.Should().ShouldBeEquivalentTo(new
+			file.Should().Should().BeEquivalentTo(new
             {
                 Id = FileId,
                 Type = FileType.Tabular,

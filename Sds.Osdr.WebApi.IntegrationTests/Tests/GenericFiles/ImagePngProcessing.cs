@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Sds.Osdr.WebApi.IntegrationTests
+namespace Sds.Osdr.WebApi.IntegrationTests.GenericFiles
 {
     public class UploadPngFixture
     {
