@@ -70,6 +70,7 @@ namespace Sds.Osdr.WebApi.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("tree")]
+        [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> CreateCategoryTree([FromBody] List<TreeNode> nodes)
         {
             Guid categoriesTreeId = Guid.NewGuid();

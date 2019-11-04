@@ -22,6 +22,7 @@
         DummyAuthentication,
         NotAuthorized,
         Stream,
-        Microscopy
+        Microscopy,
+        Categories
 	}
 }
