@@ -70,6 +70,7 @@ namespace Sds.Osdr.WebApi.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("tree")]
+        [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> CreateCategoryTree([FromBody] List<TreeNode> nodes)
         {
             Guid categoriesTreeId = Guid.NewGuid();
@@ -121,6 +122,7 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <param name="version">Carrent cattegories tree object version</param>
         /// <returns></returns>
         [HttpPut("tree/{id}")]
+        [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> UpdateCategoriesTree(Guid id, [FromBody] List<TreeNode> nodes, int version)
         {
             var tree = await _session.Get<CategoryTree>(id);
@@ -162,6 +164,7 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <param name="version">Carrent cattegories tree object version</param>
         /// <returns></returns>
         [HttpPut("tree/{id}/{nodeId}")]
+        [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> UpdateCategoriesTreeNode(Guid id, Guid nodeId, [FromBody] List<TreeNode> nodes, int version)
         {
             await Bus.Publish<UpdateCategoryTree>(new
@@ -177,6 +180,7 @@ namespace Sds.Osdr.WebApi.Controllers
         }
 
         [HttpDelete("tree/{id}")]
+        [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> DeleteCategoriesTreeNode(Guid id, int version)
         {
             await Bus.Publish<DeleteCategoryTree>(new
@@ -190,6 +194,7 @@ namespace Sds.Osdr.WebApi.Controllers
         }
 
         [HttpDelete("tree/{id}/{nodeId}")]
+        [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> DeleteCategoriesTreeNode(Guid id, Guid nodeId, int version)
         {
             await Bus.Publish<DeleteCategoryTree>(new
