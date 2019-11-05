@@ -7,7 +7,8 @@ namespace Leanda.Categories.Domain.Commands
     public interface DeleteEntityCategories : CorrelatedBy<Guid>
     {
         Guid Id { get; }
-        IEnumerable<Guid> CategoriesIds { get; set; }
+        Guid EntityId { get; }
+        IEnumerable<Guid> CategoriesIds { get; }
         Guid UserId { get; }
     }
 }

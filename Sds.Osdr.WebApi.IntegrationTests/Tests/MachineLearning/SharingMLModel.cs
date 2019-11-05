@@ -53,7 +53,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             FolderId = testFixture.FolderId;
         }
         
-        [Fact(Skip = "Ignore"), WebApiTrait(TraitGroup.All, TraitGroup.MachineLearning)]
+        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.MachineLearning)]
         public async Task MlProcessing_ModelTraining_There_Are_No_Errors()
         {
             Harness.GetFaults().Should().BeEmpty();

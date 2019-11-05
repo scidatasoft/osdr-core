@@ -54,11 +54,13 @@ namespace Sds.Osdr.WebApi.Controllers
         public async Task<IActionResult> AddEntityCategories(Guid entityId, [FromBody] IEnumerable<Guid> categoriesIds)
         {
             var node = await _nodesTreeCollection.Find(new BsonDocument("_id", entityId)).FirstOrDefaultAsync();
-            if (node == null) return BadRequest();
+            if (node == null)
+                return BadRequest();
 
             await Bus.Publish<AddEntityCategories>(new
             {
-                Id = entityId,
+                Id = Guid.NewGuid(),
+                EntityId = entityId,
                 CategoriesIds = categoriesIds,
                 UserId
             });
