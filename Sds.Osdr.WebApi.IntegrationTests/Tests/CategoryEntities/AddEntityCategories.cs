@@ -3,12 +3,10 @@ using Leanda.Categories.Domain.ValueObjects;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Sds.Osdr.IntegrationTests;
-using Sds.Osdr.IntegrationTests.FluentAssersions;
 using Sds.Osdr.IntegrationTests.Traits;
 using Sds.Osdr.WebApi.IntegrationTests.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -54,7 +52,6 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             // add category to entity
             response = harness.JohnApi.PostData($"/api/categoryentities/entities/{FileNodeId}/categories", new List<Guid> { CategoryId }).Result;
             response.EnsureSuccessStatusCode();
-
         }
     }
 
