@@ -47,7 +47,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             CategoryId = fixture.CategoryId;
         }
 
-        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
+        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
         public async Task CategoryTree_CreateNewCategoryTree_BuiltExpectedDocument()
         {
             var response = await JohnApi.GetData($"/api/categories/tree/{CategoryId}");
