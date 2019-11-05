@@ -218,6 +218,7 @@ services:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
       - OSDR_BLOB_STORAGE_API=http://blob-storage-api:18006/api/blobs/
       - OSDR_REDIS=redis
+      - OSDR_ES=http://elasticsearch:9200
       - OSDR_LOG_FOLDER=/logs
       - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_GRID_FS=mongodb://mongo:27017/leanda

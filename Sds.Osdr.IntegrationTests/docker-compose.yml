@@ -66,6 +66,18 @@ services:
     depends_on:
       - postgres
 
+  elasticsearch:
+    container_name: elasticsearch
+    image: leanda/elasticsearch
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9201:9201"
+      - "9200:9200"
+      - "9301:9300"
+    networks:
+      - leanda-net
+
   core-backend:
     container_name: leanda-backend
     image: leanda/core-backend:${TAG_VERSION-latest}
@@ -174,6 +186,7 @@ services:
     environment:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
       - OSDR_LOG_FOLDER=/logs
+      - OSDR_ES=http://elasticsearch:9200
       - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_GRID_FS=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
