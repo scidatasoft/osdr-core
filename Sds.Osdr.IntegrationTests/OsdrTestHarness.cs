@@ -95,6 +95,7 @@ namespace Sds.Osdr.IntegrationTests
             services.AddScoped(service => service.GetService<MongoClient>().GetDatabase(mongoUrl.DatabaseName));
 
             var settings = new ConnectionSettings(new Uri(Environment.ExpandEnvironmentVariables(configuration["ElasticSearch:ConnectionString"])));
+            settings.DefaultFieldNameInferrer(f => f);
             services.AddSingleton<IElasticClient>(new ElasticClient(settings));
 
             services.AddTransient<IBlobStorage, GridFsStorage>(x =>

@@ -71,7 +71,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             FileNodeId = fixture.FileNodeId;
         }
 
-        [Fact(Skip = "Ignore"), WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
+        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task AddOneCategoryToEntity()
         {
             // Try to Get nodes by category id
@@ -85,7 +85,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
                 if (nodesFromES.Count != 0) break;
             }
             nodesFromES.Count.Should().BePositive();
-            nodesFromES[0].Value<string>("_id").Should().Be(FileNodeId.ToString());
+            nodesFromES[0].Value<string>("id").Should().Be(FileNodeId.ToString());
         }
     }
 }

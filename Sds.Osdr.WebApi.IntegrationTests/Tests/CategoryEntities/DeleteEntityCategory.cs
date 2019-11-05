@@ -9,6 +9,7 @@ using Sds.Osdr.WebApi.IntegrationTests.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -63,7 +64,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             FileId = fixture.FileId;
         }
 
-        [Fact(Skip = "Ignore"), WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
+        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task DeleteOneCategoryToEntity()
         {
             var fileNodeResponse = await JohnApi.GetNodeById(FileId);
@@ -72,23 +73,23 @@ namespace Sds.Osdr.WebApi.IntegrationTests
 
             var treeResponse = JohnApi.GetData($"api/categorytrees/tree/{RootCategoryId}").Result;
             var treeContent = treeResponse.Content.ReadAsStringAsync().Result;
-            var categoryId1 = JObject.Parse(treeContent)["nodes"][0]["children"][0]["_id"].ToString();
-            var categoryId2 = JObject.Parse(treeContent)["nodes"][0]["children"][1]["_id"].ToString();
+            var categoryId1 = JObject.Parse(treeContent)["nodes"][0]["children"][0]["id"].ToString();
+            var categoryId2 = JObject.Parse(treeContent)["nodes"][0]["children"][1]["id"].ToString();
 
             // add categories to entity
             await JohnApi.PostData($"/api/categoryentities/entities/{fileNodeId}/categories", new List<string> { categoryId1, categoryId2 });
             // check if node exists by categoryId1
             var firstCategoryAddedNode = GetNodeByCategoryId(categoryId1);
-            firstCategoryAddedNode.Value<string>("_id").Should().Be(fileNodeId.ToString());
+            firstCategoryAddedNode.Value<string>("id").Should().Be(fileNodeId.ToString());
 
             // delete first category from node
             await JohnApi.DeleteData($"/api/categoryentities/entities/{fileNodeId}/categories/{categoryId1}");
             // check if node contains categoryId1
-            var firstCategoryDeletedNode = GetNodeByCategoryId(categoryId1);
+            var firstCategoryDeletedNode = GetNodeByCategoryId(categoryId1, false);
             firstCategoryDeletedNode.Should().BeNull();
         }
 
-        JObject GetNodeByCategoryId(string categoryId)
+        JObject GetNodeByCategoryId(string categoryId, bool ifExists = true)
         {
             var nodesFromES = new List<JObject>();
             for (int i = 0; i < 5; i++)
@@ -97,7 +98,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests
                 var getResponse = JohnApi.GetData($"/api/categoryentities/categories/{categoryId}").Result;
                 var nodesResponseContent = getResponse.Content.ReadAsStringAsync().Result;
                 nodesFromES = JsonConvert.DeserializeObject<List<JObject>>(nodesResponseContent);
-                if (nodesFromES.Count != 0) return nodesFromES[0];
+                if (nodesFromES.Count != 0 && ifExists) return nodesFromES[0];
+                if (nodesFromES.Count == 0 && !ifExists) return null;
             }
             return null;
         }

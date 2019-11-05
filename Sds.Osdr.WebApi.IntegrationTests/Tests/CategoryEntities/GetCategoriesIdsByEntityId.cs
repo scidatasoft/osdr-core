@@ -64,7 +64,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             FileId = fixture.FileId;
         }
 
-        [Fact(Skip = "Ignore"), WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
+        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task GetCategoriesIdsByEntityIdTest()
         {
             var fileNodeResponse = await JohnApi.GetNodeById(FileId);

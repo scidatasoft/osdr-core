@@ -82,7 +82,8 @@ namespace Sds.Osdr.WebApi.Controllers
 
             await Bus.Publish<DeleteEntityCategories>(new
             {
-                Id = entityId,
+                Id = Guid.NewGuid(),
+                EntityId = entityId,
                 CategoriesIds = new List<Guid> { categoryId },
                 UserId
             });
@@ -104,7 +105,8 @@ namespace Sds.Osdr.WebApi.Controllers
 
             await Bus.Publish<DeleteEntityCategories>(new
             {
-                Id = entityId,
+                Id = Guid.NewGuid(),
+                EntityId = entityId,
                 CategoriesIds = categoriesIds,
                 UserId
             });

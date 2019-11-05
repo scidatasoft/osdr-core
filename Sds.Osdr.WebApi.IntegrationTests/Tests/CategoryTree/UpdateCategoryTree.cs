@@ -98,7 +98,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
 
             jsonCategory.Should().ContainsJson($@"
             {{
-            	'_id': '{CategoryId}',
+            	'id': '{CategoryId}',
             	'createdBy': '{JohnId}',
             	'createdDateTime': *EXIST*,
             	'updatedBy': '{JohnId}',
