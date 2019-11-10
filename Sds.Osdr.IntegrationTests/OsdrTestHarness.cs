@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Nest;
 using Sds.CqrsLite.EventStore;
 using Sds.MassTransit.Extensions;
 using Sds.MassTransit.Observers;
@@ -92,6 +93,10 @@ namespace Sds.Osdr.IntegrationTests
 
             services.AddSingleton(new MongoClient(mongoUrl));
             services.AddScoped(service => service.GetService<MongoClient>().GetDatabase(mongoUrl.DatabaseName));
+
+            var settings = new ConnectionSettings(new Uri(Environment.ExpandEnvironmentVariables(configuration["ElasticSearch:ConnectionString"])));
+            settings.DefaultFieldNameInferrer(f => f);
+            services.AddSingleton<IElasticClient>(new ElasticClient(settings));
 
             services.AddTransient<IBlobStorage, GridFsStorage>(x =>
             {
