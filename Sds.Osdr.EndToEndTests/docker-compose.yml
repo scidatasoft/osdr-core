@@ -84,7 +84,7 @@ services:
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./Sds.MetadataStorage.Processing
     volumes:
@@ -101,7 +101,7 @@ services:
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_ES=http://elasticsearch:9200
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh elasticsearch:9200 -t 60 -- ./Sds.Indexing
@@ -110,6 +110,8 @@ services:
     networks:
       - leanda-net
     depends_on:
+      - elasticsearch
+      - mongo
       - rabbitmq
 
   imaging:
@@ -120,7 +122,7 @@ services:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_TEMP_FILES_FOLDER=/temp
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - QUEUE_PREFETCH_SIZE=9
       - EXECUTOR_THREAD_COUNT=3
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh mongo:27017 -t 30 -- java -Djava.awt.headless=true -Xmx256m -XX:NativeMemoryTracking=summary -jar sds-imaging-service.jar
@@ -142,7 +144,7 @@ services:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_TEMP_FILES_FOLDER=/temp
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - QUEUE_PREFETCH_SIZE=9
       - EXECUTOR_THREAD_COUNT=3
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh mongo:27017 -t 30 -- java -XX:NativeMemoryTracking=summary -jar reaction-parser.jar
@@ -164,7 +166,7 @@ services:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_TEMP_FILES_FOLDER=/temp
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - QUEUE_PREFETCH_SIZE=9
       - EXECUTOR_THREAD_COUNT=3
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh mongo:27017 -t 30 -- java -XX:NativeMemoryTracking=summary -jar crystal-parser.jar
@@ -186,7 +188,7 @@ services:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_TEMP_FILES_FOLDER=/temp
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - QUEUE_PREFETCH_SIZE=9
       - EXECUTOR_THREAD_COUNT=3
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh mongo:27017 -t 30 -- java -XX:NativeMemoryTracking=summary -jar spectra-parser.jar
@@ -208,7 +210,7 @@ services:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_TEMP_FILES_FOLDER=/temp
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - QUEUE_PREFETCH_SIZE=9
       - EXECUTOR_THREAD_COUNT=3
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh mongo:27017 -t 30 -- java -jar chemical-parser.jar
@@ -230,7 +232,7 @@ services:
       - OSDR_LOG_FOLDER=/logs
       - OSDR_TEMP_FILES_FOLDER=/temp
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - QUEUE_PREFETCH_SIZE=9
       - EXECUTOR_THREAD_COUNT=3
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./wait-for-it.sh mongo:27017 -t 30 -- java -jar sds-chemical-properties-service.jar
@@ -269,7 +271,7 @@ services:
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_REDIS=redis
@@ -291,7 +293,7 @@ services:
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_REDIS=redis
@@ -313,7 +315,7 @@ services:
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_LOG_LEVEL=Error
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./Sds.Osdr.Domain.SagaHost
@@ -331,7 +333,7 @@ services:
     entrypoint: /bin/bash
     environment:
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_LOG_LEVEL=Error
     command: ./wait-for-it.sh rabbitmq:5672 -t 30 -- ./Sds.Osdr.Persistence
@@ -351,7 +353,7 @@ services:
       - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
       - OSDR_REDIS=redis
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_ES=http://elasticsearch:9200
@@ -405,8 +407,8 @@ services:
       - OSDR_BLOB_STORAGE_API=http://blob-storage-api:18006/api/blobs/
       - OSDR_REDIS=redis
       - OSDR_LOG_FOLDER=/logs
-      - OSDR_MONGO_DB=mongodb://mongo:27017/osdr_dev
-      - OSDR_GRID_FS=mongodb://mongo:27017/osdr_dev
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
+      - OSDR_GRID_FS=mongodb://mongo:27017/leanda
       - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
       - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
       - OSDR_WEB_API=http://core-web-api:18006
@@ -424,6 +426,13 @@ services:
       - core-web-api
       - blob-storage-api
       - keycloak
+      - indexing
+      - chemical-file-parser
+      - chemical-properties
+      - reaction-parser-service
+      - categories-service
+      - spectra-parser-service
+      - crystal-parser-service
 
 networks:
   leanda-net:
