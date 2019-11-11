@@ -23,7 +23,6 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
         public Guid FileId { get; set; }
         public Guid FileNodeId { get; set; }
 
-
         public AddEntityCategoriesFixture(OsdrTestHarness harness)
         {
             var categories = new List<TreeNode>()

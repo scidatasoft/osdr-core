@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Tests\Categories\AddEntityCategories.cs" />
-    <Compile Remove="Tests\Categories\CreateCategory.cs" />
-    <Compile Remove="Tests\Categories\DeleteEntityCategory.cs" />
-    <Compile Remove="Tests\Categories\GetCategoriesIdsByEntityId.cs" />
     <Compile Remove="Tests\Crystals\InvalidCifProcessing.cs" />
     <Compile Remove="Tests\Crystals\ValidCifProcessing.cs" />
     <Compile Remove="Tests\Reactions\InvalidRnxProcessing.cs" />
@@ -21,10 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Tests\Categories\AddEntityCategories.cs" />
-    <None Include="Tests\Categories\CreateCategory.cs" />
-    <None Include="Tests\Categories\DeleteEntityCategory.cs" />
-    <None Include="Tests\Categories\GetCategoriesIdsByEntityId.cs" />
     <None Include="Tests\Crystals\InvalidCifProcessing.cs" />
     <None Include="Tests\Crystals\ValidCifProcessing.cs" />
     <None Include="Tests\Reactions\InvalidRnxProcessing.cs" />

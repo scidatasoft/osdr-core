@@ -29,7 +29,7 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
                 })
             };
 
-            var response = harness.JohnApi.PostData("/api/categories/tree", categories).Result;
+            var response = harness.JohnApi.PostData("/api/categorytrees/tree", categories).Result;
 
             var content = response.Content.ReadAsStringAsync().Result;
 
