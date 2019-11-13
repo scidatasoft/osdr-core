@@ -28,7 +28,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
                 })
             };
 
-            var response = JohnApi.PostData("/api/categories/tree", categories).Result;
+            var response = JohnApi.PostData("/api/categorytrees/tree", categories).Result;
 
             var content = response.Content.ReadAsStringAsync().Result;
 
@@ -41,11 +41,11 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task CategoryTreeOperations_DeleteCategoryTree_ExpectedUpdatedCategory()
         {
-            var response = await JohnApi.DeleteData($"/api/categories/tree/{categoryId}");
+            var response = await JohnApi.DeleteData($"/api/categorytrees/tree/{categoryId}");
             response.EnsureSuccessStatusCode();
             Harness.WaitWhileCategoryTreeDeletePersisted(categoryId);
 
-            response = await JohnApi.GetData($"/api/categories/tree/{categoryId}");
+            response = await JohnApi.GetData($"/api/categorytrees/tree/{categoryId}");
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
         }
     }

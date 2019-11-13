@@ -29,7 +29,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
 
             for (int i = 0; i < 10; i++)
             {
-                var response = JohnApi.PostData("/api/categories/tree", categories).Result;
+                var response = JohnApi.PostData("/api/categorytrees/tree", categories).Result;
 
                 var content = response.Content.ReadAsStringAsync().Result;
 
@@ -42,7 +42,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task CategoryTreeOperations_GetAllCategoryTrees_ExpectedListOfCategories()
         {
-            var response = await JohnApi.GetData($"/api/categories/tree");
+            var response = await JohnApi.GetData($"/api/categorytrees/tree");
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
