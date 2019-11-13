@@ -18,10 +18,9 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
 {
     public class AddEntityCategoriesFixture
     {
-        public Guid CategoryId { get; set; }
+        public Guid TreeId { get; set; }
         public Guid BlobId { get; set; }
         public Guid FileId { get; set; }
-        public Guid FileNodeId { get; set; }
 
         public AddEntityCategoriesFixture(OsdrTestHarness harness)
         {
@@ -38,20 +37,16 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
 
             var content = response.Content.ReadAsStringAsync().Result;
 
-            CategoryId = Guid.Parse(content);
+            TreeId = Guid.Parse(content);
 
-            harness.WaitWhileCategoryTreePersisted(CategoryId);
+            harness.WaitWhileCategoryTreePersisted(TreeId);
 
             BlobId = harness.JohnBlobStorageClient.AddResource(harness.JohnId.ToString(), "Chemical-diagram.png", new Dictionary<string, object>() { { "parentId", harness.JohnId } }).Result;
 
             FileId = harness.WaitWhileFileProcessed(BlobId);
 
-            var fileNodeResponse = harness.JohnApi.GetNodeById(FileId).Result;
-            var fileNode = JsonConvert.DeserializeObject<JObject>(fileNodeResponse.Content.ReadAsStringAsync().Result);
-            FileNodeId = Guid.Parse(fileNode.Value<string>("id"));
-
             // add category to entity
-            response = harness.JohnApi.PostData($"/api/categoryentities/entities/{FileNodeId}/categories", new List<Guid> { CategoryId }).Result;
+            response = harness.JohnApi.PostData($"/api/categoryentities/entities/{FileId}/categories", new List<Guid> { TreeId }).Result;
             response.EnsureSuccessStatusCode();
         }
     }
@@ -59,17 +54,15 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
     [Collection("OSDR Test Harness")]
     public class AddEntityCategories : OsdrWebTest, IClassFixture<AddEntityCategoriesFixture>
     {
-        private Guid CategoryId;
+        private Guid TreeId;
         public Guid BlobId { get; set; }
         public Guid FileId { get; set; }
-        public Guid FileNodeId { get; set; }
 
         public AddEntityCategories(OsdrTestHarness harness, ITestOutputHelper output, AddEntityCategoriesFixture fixture) : base(harness, output)
         {
-            CategoryId = fixture.CategoryId;
+            TreeId = fixture.TreeId;
             BlobId = fixture.BlobId;
             FileId = fixture.FileId;
-            FileNodeId = fixture.FileNodeId;
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
@@ -80,13 +73,13 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
             for (int i = 0; i < 5; i++)
             {
                 Thread.Sleep(1000);
-                var getResponse = JohnApi.GetData($"/api/categoryentities/categories/{CategoryId}").Result;
+                var getResponse = JohnApi.GetData($"/api/categoryentities/categories/{TreeId}").Result;
                 var nodesResponseContent = await getResponse.Content.ReadAsStringAsync();
                 nodesFromES = JsonConvert.DeserializeObject<List<JObject>>(nodesResponseContent);
                 if (nodesFromES.Count != 0) break;
             }
             nodesFromES.Count.Should().BePositive();
-            nodesFromES[0].Value<string>("id").Should().Be(FileNodeId.ToString());
+            nodesFromES[0].Value<string>("id").Should().Be(TreeId.ToString());
         }
     }
 }
