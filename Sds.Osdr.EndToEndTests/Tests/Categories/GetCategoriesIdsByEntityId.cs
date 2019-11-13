@@ -46,6 +46,16 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
             BlobId = harness.JohnBlobStorageClient.AddResource(harness.JohnId.ToString(), "Chemical-diagram.png", new Dictionary<string, object>() { { "parentId", harness.JohnId } }).Result;
 
             FileId = harness.WaitWhileFileProcessed(BlobId);
+
+            harness.JohnApi.PostData($"/api/categoryentities/entities/{FileId}/categories", new List<Guid> { CategoryId }).Wait();
+
+            var res = harness.JohnApi.GetData($"/api/categoryentities/entities/{FileId}/categories").Result;
+
+            while (res.Content.ReadAsStringAsync().Result.Equals("[]"))
+            {
+                Thread.Sleep(500);
+                res = harness.JohnApi.GetData($"/api/categoryentities/entities/{FileId}/categories").Result;
+            }
         }
     }
 
@@ -67,13 +77,7 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
         public async Task GetCategoriesIdsByEntityIdTest()
         {
-            var fileNodeResponse = await JohnApi.GetNodeById(FileId);
-            var fileNode = JsonConvert.DeserializeObject<JObject>(await fileNodeResponse.Content.ReadAsStringAsync());
-            var fileNodeId = Guid.Parse(fileNode.Value<string>("id"));
-
-            await JohnApi.PostData($"/api/categoryentities/entities/{fileNodeId}/categories", new List<Guid> { CategoryId });
-
-            var response = JohnApi.GetData($"/api/categoryentities/entities/{fileNodeId}/categories").Result;
+            var response = JohnApi.GetData($"/api/categoryentities/entities/{FileId}/categories").Result;
             var content = response.Content.ReadAsStringAsync().Result;
             var categoriesIds = JsonConvert.DeserializeObject<IEnumerable<string>>(content);
             categoriesIds.Any(x => x == CategoryId.ToString()).Should().BeTrue();

@@ -52,7 +52,7 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
         public async Task CategoryTree_CreateNewCategoryTree_BuiltExpectedDocument()
         {
-            var response = await JohnApi.GetData($"/api/categories/tree/{CategoryId}");
+            var response = await JohnApi.GetData($"/api/categorytrees/tree/{CategoryId}");
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();

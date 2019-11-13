@@ -143,6 +143,7 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <param name="entityId">Entity ID</param>
         /// <returns></returns>
         [HttpGet("entities/{entityId}/categories")]
+        [ProducesResponseType(typeof(IEnumerable<Guid>), 200)]
         public IActionResult GetCategoriesIdsByEntityId(Guid entityId)
         {
             var hits = _elasticClient.Search<dynamic>(s => s
@@ -151,13 +152,14 @@ namespace Sds.Osdr.WebApi.Controllers
                 .Query(q => q.QueryString(qs => qs.Query(entityId.ToString()))))
                 .Hits.ToArray();
 
+            IEnumerable<Guid> categoriesIds = new List<Guid>();
+
             if (hits.Any())
             {
                 JObject hitObject = JsonConvert.DeserializeObject<JObject>(hits[0].Source.ToString());
-                IEnumerable<string> categoriesIds = hitObject.Value<JArray>("CategoriesIds").Select(x => x.ToString());
-                return Ok(categoriesIds);
+                categoriesIds = hitObject.Value<JArray>("CategoriesIds").Select(x => Guid.Parse(x.ToString()));
             }
-            return Ok();
+            return Ok(categoriesIds);
         }
 
         [NonAction]
