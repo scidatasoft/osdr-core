@@ -8,6 +8,7 @@ using Sds.Osdr.WebApi.IntegrationTests;
 using Sds.Osdr.WebApi.IntegrationTests.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -48,6 +49,7 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
             // add category to entity
             response = harness.JohnApi.PostData($"/api/categoryentities/entities/{FileId}/categories", new List<Guid> { TreeId }).Result;
             response.EnsureSuccessStatusCode();
+            harness.WaitWhileCategoryIndexed(FileId.ToString());
         }
     }
 
@@ -66,20 +68,11 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
-        public async Task AddOneCategoryToEntity()
+        public async Task AddCategory_AddingCategoryToEntity_CategoryIdShouldAppearInCategoriesListForEntity()
         {
-            // Try to Get nodes by category id
-            var nodesFromES = new List<JObject>();
-            for (int i = 0; i < 5; i++)
-            {
-                Thread.Sleep(1000);
-                var getResponse = JohnApi.GetData($"/api/categoryentities/categories/{TreeId}").Result;
-                var nodesResponseContent = await getResponse.Content.ReadAsStringAsync();
-                nodesFromES = JsonConvert.DeserializeObject<List<JObject>>(nodesResponseContent);
-                if (nodesFromES.Count != 0) break;
-            }
-            nodesFromES.Count.Should().BePositive();
-            nodesFromES[0].Value<string>("id").Should().Be(TreeId.ToString());
+            var elasticSearchNodes = await JohnApi.ReadJsonAsync<List<JObject>>($"/api/categoryentities/categories/{TreeId}");
+            elasticSearchNodes.Count.Should().Be(1);
+            elasticSearchNodes.Single().Value<string>("id").Should().Be(FileId.ToString());
         }
     }
 }

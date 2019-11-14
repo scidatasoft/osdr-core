@@ -49,13 +49,7 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
 
             harness.JohnApi.PostData($"/api/categoryentities/entities/{FileId}/categories", new List<Guid> { CategoryId }).Wait();
 
-            var res = harness.JohnApi.GetData($"/api/categoryentities/entities/{FileId}/categories").Result;
-
-            while (res.Content.ReadAsStringAsync().Result.Equals("[]"))
-            {
-                Thread.Sleep(500);
-                res = harness.JohnApi.GetData($"/api/categoryentities/entities/{FileId}/categories").Result;
-            }
+            harness.WaitWhileCategoryIndexed(CategoryId.ToString());
         }
     }
 
@@ -77,8 +71,7 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
         public async Task GetCategoriesIdsByEntityIdTest()
         {
-            var response = JohnApi.GetData($"/api/categoryentities/entities/{FileId}/categories").Result;
-            var content = response.Content.ReadAsStringAsync().Result;
+            var content = JohnApi.ReadJsonAsync($"/api/categoryentities/entities/{FileId}/categories").Result;
             var categoriesIds = JsonConvert.DeserializeObject<IEnumerable<string>>(content);
             categoriesIds.Any(x => x == CategoryId.ToString()).Should().BeTrue();
         }
