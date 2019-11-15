@@ -21,22 +21,22 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
     public class GetEntitiesByCategoryId : OsdrWebTest, IClassFixture<GetCategoriesIdsByEntityIdFixture>
     {
         private Guid CategoryId;
-        public Guid BlobId { get; set; }
         public Guid FileId { get; set; }
 
 
         public GetEntitiesByCategoryId(OsdrTestHarness harness, ITestOutputHelper output, GetCategoriesIdsByEntityIdFixture fixture) : base(harness, output)
         {
             CategoryId = fixture.CategoryId;
-            BlobId = fixture.BlobId;
             FileId = fixture.FileId;
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
-        public async Task GetCategoriesIdsByEntityIdTest()
+        public async Task EntityCategories_GetCategoriesIdsByEntityId_ShouldReturnEntityWithExpectedId()
         {
-            var categoriesIds = await JohnApi.ReadJsonAsync<IEnumerable<string>>($"/api/categoryentities/categories/{CategoryId}");
-            categoriesIds.Any(x => x == CategoryId.ToString()).Should().BeTrue();
+            var entities = await JohnApi.ReadJsonAsync<JArray>($"/api/categoryentities/categories/{CategoryId}");
+            entities.Should().HaveCount(1);
+            var entity = entities.Single();
+            entity["id"].Value<string>().Should().Be(FileId.ToString());
         }
     }
 }

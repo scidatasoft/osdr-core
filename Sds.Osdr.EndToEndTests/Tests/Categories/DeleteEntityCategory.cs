@@ -97,7 +97,7 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
             var nodesResponseContent = JohnApi.ReadJsonAsync($"/api/categoryentities/categories/{categoryId}").Result;
             var elasticSearchNodes = JsonConvert.DeserializeObject<List<JObject>>(nodesResponseContent);
             if (elasticSearchNodes.Count != 0)
-                return elasticSearchNodes[0];
+                return elasticSearchNodes.First();
 
             return null;
         }

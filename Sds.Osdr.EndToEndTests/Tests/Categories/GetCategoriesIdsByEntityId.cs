@@ -69,7 +69,7 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
-        public async Task GetCategoriesIdsByEntityIdTest()
+        public async Task CategoryEntities_GetCategoriesIdsByEntityId_ShouldReturnExpectedCategoryIds()
         {
             var content = JohnApi.ReadJsonAsync($"/api/categoryentities/entities/{FileId}/categories").Result;
             var categoriesIds = JsonConvert.DeserializeObject<IEnumerable<string>>(content);
