@@ -398,42 +398,42 @@ services:
       - rabbitmq
       - mongo
 
-  # e2e-tests:
-  #   container_name: e2e-tests
-  #   image: leanda/e2e-tests:${TAG_VERSION-latest}
-  #   entrypoint: /bin/bash
-  #   environment:
-  #     - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
-  #     - OSDR_BLOB_STORAGE_API=http://blob-storage-api:18006/api/blobs/
-  #     - OSDR_REDIS=redis
-  #     - OSDR_LOG_FOLDER=/logs
-  #     - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
-  #     - OSDR_GRID_FS=mongodb://mongo:27017/leanda
-  #     - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
-  #     - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
-  #     - OSDR_WEB_API=http://core-web-api:18006
-  #     - OSDR_ES=http://elasticsearch:9200
-  #   command: ./wait-for-it.sh core-web-api:18006 -t 30 -- ./wait-for-it.sh blob-storage-api:18006 -t 30 -- ./wait-for-it.sh keycloak:8080 -t 30 -- dotnet vstest ./Sds.Osdr.EndToEndTests.dll /logger:console;verbosity="normal"
-  #   volumes:
-  #     - ${OSDR_LOG_FOLDER}:/logs
-  #     - /results:/results
-  #   networks:
-  #     - leanda-net
-  #   depends_on:
-  #     - core-backend
-  #     - core-frontend
-  #     - core-sagahost
-  #     - core-persistence
-  #     - core-web-api
-  #     - blob-storage-api
-  #     - keycloak
-  #     - indexing
-  #     - chemical-file-parser
-  #     - chemical-properties
-  #     - reaction-parser-service
-  #     - categories-service
-  #     - spectra-parser-service
-  #     - crystal-parser-service
+  e2e-tests:
+    container_name: e2e-tests
+    image: leanda/e2e-tests:${TAG_VERSION-latest}
+    entrypoint: /bin/bash
+    environment:
+      - IDENTITY_SERVER_URL=http://keycloak:8080/auth/realms/OSDR
+      - OSDR_BLOB_STORAGE_API=http://blob-storage-api:18006/api/blobs/
+      - OSDR_REDIS=redis
+      - OSDR_LOG_FOLDER=/logs
+      - OSDR_MONGO_DB=mongodb://mongo:27017/leanda
+      - OSDR_GRID_FS=mongodb://mongo:27017/leanda
+      - OSDR_RABBIT_MQ=rabbitmq://guest:guest@rabbitmq:5672/leanda
+      - OSDR_EVENT_STORE=ConnectTo=tcp://admin:changeit@eventstore:1113
+      - OSDR_WEB_API=http://core-web-api:18006
+      - OSDR_ES=http://elasticsearch:9200
+    command: ./wait-for-it.sh core-web-api:18006 -t 30 -- ./wait-for-it.sh blob-storage-api:18006 -t 30 -- ./wait-for-it.sh keycloak:8080 -t 30 -- dotnet vstest ./Sds.Osdr.EndToEndTests.dll /logger:console;verbosity="normal"
+    volumes:
+      - ${OSDR_LOG_FOLDER}:/logs
+      - /results:/results
+    networks:
+      - leanda-net
+    depends_on:
+      - core-backend
+      - core-frontend
+      - core-sagahost
+      - core-persistence
+      - core-web-api
+      - blob-storage-api
+      - keycloak
+      - indexing
+      - chemical-file-parser
+      - chemical-properties
+      - reaction-parser-service
+      - categories-service
+      - spectra-parser-service
+      - crystal-parser-service
 
 networks:
   leanda-net:
