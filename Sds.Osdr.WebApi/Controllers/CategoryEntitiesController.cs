@@ -19,16 +19,16 @@ using System.Dynamic;
 using Sds.Osdr.WebApi.Extensions;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json.Linq;
+using Leanda.Categories.Domain;
 
 namespace Sds.Osdr.WebApi.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
-    [UserInfoRequired]
+    //[Authorize]
+    //[UserInfoRequired]
     public class CategoryEntitiesController : MongoDbController, IPaginationController
     {
-        private IBusControl Bus;
-        private IMongoCollection<BsonDocument> _categoryTreeCollection;
+        private IBusControl _bus;
         private IMongoCollection<BsonDocument> _nodesTreeCollection;
         private readonly ISession _session;
 
@@ -36,9 +36,8 @@ namespace Sds.Osdr.WebApi.Controllers
         private IUrlHelper _urlHelper;
         public CategoryEntitiesController(IMongoDatabase database, IBusControl bus, IElasticClient elasticClient, IUrlHelper urlHelper, ISession session) : base(database)
         {
-            Bus = bus ?? throw new ArgumentNullException(nameof(bus));
+            _bus = bus ?? throw new ArgumentNullException(nameof(bus));
             _urlHelper = urlHelper ?? throw new ArgumentNullException(nameof(urlHelper));
-            _categoryTreeCollection = Database.GetCollection<BsonDocument>("CategoryTrees");
             _nodesTreeCollection = Database.GetCollection<BsonDocument>("Nodes");
             _session = session ?? throw new ArgumentNullException(nameof(session));
             _elasticClient = elasticClient ?? throw new ArgumentNullException(nameof(elasticClient));
@@ -55,9 +54,9 @@ namespace Sds.Osdr.WebApi.Controllers
         {
             var node = await _nodesTreeCollection.Find(new BsonDocument("_id", entityId)).FirstOrDefaultAsync();
             if (node == null)
-                return BadRequest();
+                return NotFound();
 
-            await Bus.Publish<AddEntityCategories>(new
+            await _bus.Publish<AddEntityCategories>(new
             {
                 Id = Guid.NewGuid(),
                 EntityId = entityId,
@@ -78,9 +77,10 @@ namespace Sds.Osdr.WebApi.Controllers
         public async Task<IActionResult> DeleteEntityCategory(Guid entityId, Guid categoryId)
         {
             var node = await _nodesTreeCollection.Find(new BsonDocument("_id", entityId)).FirstOrDefaultAsync();
-            if (node == null) return BadRequest();
+            if (node == null)
+                return NotFound();
 
-            await Bus.Publish<DeleteEntityCategories>(new
+            await _bus.Publish<DeleteEntityCategories>(new
             {
                 Id = Guid.NewGuid(),
                 EntityId = entityId,
@@ -101,9 +101,10 @@ namespace Sds.Osdr.WebApi.Controllers
         public async Task<IActionResult> DeleteEntityCategories(Guid entityId, [FromBody][Required] IEnumerable<Guid> categoriesIds)
         {
             var node = await _nodesTreeCollection.Find(new BsonDocument("_id", entityId)).FirstOrDefaultAsync();
-            if (node == null) return BadRequest();
+            if (node == null)
+                return NotFound();
 
-            await Bus.Publish<DeleteEntityCategories>(new
+            await _bus.Publish<DeleteEntityCategories>(new
             {
                 Id = Guid.NewGuid(),
                 EntityId = entityId,
@@ -121,7 +122,7 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <param name="paginationRequest">Pagination request (pageSize, pageNumber)</param>
         /// <returns></returns>
         [HttpGet("categories/{categoryId}")]
-        public IActionResult GetEntitiesByCategoryId(Guid categoryId, PaginationRequest paginationRequest)
+        public async Task<IActionResult> GetEntitiesByCategoryId(Guid categoryId, PaginationRequest paginationRequest)
         {
             var result = _elasticClient.Search<dynamic>(s => s
                 .Index("categories")
@@ -144,8 +145,12 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <returns></returns>
         [HttpGet("entities/{entityId}/categories")]
         [ProducesResponseType(typeof(IEnumerable<Guid>), 200)]
-        public IActionResult GetCategoriesIdsByEntityId(Guid entityId)
+        public async Task<IActionResult> GetCategoriesIdsByEntityId(Guid entityId)
         {
+            var node = await _nodesTreeCollection.Find(new BsonDocument("_id", entityId)).FirstOrDefaultAsync();
+            if (node == null)
+                return NotFound();
+
             var hits = _elasticClient.Search<dynamic>(s => s
                 .Index("categories")
                 .Type("category")

@@ -78,7 +78,6 @@ namespace Leanda.Categories.Persistence.EventHandlers
                     throw new ConcurrencyException(context.Message.Id);
             }
 
-
             await context.Publish<CategoryTreeDeletePersisted>(new
             {
                 context.Message.Id,

@@ -84,6 +84,5 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             var response = await JaneApi.PutData($"/api/categorytrees/tree/{CategoryId}/{Guid.NewGuid()}", categories);
             response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         }
-
     }
 }

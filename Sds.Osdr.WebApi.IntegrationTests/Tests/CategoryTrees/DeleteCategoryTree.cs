@@ -1,11 +1,10 @@
 ﻿using FluentAssertions;
 using Leanda.Categories.Domain.ValueObjects;
-using Newtonsoft.Json.Linq;
 using Sds.Osdr.IntegrationTests;
-using Sds.Osdr.IntegrationTests.FluentAssersions;
 using Sds.Osdr.IntegrationTests.Traits;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -35,18 +34,21 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             categoryId = Guid.Parse(content);
 
             Harness.WaitWhileCategoryTreePersisted(categoryId);
-        }
 
+            response = JohnApi.DeleteData($"/api/categorytrees/tree/{categoryId}").Result;
+            response.EnsureSuccessStatusCode();
+            Harness.WaitWhileCategoryTreeDeletePersisted(categoryId);
+        }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task CategoryTreeOperations_DeleteCategoryTree_ExpectedUpdatedCategory()
         {
-            var response = await JohnApi.DeleteData($"/api/categorytrees/tree/{categoryId}");
-            response.EnsureSuccessStatusCode();
-            Harness.WaitWhileCategoryTreeDeletePersisted(categoryId);
+            var response = await JohnApi.GetData($"/api/categorytrees/tree/{categoryId}");
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-            response = await JohnApi.GetData($"/api/categorytrees/tree/{categoryId}");
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            //try delete already deleted tree
+            response = await JohnApi.DeleteData($"/api/categorytrees/tree/{categoryId}");
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }
 }

@@ -5,9 +5,11 @@ using Newtonsoft.Json.Linq;
 using Sds.Osdr.IntegrationTests;
 using Sds.Osdr.IntegrationTests.FluentAssersions;
 using Sds.Osdr.IntegrationTests.Traits;
+using Sds.Osdr.WebApi.IntegrationTests.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -87,15 +89,11 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             CategoryId = fixture.CategoryId;
         }
 
-
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
-        public async Task CategoryTree_UpdateCategoryTree_BuiltExpectedDocument()
+        public async Task CategoryTree_UpdateExistantCategoryTree_BuiltExpectedDocument()
         {
-            var response = await JohnApi.GetData($"/api/categorytrees/tree/{CategoryId}");
-            response.EnsureSuccessStatusCode();
-
-            var jsonCategory = JToken.Parse(await response.Content.ReadAsStringAsync());
-
+            var jsonCategory = await JohnApi.ReadJsonAsync<JToken>($"/api/categorytrees/tree/{CategoryId}");
+            
             jsonCategory.Should().ContainsJson($@"
             {{
             	'id': '{CategoryId}',
@@ -106,6 +104,20 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             	'version': 2,
                 'nodes': *EXIST*
             }}");
+        }
+
+        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
+        public async Task CategoryTree_UpdateNonExistantCategoryTree_ReturnsNotFoundCode()
+        {
+            var response = await JohnApi.PutData($"/api/categorytrees/tree/{Guid.NewGuid()}", new List<TreeNode>()
+            {
+                new TreeNode("Projects", new List<TreeNode>()
+                {
+                    new TreeNode("Projects One"),
+                    new TreeNode("Projects Two")
+                })
+            });
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }
 } 

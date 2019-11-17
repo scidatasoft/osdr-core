@@ -23,19 +23,19 @@ namespace Sds.Osdr.WebApi.Controllers
     [UserInfoRequired]
     public class CategoryTreesController : MongoDbController, IPaginationController
     {
-        private IBusControl Bus;
-        private IMongoCollection<BsonDocument> CategoryTreeCollection;
+        private IBusControl _bus;
+        private IMongoCollection<BsonDocument> _categoryTreeCollection;
+        private IMongoCollection<BsonDocument> _nodesCollection;
         private readonly ISession _session;
-
-        //IElasticClient _elasticClient;
         private IUrlHelper _urlHelper;
-        public CategoryTreesController(IMongoDatabase database, IBusControl bus /*IElasticClient elasticClient*/, IUrlHelper urlHelper, ISession session) : base(database)
+
+        public CategoryTreesController(IMongoDatabase database, IBusControl bus, IUrlHelper urlHelper, ISession session) : base(database)
         {
-            Bus = bus ?? throw new ArgumentNullException(nameof(bus));
+            _bus = bus ?? throw new ArgumentNullException(nameof(bus));
             _urlHelper = urlHelper ?? throw new ArgumentNullException(nameof(urlHelper));
-            CategoryTreeCollection = Database.GetCollection<BsonDocument>("CategoryTrees");
+            _categoryTreeCollection = Database.GetCollection<BsonDocument>("CategoryTrees");
+            _nodesCollection = Database.GetCollection<BsonDocument>("Nodes");
             _session = session ?? throw new ArgumentNullException(nameof(session));
-            //_elasticClient = elasticClient ?? throw new ArgumentNullException(nameof(elasticClient));
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Sds.Osdr.WebApi.Controllers
         [HttpGet("tree")]
         public async Task<IActionResult> GetAllCategoryTree([FromQuery]PaginationRequest request)
         {
-            var result = CategoryTreeCollection.Find(_ => true).Project<dynamic>(@"{
+            var result = _categoryTreeCollection.Find(_ => true).Project<dynamic>(@"{
                     CreatedBy:1,
                     CreatedDateTime:1,
                     UpdatedBy:1,
@@ -73,11 +73,12 @@ namespace Sds.Osdr.WebApi.Controllers
         [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> CreateCategoryTree([FromBody] List<TreeNode> nodes)
         {
+            //TODO: Validate input parapeters e.g. title
             Guid categoriesTreeId = Guid.NewGuid();
 
             nodes.InitNodeIds();
 
-            await Bus.Publish<CreateCategoryTree>(new
+            await _bus.Publish<CreateCategoryTree>(new
             {
                 Id = categoriesTreeId,
                 UserId,
@@ -95,7 +96,7 @@ namespace Sds.Osdr.WebApi.Controllers
         [HttpGet("tree/{id}", Name = "GetCategoriesTree")]
         public async Task<IActionResult> GetCategoriesTree(Guid id)
         {
-            var tree = await CategoryTreeCollection.Find(new BsonDocument("_id", id))
+            var tree = await _categoryTreeCollection.Find(new BsonDocument("_id", id))
                 .Project<dynamic>(@"{
                     CreatedBy:1,
                     CreatedDateTime:1,
@@ -108,7 +109,7 @@ namespace Sds.Osdr.WebApi.Controllers
 
             if (tree == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
             return Ok(tree);
@@ -125,13 +126,14 @@ namespace Sds.Osdr.WebApi.Controllers
         [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> UpdateCategoriesTree(Guid id, [FromBody] List<TreeNode> nodes, int version)
         {
-            var tree = await _session.Get<CategoryTree>(id);
+            //TODO: Validate input parapeters e.g. title
+            var treeView = await _categoryTreeCollection.Find(new BsonDocument("_id", id)).FirstOrDefaultAsync();
 
-            if(tree == null)
+            if (treeView == null)
             {
                 return NotFound();
             }
-
+            var tree = await _session.Get<CategoryTree>(id);
             var aggregateIds = tree.Nodes.GetNodeIds();
             var requestIds = nodes.GetNodeIds();
 
@@ -144,7 +146,7 @@ namespace Sds.Osdr.WebApi.Controllers
 
             nodes.InitNodeIds();
 
-            await Bus.Publish<UpdateCategoryTree>(new
+            await _bus.Publish<UpdateCategoryTree>(new
             {
                 Id = id,
                 UserId = UserId,
@@ -167,7 +169,16 @@ namespace Sds.Osdr.WebApi.Controllers
         [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> UpdateCategoriesTreeNode(Guid id, Guid nodeId, [FromBody] List<TreeNode> nodes, int version)
         {
-            await Bus.Publish<UpdateCategoryTree>(new
+            //TODO: Validate input parapeters e.g. title
+            var tree = await _categoryTreeCollection.Find(new BsonDocument("_id", id)).FirstOrDefaultAsync();
+            var node = await _nodesCollection.Find(new BsonDocument("_id", nodeId)).FirstOrDefaultAsync();
+            
+            if (tree == null || node == null)
+            {
+                return NotFound();
+            }
+
+            await _bus.Publish<UpdateCategoryTree>(new
             {
                 Id = id,
                 ParentId = nodeId,
@@ -183,7 +194,14 @@ namespace Sds.Osdr.WebApi.Controllers
         [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> DeleteCategoriesTreeNode(Guid id, int version)
         {
-            await Bus.Publish<DeleteCategoryTree>(new
+            var tree = await _categoryTreeCollection.Find(new BsonDocument("_id", id)).FirstOrDefaultAsync();
+
+            if (tree == null)
+            {
+                return NotFound();
+            }
+
+            await _bus.Publish<DeleteCategoryTree>(new
             {
                 Id = id,
                 UserId,
@@ -197,7 +215,14 @@ namespace Sds.Osdr.WebApi.Controllers
         [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> DeleteCategoriesTreeNode(Guid id, Guid nodeId, int version)
         {
-            await Bus.Publish<DeleteCategoryTree>(new
+            var tree = await _categoryTreeCollection.Find(new BsonDocument("_id", id)).FirstOrDefaultAsync();
+
+            if (tree == null)
+            {
+                return NotFound();
+            }
+
+            await _bus.Publish<DeleteCategoryTree>(new
             {
                 Id = id,
                 NodeId = nodeId,
