@@ -100,7 +100,6 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             	'version': 2,
                 'nodes': *EXIST*
             }}");
-
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]

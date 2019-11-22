@@ -15,15 +15,14 @@ namespace Sds.Osdr.WebApi.IntegrationTests
     [Collection("OSDR Test Harness")]
     public class GetAllCategoryTrees : OsdrWebTest
     {
-
         public GetAllCategoryTrees(OsdrWebTestHarness fixture, ITestOutputHelper output) : base(fixture, output)
         {
             var categories = new List<TreeNode>()
             {
-                new TreeNode(Guid.NewGuid(), "Projects", new List<TreeNode>()
+                new TreeNode("Projects", new List<TreeNode>()
                 {
-                    new TreeNode(Guid.NewGuid(), "Projects One"),
-                    new TreeNode(Guid.NewGuid(), "Projects Two")
+                    new TreeNode("Projects One"),
+                    new TreeNode("Projects Two")
                 })
             };
 
@@ -39,7 +38,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             }
         }
 
-        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
+        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
         public async Task CategoryTreeOperations_GetAllCategoryTrees_ExpectedListOfCategories()
         {
             var response = await JohnApi.GetData($"/api/categorytrees/tree");
@@ -60,7 +59,6 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             	    'version': *EXIST*
                 }}");
             }
-
         }
     }
 }
