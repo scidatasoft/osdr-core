@@ -89,7 +89,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             CategoryId = fixture.CategoryId;
         }
 
-        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
+        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
         public async Task CategoryTree_UpdateExistantCategoryTree_BuiltExpectedDocument()
         {
             var jsonCategory = await JohnApi.ReadJsonAsync<JToken>($"/api/categorytrees/tree/{CategoryId}");
@@ -106,7 +106,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             }}");
         }
 
-        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
+        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
         public async Task CategoryTree_UpdateNonExistantCategoryTree_ReturnsNotFoundCode()
         {
             var response = await JohnApi.PutData($"/api/categorytrees/tree/{Guid.NewGuid()}", new List<TreeNode>()

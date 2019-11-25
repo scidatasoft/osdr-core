@@ -40,7 +40,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             Harness.WaitWhileCategoryTreeDeletePersisted(categoryId);
         }
 
-        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
+        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
         public async Task CategoryTreeOperations_DeleteCategoryTree_ExpectedUpdatedCategory()
         {
             var response = await JohnApi.GetData($"/api/categorytrees/tree/{categoryId}");

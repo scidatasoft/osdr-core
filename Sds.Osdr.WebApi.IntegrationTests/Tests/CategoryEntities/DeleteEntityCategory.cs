@@ -78,30 +78,18 @@ namespace Sds.Osdr.WebApi.IntegrationTests
 
             // add categories to entity
             await JohnApi.PostData($"/api/categoryentities/entities/{fileNodeId}/categories", new List<string> { categoryId1, categoryId2 });
+            WebFixture.WaitWhileCategoryIndexed(fileNodeId.ToString());
+
             // check if node exists by categoryId1
-            var firstCategoryAddedNode = GetNodeByCategoryId(categoryId1);
-            firstCategoryAddedNode.Value<string>("id").Should().Be(fileNodeId.ToString());
+            var firstCategoryAddedNode = await JohnApi.ReadJsonAsync<List<JObject>>($"/api/categoryentities/categories/{categoryId1}");
+            firstCategoryAddedNode.First().Value<string>("id").Should().Be(fileNodeId.ToString());
 
             // delete first category from node
             await JohnApi.DeleteData($"/api/categoryentities/entities/{fileNodeId}/categories/{categoryId1}");
+            WebFixture.WaitWhileCategoryDeleted(categoryId1.ToString());
             // check if node contains categoryId1
-            var firstCategoryDeletedNode = GetNodeByCategoryId(categoryId1, false);
+            var firstCategoryDeletedNode = await JohnApi.ReadJsonAsync<List<JObject>>($"/api/categoryentities/categories/{categoryId1}");
             firstCategoryDeletedNode.Should().BeNull();
-        }
-
-        JObject GetNodeByCategoryId(string categoryId, bool ifExists = true)
-        {
-            var nodesFromES = new List<JObject>();
-            for (int i = 0; i < 5; i++)
-            {
-                Thread.Sleep(1000);
-                var getResponse = JohnApi.GetData($"/api/categoryentities/categories/{categoryId}").Result;
-                var nodesResponseContent = getResponse.Content.ReadAsStringAsync().Result;
-                nodesFromES = JsonConvert.DeserializeObject<List<JObject>>(nodesResponseContent);
-                if (nodesFromES.Count != 0 && ifExists) return nodesFromES[0];
-                if (nodesFromES.Count == 0 && !ifExists) return null;
-            }
-            return null;
         }
     }
 }

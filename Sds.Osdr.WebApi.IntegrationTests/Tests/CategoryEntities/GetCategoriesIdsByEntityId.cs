@@ -46,6 +46,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             BlobId = harness.JohnBlobStorageClient.AddResource(harness.JohnId.ToString(), "Chemical-diagram.png", new Dictionary<string, object>() { { "parentId", harness.JohnId } }).Result;
 
             FileId = harness.WaitWhileFileProcessed(BlobId);
+            
         }
     }
 
@@ -64,7 +65,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             FileId = fixture.FileId;
         }
 
-        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
+        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
         public async Task GetCategoriesIdsByEntityIdTest()
         {
             var fileNodeResponse = await JohnApi.GetNodeById(FileId);
@@ -72,27 +73,12 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             var fileNodeId = Guid.Parse(fileNode.Value<string>("id"));
 
             await JohnApi.PostData($"/api/categoryentities/entities/{fileNodeId}/categories", new List<Guid> { CategoryId });
-            GetNodeByCategoryId(CategoryId.ToString());
-
+            WebFixture.WaitWhileCategoryIndexed(fileNodeId.ToString());
 
             var response = JohnApi.GetData($"/api/categoryentities/entities/{fileNodeId}/categories").Result;
             var content = response.Content.ReadAsStringAsync().Result;
             var categoriesIds = JsonConvert.DeserializeObject<IEnumerable<string>>(content);
             categoriesIds.Any(x => x == CategoryId.ToString()).Should().BeTrue();
-        }
-
-        JObject GetNodeByCategoryId(string categoryId)
-        {
-            var nodesFromES = new List<JObject>();
-            for (int i = 0; i < 5; i++)
-            {
-                Thread.Sleep(1000);
-                var getResponse = JohnApi.GetData($"/api/categoryentities/categories/{categoryId}").Result;
-                var nodesResponseContent = getResponse.Content.ReadAsStringAsync().Result;
-                nodesFromES = JsonConvert.DeserializeObject<List<JObject>>(nodesResponseContent);
-                if (nodesFromES.Count != 0) return nodesFromES[0];
-            }
-            return null;
         }
     }
 }
