@@ -89,7 +89,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             WebFixture.WaitWhileCategoryDeleted(categoryId1.ToString());
             // check if node contains categoryId1
             var firstCategoryDeletedNode = await JohnApi.ReadJsonAsync<List<JObject>>($"/api/categoryentities/categories/{categoryId1}");
-            firstCategoryDeletedNode.Should().BeNull();
+            firstCategoryDeletedNode.Should().BeEmpty();
         }
     }
 }

@@ -78,7 +78,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             var response = JohnApi.GetData($"/api/categoryentities/entities/{fileNodeId}/categories").Result;
             var content = response.Content.ReadAsStringAsync().Result;
             var categoriesIds = JsonConvert.DeserializeObject<IEnumerable<string>>(content);
-            categoriesIds.Any(x => x == CategoryId.ToString()).Should().BeTrue();
+            categoriesIds.Single().Should().Be(CategoryId.ToString());
         }
     }
 }
