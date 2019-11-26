@@ -381,7 +381,7 @@ namespace Sds.Osdr.IntegrationTests
                     .Index("categories")
                     .Type("category")
                     .Query(q => q.QueryString(qs => qs.Query(categoryId))));
-                var hits = result.Hits.DefaultIfEmpty();
+                var hits = result.Hits.FirstOrDefault();
                 if (hits == null)
                 {
                     return;

@@ -66,10 +66,11 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
         public async Task DeleteCategory_DeleteOneCategoryFromEntity_CategoryIdShouldBeRemovedFromEntity()
         {
             var fileNodeResponse = await JohnApi.GetNodeById(FileId);
-            var fileNode = JsonConvert.DeserializeObject<JObject>(await fileNodeResponse.Content.ReadAsStringAsync());
+            var fileNode = await fileNodeResponse.Content.ReadAsJObjectAsync();
             var fileNodeId = Guid.Parse(fileNode.Value<string>("id"));
 
-            var treeContent = JohnApi.ReadJsonAsync<JObject>($"api/categorytrees/tree/{RootCategoryId}").Result;
+            var treeRequest = await JohnApi.GetData($"api/categorytrees/tree/{RootCategoryId}");
+            var treeContent = await treeRequest.Content.ReadAsJObjectAsync();
             var categoryId1 = treeContent["nodes"][0]["children"][0]["id"].ToString();
             var categoryId2 = treeContent["nodes"][0]["children"][1]["id"].ToString();
 
@@ -77,26 +78,27 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
             await JohnApi.PostData($"/api/categoryentities/entities/{fileNodeId}/categories", new List<string> { categoryId1, categoryId2 });
             WebFixture.WaitWhileCategoryIndexed(fileNodeId.ToString());
 
-            var firstCategoryAddedNode = GetNodeByCategoryId(categoryId1);
+            var firstCategoryAddedNode = await GetNodeByCategoryId(categoryId1);
             firstCategoryAddedNode.Value<string>("id").Should().Be(fileNodeId.ToString());
 
             // delete first category from node
             await JohnApi.DeleteData($"/api/categoryentities/entities/{fileNodeId}/categories/{categoryId1}");
             // check if node contains categoryId
             WebFixture.WaitWhileCategoryDeleted(categoryId1);
-            var firstCategoryDeletedNode = GetNodeByCategoryId(categoryId1);
+            var firstCategoryDeletedNode = await GetNodeByCategoryId(categoryId1);
             firstCategoryDeletedNode.Should().BeNull();
 
-            var entityCategoryIds = await JohnApi.ReadJsonAsync<List<string>>($"/api/categoryentities/entities/{fileNodeId}/categories");
+            var entityCategoryIdsRequest = await JohnApi.GetData($"/api/categoryentities/entities/{fileNodeId}/categories");
+            var entityCategoryIds = await entityCategoryIdsRequest.Content.ReadAsJArrayAsync();
             entityCategoryIds.Should().HaveCount(1);
-            entityCategoryIds.Single().Should().Be(categoryId2);
+            entityCategoryIds.Single().Value<string>("id").Should().Be(categoryId2);
         }
 
-        private JObject GetNodeByCategoryId(string categoryId)
+        private async Task<JToken> GetNodeByCategoryId(string categoryId)
         {
-            var nodesResponseContent = JohnApi.ReadJsonAsync($"/api/categoryentities/categories/{categoryId}").Result;
-            var elasticSearchNodes = JsonConvert.DeserializeObject<List<JObject>>(nodesResponseContent);
-            if (elasticSearchNodes.Count != 0)
+            var nodesResponseContent = await JohnApi.GetData($"/api/categoryentities/categories/{categoryId}");
+            var elasticSearchNodes = await nodesResponseContent.Content.ReadAsJArrayAsync();
+            if (elasticSearchNodes.Count() != 0)
                 return elasticSearchNodes.First();
 
             return null;

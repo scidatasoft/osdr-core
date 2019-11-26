@@ -55,9 +55,9 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
         public async Task CategoryTree_CreateNewCategoryTree_BuiltExpectedDocument()
         {
-            var content = await JohnApi.ReadJsonAsync($"/api/categorytrees/tree/{CategoryId}");
+            var contentRequest = await JohnApi.GetData($"/api/categorytrees/tree/{CategoryId}");
 
-            var jsonCategory = JObject.Parse(content);
+            var jsonCategory = await contentRequest.Content.ReadAsJObjectAsync(); 
 
             jsonCategory.Should().HaveElement("id");
             jsonCategory["id"].Value<string>().Should().Be(CategoryId.ToString());

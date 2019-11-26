@@ -12,19 +12,20 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Extensions
     public static class JsonExtension
     {
         //should be romeved soon
-        public static async Task<string> ReadJsonAsync(this OsdrWebClient client, string url)
-        {
-            var response = await client.GetData(url);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
-        }
+        //public static async Task<string> ReadJsonAsync(this OsdrWebClient client, string url)
+        //{
+        //    var response = await client.GetData(url);
+        //    response.EnsureSuccessStatusCode();
+        //    return await response.Content.ReadAsStringAsync();
+        //}
 
-        public static async Task<T> ReadJsonAsync<T>(this OsdrWebClient client, string url) where T : class
-        {
-            var json = await client.ReadJsonAsync(url);
-            return JsonConvert.DeserializeObject<T>(json);
-        }
+        //public static async Task<T> ReadObjectAsync<T>(this OsdrWebClient client, string url) where T : class
+        //{
+        //    var json = await client.ReadJsonAsync(url);
+        //    return JsonConvert.DeserializeObject<T>(json);
+        //}
         //
+
         public static async Task<JObject> ReadAsJObjectAsync(this HttpContent content)
         {
             return JObject.Parse(await content.ReadAsStringAsync());

@@ -75,7 +75,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task AddOneCategoryToEntity()
         {
-            var nodes = await JohnApi.ReadJsonAsync<List<JObject>>($"/api/categoryentities/categories/{CategoryId}");
+            var nodesRequest = await JohnApi.GetData($"/api/categoryentities/categories/{CategoryId}");
+            var nodes = await nodesRequest.Content.ReadAsJArrayAsync();
             nodes.Count.Should().Be(1);
             nodes[0].Value<string>("id").Should().Be(FileNodeId.ToString());
         }

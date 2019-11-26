@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentAssertions.Json;
 using Leanda.Categories.Domain.ValueObjects;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -92,18 +93,51 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
         public async Task CategoryTree_UpdateExistantCategoryTree_BuiltExpectedDocument()
         {
-            var jsonCategory = await JohnApi.ReadJsonAsync<JToken>($"/api/categorytrees/tree/{CategoryId}");
-            
-            jsonCategory.Should().ContainsJson($@"
-            {{
-            	'id': '{CategoryId}',
-            	'createdBy': '{JohnId}',
-            	'createdDateTime': *EXIST*,
-            	'updatedBy': '{JohnId}',
-            	'updatedDateTime': *EXIST*,
-            	'version': 2,
-                'nodes': *EXIST*
-            }}");
+            var contentRequest = await JohnApi.GetData($"/api/categorytrees/tree/{CategoryId}");
+
+            var jsonCategory = await contentRequest.Content.ReadAsJObjectAsync();
+
+            jsonCategory.Should().HaveElement("id");
+            jsonCategory["id"].Value<string>().Should().Be(CategoryId.ToString());
+
+            jsonCategory.Should().HaveElement("createdBy");
+            jsonCategory["createdBy"].Value<string>().Should().Be(JohnId.ToString());
+
+            jsonCategory.Should().HaveElement("createdDateTime")
+                .And.HaveElement("createdDateTime")
+                .And.HaveElement("updatedDateTime");
+
+            jsonCategory.Should().HaveElement("version");
+            jsonCategory["version"].Value<int>().Should().Be(2);
+
+            jsonCategory.Should().HaveElement("nodes");
+            var treeNodes = jsonCategory["nodes"].Value<JArray>();
+            treeNodes.Should().HaveCount(6);
+            treeNodes.Select(i => i.Should().HaveElement("id"));
+            var titles = treeNodes.Select(i => i["title"].Value<string>());
+            titles.Should().Contain(new List<string> { "Level 0: Main Node 1", "NoNameNode", "1", "2", "3", "4"});
+            var firstNode = treeNodes.Where(i => i.Value<string>("title") == "Level 0: Main Node 1").SingleOrDefault();
+            firstNode.Should().NotBeNull();
+            firstNode.Should().HaveElement("title");
+            var insideNodes = firstNode["children"].Value<JArray>();
+            insideNodes.Should().HaveCount(2);
+            var insideTitles = insideNodes.Select(i => i["title"].Value<string>());
+            insideTitles.Should().Contain(new List<string> { "Level 1: Node 1", "Level 1: Node 2" });
+            insideNodes.Select(i => i.Should().HaveElement("id"));
+
+            var lastNode = treeNodes.Where(i => i.Value<string>("title") == "4").SingleOrDefault();
+            lastNode.Should().NotBeNull();
+            var lastNodeInsideNodes = lastNode["children"].Value<JArray>();
+            lastNodeInsideNodes.Should().HaveCount(2);
+            var lastNodeInsideTitles = lastNodeInsideNodes.Select(i => i["title"].Value<string>());
+            lastNodeInsideTitles.Should().Contain(new List<string> { "4-1", "4-2" });
+            lastNodeInsideNodes.Select(i => i.Should().HaveElement("id"));
+
+            var lastNodeSubnode = lastNodeInsideNodes.Where(i => i.Value<string>("title") == "4-2").SingleOrDefault();
+            lastNodeSubnode.Should().NotBeNull();
+            var lastSubnodeChildren = lastNodeSubnode["children"].Value<JArray>();
+            lastSubnodeChildren.Should().HaveCount(1);
+            lastSubnodeChildren.Single().Should().HaveElement("id");
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]

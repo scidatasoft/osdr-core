@@ -70,7 +70,8 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
         public async Task AddCategory_AddingCategoryToEntity_CategoryIdShouldAppearInCategoriesListForEntity()
         {
-            var elasticSearchNodes = await JohnApi.ReadJsonAsync<List<JObject>>($"/api/categoryentities/categories/{TreeId}");
+            var elasticSearchNodesRequest = await JohnApi.GetData($"/api/categoryentities/categories/{TreeId}");
+            var elasticSearchNodes = await elasticSearchNodesRequest.Content.ReadAsJArrayAsync();
             elasticSearchNodes.Count.Should().Be(1);
             elasticSearchNodes.Single().Value<string>("id").Should().Be(FileId.ToString());
         }

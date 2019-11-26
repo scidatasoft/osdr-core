@@ -33,7 +33,8 @@ namespace Sds.Osdr.EndToEndTests.Tests.Categories
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
         public async Task EntityCategories_GetCategoriesIdsByEntityId_ShouldReturnEntityWithExpectedId()
         {
-            var entities = await JohnApi.ReadJsonAsync<JArray>($"/api/categoryentities/categories/{CategoryId}");
+            var entitiesRequest = await JohnApi.GetData($"/api/categoryentities/categories/{CategoryId}");
+            var entities = await entitiesRequest.Content.ReadAsJArrayAsync();
             entities.Should().HaveCount(1);
             var entity = entities.Single();
             entity["id"].Value<string>().Should().Be(FileId.ToString());
