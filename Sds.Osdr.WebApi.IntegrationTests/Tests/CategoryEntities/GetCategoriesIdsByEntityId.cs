@@ -69,16 +69,15 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         public async Task GetCategoriesIdsByEntityIdTest()
         {
             var fileNodeResponse = await JohnApi.GetNodeById(FileId);
-            var fileNode = JsonConvert.DeserializeObject<JObject>(await fileNodeResponse.Content.ReadAsStringAsync());
+            var fileNode = await fileNodeResponse.Content.ReadAsJObjectAsync();
             var fileNodeId = Guid.Parse(fileNode.Value<string>("id"));
 
             await JohnApi.PostData($"/api/categoryentities/entities/{fileNodeId}/categories", new List<Guid> { CategoryId });
             WebFixture.WaitWhileCategoryIndexed(CategoryId.ToString());
 
-            var response = JohnApi.GetData($"/api/categoryentities/entities/{fileNodeId}/categories").Result;
-            var content = response.Content.ReadAsStringAsync().Result;
-            var categoriesIds = JsonConvert.DeserializeObject<IEnumerable<string>>(content);
-            categoriesIds.Single().Should().Be(CategoryId.ToString());
+            var response = await JohnApi.GetData($"/api/categoryentities/entities/{fileNodeId}/categories");
+            var categoriesIds = await response.Content.ReadAsJArrayAsync();
+            categoriesIds.Single().Value<string>().Should().Be(CategoryId.ToString());
         }
     }
 }
