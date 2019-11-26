@@ -73,7 +73,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             var fileNodeId = Guid.Parse(fileNode.Value<string>("id"));
 
             await JohnApi.PostData($"/api/categoryentities/entities/{fileNodeId}/categories", new List<Guid> { CategoryId });
-            WebFixture.WaitWhileCategoryIndexed(fileNodeId.ToString());
+            WebFixture.WaitWhileCategoryIndexed(CategoryId.ToString());
 
             var response = JohnApi.GetData($"/api/categoryentities/entities/{fileNodeId}/categories").Result;
             var content = response.Content.ReadAsStringAsync().Result;
