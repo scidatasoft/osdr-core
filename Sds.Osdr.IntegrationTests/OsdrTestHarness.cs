@@ -375,7 +375,7 @@ namespace Sds.Osdr.IntegrationTests
         public void WaitWhileCategoryDeleted(string categoryId)
         {
             var elasticSearchNodes = new List<JObject>();
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 100; i++)
             {
                 var result = ElasticClient.Search<dynamic>(s => s
                     .Index("categories")
