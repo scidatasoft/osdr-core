@@ -78,8 +78,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests
 
             // add categories to entity
             await JohnApi.PostData($"/api/categoryentities/entities/{fileNodeId}/categories", new List<string> { categoryId1, categoryId2 });
-            WebFixture.WaitWhileCategoryIndexed(fileNodeId.ToString());
-
+            WebFixture.WaitWhileCategoryIndexed(categoryId1.ToString());
+            WebFixture.WaitWhileCategoryIndexed(categoryId2.ToString());
             // check if node exists by categoryId1
             var firstCategoryAddedNode = await JohnApi.ReadJsonAsync<List<JObject>>($"/api/categoryentities/categories/{categoryId1}");
             firstCategoryAddedNode.First().Value<string>("id").Should().Be(fileNodeId.ToString());
