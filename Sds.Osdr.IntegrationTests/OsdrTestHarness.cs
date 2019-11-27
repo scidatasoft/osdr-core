@@ -207,6 +207,8 @@ namespace Sds.Osdr.IntegrationTests
                     e.Handler<Leanda.Categories.Domain.Events.CategoryTreeUpdatedPersisted>(context => { Received.Add(context); return Task.CompletedTask; });
 
                     e.Handler<Leanda.Categories.Domain.Events.CategoryTreeDeletePersisted>(context => { Received.Add(context); return Task.CompletedTask; });
+
+                    e.Handler<Leanda.Categories.Domain.Events.CategoryTreeNodeDeletePersisted>(context => { Received.Add(context); return Task.CompletedTask; });
                 });
 
                 x.UseConcurrencyLimit(mtSettings.ConcurrencyLimit);

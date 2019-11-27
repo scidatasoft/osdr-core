@@ -11,12 +11,11 @@ using Xunit.Abstractions;
 
 namespace Sds.Osdr.WebApi.IntegrationTests
 {
-    [Collection("OSDR Test Harness")]
-    public class DeleteCategoryTree : OsdrWebTest
+    public class DeleteCategoryFixture
     {
-        private Guid categoryId;
+        public Guid CategoryId { get; }
 
-        public DeleteCategoryTree(OsdrWebTestHarness fixture, ITestOutputHelper output) : base(fixture, output)
+        public DeleteCategoryFixture(OsdrWebTestHarness harness)
         {
             var categories = new List<TreeNode>()
             {
@@ -27,11 +26,11 @@ namespace Sds.Osdr.WebApi.IntegrationTests
                 })
             };
 
-            var response = JohnApi.PostData("/api/categorytrees/tree", categories).Result;
+            var response = harness.JohnApi.PostData("/api/categorytrees/tree", categories).Result;
 
             var content = response.Content.ReadAsStringAsync().Result;
 
-            categoryId = Guid.Parse(content);
+            CategoryId = Guid.Parse(content);
 
             Harness.WaitWhileCategoryTreePersisted(categoryId);
 
