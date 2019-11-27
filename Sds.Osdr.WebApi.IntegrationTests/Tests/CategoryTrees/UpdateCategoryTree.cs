@@ -88,8 +88,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         }
 
 
-        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
-        public async Task CategoryTree_UpdateCategoryTree_BuiltExpectedDocument()
+        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
+        public async Task CategoryTree_UpdateCategoryTree_UpdatedCategoryMayBeExpectedDocument()
         {
             var response = await JohnApi.GetData($"/api/categorytrees/tree/{CategoryId}");
             response.EnsureSuccessStatusCode();
@@ -105,6 +105,68 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             	'updatedDateTime': *EXIST*,
             	'version': 2,
                 'nodes': *EXIST*
+                //[
+                //    {{
+                //        'id': *EXIST*,
+                //        'title': 'Level 0: Main Node 1',
+                //        'children': [
+                //            {{ 
+                //                'id': *EXIST*, 
+                //                'title': 'Level 1: Node 1', 
+                //                'children': null 
+                //            }},
+                //            {{ 
+                //                'id': *EXIST*, 
+                //                'title': 'Level 1: Node 2', 
+                //                'children': null 
+                //            }}
+                //        ]
+                //    }},
+                //    {{ 
+                //        'id': *EXIST*, 
+                //        'title': 'NoNameNode',
+                //        'children': null 
+                //    }},
+                //    {{ 
+                //        'id': *EXIST*, 
+                //        'title': '1',
+                //        'children': null
+                //    }},
+                //    {{ 
+                //        'id': *EXIST*, 
+                //        'title': '2',
+                //        'children': null 
+                //    }},
+                //    {{ 
+                //        'id': *EXIST*, 
+                //        'title': '3',
+                //        'children': null 
+                //    }},
+                //    {{
+                //        'id': *EXIST*, 
+                //        'title': '4', 
+                //        'children': 
+                //        [
+                //            {{
+                //                'id': *EXIST*,
+                //                'title': '4-1',
+                //                'children': null 
+                //            }}, 
+                //            {{ 
+                //                'id': *EXIST*,
+                //                'title': '4-2', 
+                //                'children': 
+                //                [
+                //                    {{
+                //                        'id': *EXIST*,
+                //                        'title': '4-2-1',
+                //                        'children': null 
+                //                    }}
+                //                ] 
+                //            }}
+                //        ] 
+                //    }}
+                //]
             }}");
         }
     }
