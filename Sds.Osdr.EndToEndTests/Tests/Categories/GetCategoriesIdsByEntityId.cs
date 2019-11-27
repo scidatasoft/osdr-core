@@ -3,19 +3,19 @@ using Leanda.Categories.Domain.ValueObjects;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Sds.Osdr.IntegrationTests;
-using Sds.Osdr.IntegrationTests.FluentAssersions;
 using Sds.Osdr.IntegrationTests.Traits;
+using Sds.Osdr.WebApi.IntegrationTests;
 using Sds.Osdr.WebApi.IntegrationTests.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Threading;
 using System.Linq;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Sds.Osdr.WebApi.IntegrationTests
+namespace Sds.Osdr.EndToEndTests.Tests.Categories
 {
     public class GetCategoriesIdsByEntityIdFixture
     {
@@ -24,7 +24,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         public Guid FileId { get; set; }
 
 
-        public GetCategoriesIdsByEntityIdFixture(OsdrWebTestHarness harness)
+        public GetCategoriesIdsByEntityIdFixture(OsdrTestHarness harness)
         {
             var categories = new List<TreeNode>()
             {
@@ -46,7 +46,10 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             BlobId = harness.JohnBlobStorageClient.AddResource(harness.JohnId.ToString(), "Chemical-diagram.png", new Dictionary<string, object>() { { "parentId", harness.JohnId } }).Result;
 
             FileId = harness.WaitWhileFileProcessed(BlobId);
-            
+
+            harness.JohnApi.PostData($"/api/categoryentities/entities/{FileId}/categories", new List<Guid> { CategoryId }).Wait();
+
+            harness.WaitWhileCategoryIndexed(CategoryId.ToString());
         }
     }
 
@@ -58,7 +61,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         public Guid FileId { get; set; }
 
 
-        public GetCategoriesIdsByEntityId(OsdrWebTestHarness harness, ITestOutputHelper output, GetCategoriesIdsByEntityIdFixture fixture) : base(harness, output)
+        public GetCategoriesIdsByEntityId(OsdrTestHarness harness, ITestOutputHelper output, GetCategoriesIdsByEntityIdFixture fixture) : base(harness, output)
         {
             CategoryId = fixture.CategoryId;
             BlobId = fixture.BlobId;
@@ -66,18 +69,11 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
-        public async Task GetCategoriesIdsByEntityIdTest()
+        public async Task CategoryEntities_GetCategoriesIdsByEntityId_ShouldReturnExpectedCategoryIds()
         {
-            var fileNodeResponse = await JohnApi.GetNodeById(FileId);
-            var fileNode = await fileNodeResponse.Content.ReadAsJObjectAsync();
-            var fileNodeId = Guid.Parse(fileNode.Value<string>("id"));
-
-            await JohnApi.PostData($"/api/categoryentities/entities/{fileNodeId}/categories", new List<Guid> { CategoryId });
-            WebFixture.WaitWhileCategoryIndexed(CategoryId.ToString());
-
-            var response = await JohnApi.GetData($"/api/categoryentities/entities/{fileNodeId}/categories");
-            var categoriesIds = await response.Content.ReadAsJArrayAsync();
-            categoriesIds.Single().Value<string>().Should().Be(CategoryId.ToString());
+            var content = await JohnApi.GetData($"/api/categoryentities/entities/{FileId}/categories");
+            var categoriesIds = await content.Content.ReadAsJArrayAsync();
+            categoriesIds.Any(x => x.Value<string>() == CategoryId.ToString()).Should().BeTrue();
         }
     }
 }

@@ -6,6 +6,7 @@ using Sds.Osdr.IntegrationTests.FluentAssersions;
 using Sds.Osdr.IntegrationTests.Traits;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -66,6 +67,13 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             	'version': 1,
                 'nodes': *EXIST*
             }}");
+        }
+
+        [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
+        public async Task CategoryTree_GetNonExistantCategoryTree_ReturnsNotFoundCode()
+        {
+            var response = await JohnApi.GetData($"/api/categorytrees/tree/{Guid.NewGuid()}");
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }
 }

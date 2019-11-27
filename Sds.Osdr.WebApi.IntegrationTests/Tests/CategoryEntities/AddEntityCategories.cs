@@ -52,6 +52,7 @@ namespace Sds.Osdr.WebApi.IntegrationTests
             // add category to entity
             response = harness.JohnApi.PostData($"/api/categoryentities/entities/{FileNodeId}/categories", new List<Guid> { CategoryId }).Result;
             response.EnsureSuccessStatusCode();
+            harness.WaitWhileCategoryIndexed(CategoryId.ToString());
         }
     }
 
@@ -74,18 +75,10 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Folder)]
         public async Task AddOneCategoryToEntity()
         {
-            // Try to Get nodes by category id
-            var nodesFromES = new List<JObject>();
-            for (int i = 0; i < 5; i++)
-            {
-                Thread.Sleep(1000);
-                var getResponse = JohnApi.GetData($"/api/categoryentities/categories/{CategoryId}").Result;
-                var nodesResponseContent = await getResponse.Content.ReadAsStringAsync();
-                nodesFromES = JsonConvert.DeserializeObject<List<JObject>>(nodesResponseContent);
-                if (nodesFromES.Count != 0) break;
-            }
-            nodesFromES.Count.Should().BePositive();
-            nodesFromES[0].Value<string>("id").Should().Be(FileNodeId.ToString());
+            var nodesRequest = await JohnApi.GetData($"/api/categoryentities/categories/{CategoryId}");
+            var nodes = await nodesRequest.Content.ReadAsJArrayAsync();
+            nodes.Count.Should().Be(1);
+            nodes[0].Value<string>("id").Should().Be(FileNodeId.ToString());
         }
     }
 }

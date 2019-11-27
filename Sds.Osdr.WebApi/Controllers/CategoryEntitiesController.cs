@@ -19,29 +19,28 @@ using System.Dynamic;
 using Sds.Osdr.WebApi.Extensions;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json.Linq;
+using Leanda.Categories.Domain;
 
 namespace Sds.Osdr.WebApi.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
-    [UserInfoRequired]
+    //[Authorize]
+    //[UserInfoRequired]
     public class CategoryEntitiesController : MongoDbController, IPaginationController
     {
-        private IBusControl Bus;
-        private IMongoCollection<BsonDocument> _categoryTreeCollection;
-        private IMongoCollection<BsonDocument> _nodesTreeCollection;
-        private readonly ISession _session;
+        private readonly IBusControl Bus;
+        private readonly IMongoCollection<BsonDocument> NodesTreeCollection;
+        private readonly ISession Session;
+        private readonly IElasticClient ElasticClient;
+        private readonly IUrlHelper UrlHelper;
 
-        IElasticClient _elasticClient;
-        private IUrlHelper _urlHelper;
         public CategoryEntitiesController(IMongoDatabase database, IBusControl bus, IElasticClient elasticClient, IUrlHelper urlHelper, ISession session) : base(database)
         {
             Bus = bus ?? throw new ArgumentNullException(nameof(bus));
-            _urlHelper = urlHelper ?? throw new ArgumentNullException(nameof(urlHelper));
-            _categoryTreeCollection = Database.GetCollection<BsonDocument>("CategoryTrees");
-            _nodesTreeCollection = Database.GetCollection<BsonDocument>("Nodes");
-            _session = session ?? throw new ArgumentNullException(nameof(session));
-            _elasticClient = elasticClient ?? throw new ArgumentNullException(nameof(elasticClient));
+            UrlHelper = urlHelper ?? throw new ArgumentNullException(nameof(urlHelper));
+            NodesTreeCollection = Database.GetCollection<BsonDocument>("Nodes");
+            Session = session ?? throw new ArgumentNullException(nameof(session));
+            ElasticClient = elasticClient ?? throw new ArgumentNullException(nameof(elasticClient));
         }
 
         /// <summary>
@@ -53,9 +52,9 @@ namespace Sds.Osdr.WebApi.Controllers
         [HttpPost("entities/{entityId}/categories")]
         public async Task<IActionResult> AddEntityCategories(Guid entityId, [FromBody] IEnumerable<Guid> categoriesIds)
         {
-            var node = await _nodesTreeCollection.Find(new BsonDocument("_id", entityId)).FirstOrDefaultAsync();
+            var node = await NodesTreeCollection.Find(new BsonDocument("_id", entityId)).FirstOrDefaultAsync();
             if (node == null)
-                return BadRequest();
+                return NotFound();
 
             await Bus.Publish<AddEntityCategories>(new
             {
@@ -77,8 +76,9 @@ namespace Sds.Osdr.WebApi.Controllers
         [HttpDelete("entities/{entityId}/categories/{categoryId}")]
         public async Task<IActionResult> DeleteEntityCategory(Guid entityId, Guid categoryId)
         {
-            var node = await _nodesTreeCollection.Find(new BsonDocument("_id", entityId)).FirstOrDefaultAsync();
-            if (node == null) return BadRequest();
+            var node = await NodesTreeCollection.Find(new BsonDocument("_id", entityId)).FirstOrDefaultAsync();
+            if (node == null)
+                return NotFound();
 
             await Bus.Publish<DeleteEntityCategories>(new
             {
@@ -100,8 +100,9 @@ namespace Sds.Osdr.WebApi.Controllers
         [HttpDelete("entities/{entityId}/categories")]
         public async Task<IActionResult> DeleteEntityCategories(Guid entityId, [FromBody][Required] IEnumerable<Guid> categoriesIds)
         {
-            var node = await _nodesTreeCollection.Find(new BsonDocument("_id", entityId)).FirstOrDefaultAsync();
-            if (node == null) return BadRequest();
+            var node = await NodesTreeCollection.Find(new BsonDocument("_id", entityId)).FirstOrDefaultAsync();
+            if (node == null)
+                return NotFound();
 
             await Bus.Publish<DeleteEntityCategories>(new
             {
@@ -121,9 +122,9 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <param name="paginationRequest">Pagination request (pageSize, pageNumber)</param>
         /// <returns></returns>
         [HttpGet("categories/{categoryId}")]
-        public IActionResult GetEntitiesByCategoryId(Guid categoryId, PaginationRequest paginationRequest)
+        public async Task<IActionResult> GetEntitiesByCategoryId(Guid categoryId, PaginationRequest paginationRequest)
         {
-            var result = _elasticClient.Search<dynamic>(s => s
+            var result = ElasticClient.Search<dynamic>(s => s
                 .Index("categories")
                 .Type("category")
                 .From((paginationRequest.PageNumber - 1) * paginationRequest.PageSize)
@@ -143,21 +144,27 @@ namespace Sds.Osdr.WebApi.Controllers
         /// <param name="entityId">Entity ID</param>
         /// <returns></returns>
         [HttpGet("entities/{entityId}/categories")]
-        public IActionResult GetCategoriesIdsByEntityId(Guid entityId)
+        [ProducesResponseType(typeof(IEnumerable<Guid>), 200)]
+        public async Task<IActionResult> GetCategoriesIdsByEntityId(Guid entityId)
         {
-            var hits = _elasticClient.Search<dynamic>(s => s
+            var node = await NodesTreeCollection.Find(new BsonDocument("_id", entityId)).FirstOrDefaultAsync();
+            if (node == null)
+                return NotFound();
+
+            var hits = ElasticClient.Search<dynamic>(s => s
                 .Index("categories")
                 .Type("category")
                 .Query(q => q.QueryString(qs => qs.Query(entityId.ToString()))))
                 .Hits.ToArray();
 
+            IEnumerable<Guid> categoriesIds = new List<Guid>();
+
             if (hits.Any())
             {
                 JObject hitObject = JsonConvert.DeserializeObject<JObject>(hits[0].Source.ToString());
-                IEnumerable<string> categoriesIds = hitObject.Value<JArray>("CategoriesIds").Select(x => x.ToString());
-                return Ok(categoriesIds);
+                categoriesIds = hitObject.Value<JArray>("CategoriesIds").Select(x => Guid.Parse(x.ToString()));
             }
-            return Ok();
+            return Ok(categoriesIds);
         }
 
         [NonAction]
@@ -165,7 +172,7 @@ namespace Sds.Osdr.WebApi.Controllers
         {
             int pageNumber = uriType == PaginationUriType.PreviousPage ? request.PageNumber - 1 : request.PageNumber + 1;
 
-            return _urlHelper.Link(action, new { query = filter, pageSize = request.PageSize, pageNumber });
+            return UrlHelper.Link(action, new { query = filter, pageSize = request.PageSize, pageNumber });
 
         }
 
@@ -174,7 +181,7 @@ namespace Sds.Osdr.WebApi.Controllers
         {
             int pageNumber = uriType == PaginationUriType.PreviousPage ? request.PageNumber - 1 : request.PageNumber + 1;
 
-            return _urlHelper.Link(action, routeValueDictionary);
+            return UrlHelper.Link(action, routeValueDictionary);
         }
     }
 }

@@ -3,28 +3,27 @@ using Leanda.Categories.Domain.ValueObjects;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Sds.Osdr.IntegrationTests;
-using Sds.Osdr.IntegrationTests.FluentAssersions;
 using Sds.Osdr.IntegrationTests.Traits;
+using Sds.Osdr.WebApi.IntegrationTests;
 using Sds.Osdr.WebApi.IntegrationTests.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Threading;
 using System.Linq;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Sds.Osdr.WebApi.IntegrationTests
+namespace Sds.Osdr.EndToEndTests.Tests.Categories
 {
-    public class GetCategoriesIdsByEntityIdFixture
+    public class AddEntityCategoriesFixture
     {
-        public Guid CategoryId;
+        public Guid TreeId { get; set; }
         public Guid BlobId { get; set; }
         public Guid FileId { get; set; }
 
-
-        public GetCategoriesIdsByEntityIdFixture(OsdrWebTestHarness harness)
+        public AddEntityCategoriesFixture(OsdrTestHarness harness)
         {
             var categories = new List<TreeNode>()
             {
@@ -39,45 +38,42 @@ namespace Sds.Osdr.WebApi.IntegrationTests
 
             var content = response.Content.ReadAsStringAsync().Result;
 
-            CategoryId = Guid.Parse(content);
+            TreeId = Guid.Parse(content);
 
-            harness.WaitWhileCategoryTreePersisted(CategoryId);
+            harness.WaitWhileCategoryTreePersisted(TreeId);
 
             BlobId = harness.JohnBlobStorageClient.AddResource(harness.JohnId.ToString(), "Chemical-diagram.png", new Dictionary<string, object>() { { "parentId", harness.JohnId } }).Result;
 
             FileId = harness.WaitWhileFileProcessed(BlobId);
-            
+
+            // add category to entity
+            response = harness.JohnApi.PostData($"/api/categoryentities/entities/{FileId}/categories", new List<Guid> { TreeId }).Result;
+            response.EnsureSuccessStatusCode();
+            harness.WaitWhileCategoryIndexed(FileId.ToString());
         }
     }
 
     [Collection("OSDR Test Harness")]
-    public class GetCategoriesIdsByEntityId : OsdrWebTest, IClassFixture<GetCategoriesIdsByEntityIdFixture>
+    public class AddEntityCategories : OsdrWebTest, IClassFixture<AddEntityCategoriesFixture>
     {
-        private Guid CategoryId;
+        private Guid TreeId;
         public Guid BlobId { get; set; }
         public Guid FileId { get; set; }
 
-
-        public GetCategoriesIdsByEntityId(OsdrWebTestHarness harness, ITestOutputHelper output, GetCategoriesIdsByEntityIdFixture fixture) : base(harness, output)
+        public AddEntityCategories(OsdrTestHarness harness, ITestOutputHelper output, AddEntityCategoriesFixture fixture) : base(harness, output)
         {
-            CategoryId = fixture.CategoryId;
+            TreeId = fixture.TreeId;
             BlobId = fixture.BlobId;
             FileId = fixture.FileId;
         }
 
         [Fact, WebApiTrait(TraitGroup.All, TraitGroup.Categories)]
-        public async Task GetCategoriesIdsByEntityIdTest()
+        public async Task AddCategory_AddingCategoryToEntity_CategoryIdShouldAppearInCategoriesListForEntity()
         {
-            var fileNodeResponse = await JohnApi.GetNodeById(FileId);
-            var fileNode = await fileNodeResponse.Content.ReadAsJObjectAsync();
-            var fileNodeId = Guid.Parse(fileNode.Value<string>("id"));
-
-            await JohnApi.PostData($"/api/categoryentities/entities/{fileNodeId}/categories", new List<Guid> { CategoryId });
-            WebFixture.WaitWhileCategoryIndexed(CategoryId.ToString());
-
-            var response = await JohnApi.GetData($"/api/categoryentities/entities/{fileNodeId}/categories");
-            var categoriesIds = await response.Content.ReadAsJArrayAsync();
-            categoriesIds.Single().Value<string>().Should().Be(CategoryId.ToString());
+            var elasticSearchNodesRequest = await JohnApi.GetData($"/api/categoryentities/categories/{TreeId}");
+            var elasticSearchNodes = await elasticSearchNodesRequest.Content.ReadAsJArrayAsync();
+            elasticSearchNodes.Count.Should().Be(1);
+            elasticSearchNodes.Single().Value<string>("id").Should().Be(FileId.ToString());
         }
     }
 }
