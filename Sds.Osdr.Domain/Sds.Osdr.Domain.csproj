@@ -10,13 +10,16 @@
     <Description>SDS OSDR domain models</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>First release</PackageReleaseNotes>
-    <Copyright>Copyright 2017 (c) Science Data Software. All rights reserved.</Copyright>
+    <Copyright></Copyright>
     <PackageTags>domain OSDR</PackageTags>
-    <Configurations>Debug;Release;Dev</Configurations>    
+    <Configurations>Debug;Release;Dev</Configurations>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.12.1</Version>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>    
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Sds.CqrsLite" Version="2.0.0" />
+    <PackageReference Include="Sds.CqrsLite" Version="2.0.2" />
     <PackageReference Include="Sds.CqrsLite.MassTransit" Version="3.0.1" />
     <PackageReference Include="Sds.Domain" Version="1.13.3" />
     <PackageReference Include="Sds.MassTransit" Version="3.0.3" />

@@ -1,4 +1,5 @@
 ﻿using CQRSlite.Domain;
+using Sds.Osdr.Domain;
 using Sds.Osdr.Generic.Domain.Events.Files;
 using Sds.Osdr.Generic.Domain.ValueObjects;
 using System;
@@ -16,7 +17,8 @@ namespace Sds.Osdr.Generic.Domain
         Tabular,
         Pdf,
         WebPage,
-        Image
+        Image,
+        Microscopy
     }
 
     public enum FileStatus
@@ -101,6 +103,8 @@ namespace Sds.Osdr.Generic.Domain
 
         public IList<Image> Images { get; protected set; } = new List<Image>();
 
+        public IEnumerable<KeyValue<string>> Metadata { get; private set; }
+
         /// <summary>
         /// Current file status
         /// </summary>
@@ -141,6 +145,13 @@ namespace Sds.Osdr.Generic.Domain
                 Images.Add(e.Image);
             }
 
+            UpdatedBy = e.UserId;
+            UpdatedDateTime = e.TimeStamp;
+        }
+
+        private void Apply(MetadataUpdated e)
+        {
+            Metadata = e.Metadata;
             UpdatedBy = e.UserId;
             UpdatedDateTime = e.TimeStamp;
         }
@@ -244,6 +255,11 @@ namespace Sds.Osdr.Generic.Domain
         public void GrantAccess(Guid userId, AccessPermissions accessPermissions)
         {
             ApplyChange(new PermissionsChanged(Id, userId, accessPermissions));
+        }
+
+        public void UpdateMetadata(Guid userId, IEnumerable<KeyValue<string>> metadata)
+        {
+            ApplyChange(new MetadataUpdated(Id, userId, metadata));
         }
     }
 }

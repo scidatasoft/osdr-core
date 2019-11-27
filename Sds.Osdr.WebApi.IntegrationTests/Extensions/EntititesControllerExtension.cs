@@ -74,7 +74,23 @@ namespace Sds.Osdr.WebApi.IntegrationTests.Extensions
  
             return await client.PatchData(url, data);
         }
-        
+
+        public static async Task<HttpResponseMessage> SetFileName(this OsdrWebClient client, Guid fileId, int version, string name)
+        {
+            var url = $"/api/entities/files/{fileId}?version={version}";
+            var data = $"[{{'op':'replace','path':'Name','value':'{name}'}}]";
+
+            return await client.PatchData(url, data);
+        }
+
+        public static async Task<HttpResponseMessage> SetParentFolder(this OsdrWebClient client, Guid fileId, int version, Guid folderId)
+        {
+            var url = $"/api/entities/files/{fileId}?version={version}";
+            var data = $"[{{'op':'replace','path':'ParentId','value':'{folderId}'}}]";
+
+            return await client.PatchData(url, data);
+        }
+
         public static async Task<HttpResponseMessage> SetPublicFoldersEntity(this OsdrWebClient client, 
             Guid folderId, int version, bool isPublic)
         {

@@ -14,11 +14,6 @@ namespace Sds.Osdr.Chemicals.Domain.Aggregates
         {
         }
 
-        //private void Apply(StandardizedBlobIdChanged e)
-        //{
-        //    StandardizedBlobId = e.BlobId;
-        //}
-
         protected Substance()
         {
         }
@@ -28,10 +23,5 @@ namespace Sds.Osdr.Chemicals.Domain.Aggregates
         {
             ApplyChange(new SubstanceCreated(Id, userId));
         }
-
-        //public void SetStandardizedBlobId(Guid userId, Guid blobId)
-        //{
-        //    ApplyChange(new StandardizedBlobIdChanged(Id, userId, blobId));
-        //}
     }
 }

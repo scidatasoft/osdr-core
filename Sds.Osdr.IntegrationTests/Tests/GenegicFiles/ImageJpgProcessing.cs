@@ -46,7 +46,7 @@ namespace Sds.Osdr.IntegrationTests
 
             var file = await Session.Get<File>(FileId);
             file.Should().NotBeNull();
-            file.ShouldBeEquivalentTo(new
+            file.Should().BeEquivalentTo(new
                 {
                     Id = FileId,
                     Type = FileType.Image,

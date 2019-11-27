@@ -19,7 +19,6 @@ namespace Sds.Osdr.WebApi
                 .UseConfiguration(configuration)
                 .UseIISIntegration()
                 .UseStartup<Startup>()
-                //.UseApplicationInsights()
                 .Build();
 
             host.Run();

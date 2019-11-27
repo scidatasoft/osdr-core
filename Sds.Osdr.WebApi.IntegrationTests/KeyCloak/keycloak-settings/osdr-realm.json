@@ -44,7 +44,7 @@
           { "type" : "password",
             "value" : "qqq123" }
       ],
-      "realmRoles": [ "user" ],
+      "realmRoles": [ "user", "leanda-admin" ],
       "clientRoles": {
           "account": ["view-profile", "manage-account"]
       }
@@ -67,9 +67,22 @@
   ],
   "roles" : {
     "realm" : [
+      {
+        "id": "a52b7f6f-ccf4-4f48-ac55-38fe9d5509ec",
+        "name": "leanda-admin",
+        "description": "Administrator privileges",
+        "scopeParamRequired": true,
+        "composite": false,
+        "clientRole": false,
+        "containerId": "4ee57060-1936-4b39-b935-ec970d21d920"
+      }
     ]
   },
   "scopeMappings": [
+    {
+      "client": "osdr_webapi",
+      "roles": ["user", "leanda-admin"]
+    }
   ],
   "clients": [
     {
@@ -164,7 +177,8 @@
           "consentText": "${fullName}",
           "config": {
             "id.token.claim": "true",
-            "access.token.claim": "true"
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
           }
         },
         {
@@ -176,6 +190,7 @@
           "consentText": "",
           "config": {
             "user.session.note": "clientHost",
+            "userinfo.token.claim": "true",
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "clientHost",
@@ -191,6 +206,7 @@
           "consentText": "",
           "config": {
             "user.session.note": "clientAddress",
+            "userinfo.token.claim": "true",
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "clientAddress",
@@ -210,6 +226,21 @@
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "family_name",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "id": "0db369f9-2d25-4b73-86d8-bae9aa9e6ac4",
+          "name": "User realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "multivalued": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "user_role",
             "jsonType.label": "String"
           }
         },
@@ -234,6 +265,7 @@
           "consentText": "",
           "config": {
             "user.session.note": "clientId",
+            "userinfo.token.claim": "true",
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "clientId",

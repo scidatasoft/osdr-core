@@ -195,15 +195,25 @@ namespace Sds.Osdr.WebApi.Controllers
                 return NotFound();
             }
 
-            if (!string.IsNullOrEmpty(propertyPath))
+            try
             {
-                foreach (var property in propertyPath.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries))
+                var comparer = StringComparer.OrdinalIgnoreCase;
+                result = new Dictionary<string, object>((IDictionary<string, object>)result, comparer);
+                var propertyBreadcrumbs = propertyPath.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+                if (!string.IsNullOrEmpty(propertyPath))
                 {
-                    result = (((IDictionary<string, object>)result))[property.ToPascalCase()];
+                    for (int i = 0; i< propertyBreadcrumbs.Count() - 1; i++ )
+                    {
+                        result = new Dictionary<string, object>((IDictionary<string, object>)result[propertyBreadcrumbs[i]], comparer);
+                    }
+                    return Ok(result[propertyBreadcrumbs.Last()]);
                 }
+                return NotFound();
             }
-
-            return Ok(result);
+            catch(Exception e)
+            {
+                return NotFound();
+            }
         }
 
         /// <summary>
@@ -339,19 +349,10 @@ namespace Sds.Osdr.WebApi.Controllers
             return AcceptedAtRoute("GetSingleEntity", new { type = "folders", id = folderId }, null);
         }
 
-        /// <summary>
-        /// Update File
-        /// </summary>
-        /// <param name="id">File identifier</param>
-        /// <param name="request">Request with json patch object</param>
-        /// <param name="version">Version object</param>
-        /// <returns></returns>
-        /// <response code="202">file updating started</response>
-        /// <response code="400">new file name is not valid</response>
         [ProducesResponseType(202)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         [HttpPatch("files/{id}")]
-        public async Task<IActionResult> PatchFile(Guid id, [FromBody]JsonPatchDocument<UpdatedEntityData> request, int version)
+        public async Task<IActionResult> PatchFile(Guid id, [FromBody]JsonPatchDocument<UpdateEntityRequest> request, int version)
         {
             BsonDocument filter = new OrganizeFilter(UserId.Value).ById(id);
 
@@ -364,7 +365,7 @@ namespace Sds.Osdr.WebApi.Controllers
             if (permissions is null)
                 return NotFound();
 
-            var file = new UpdatedEntityData() { Id = id };
+            var file = new UpdateEntityRequest() { Id = id };
 
             if (permissions.Contains(nameof(AccessPermissions)))
                 file.Permissions = BsonSerializer.Deserialize<AccessPermissions>(permissions[nameof(AccessPermissions)].AsBsonDocument);
@@ -385,6 +386,18 @@ namespace Sds.Osdr.WebApi.Controllers
                     Id = id,
                     UserId = UserId.Value,
                     NewName = file.Name.Trim(),
+                    ExpectedVersion = version
+                });
+            }
+
+            if (file.Metadata.Any())
+            {
+                Log.Information($"Update metadata for file {id}");
+                await _bus.Publish<UpdateMetadata>(new
+                {
+                    file.Metadata,
+                    Id = id,
+                    UserId = UserId.Value,
                     ExpectedVersion = version
                 });
             }
@@ -427,7 +440,7 @@ namespace Sds.Osdr.WebApi.Controllers
         [ProducesResponseType(202)]
         [ProducesResponseType(400)]
         [HttpPatch("folders/{id}")]
-        public async Task<IActionResult> PatchFolder(Guid id, [FromBody]JsonPatchDocument<UpdatedEntityData> request, int version)
+        public async Task<IActionResult> PatchFolder(Guid id, [FromBody]JsonPatchDocument<UpdateEntityRequest> request, int version)
         {
             Log.Information($"Updating folder {id}");
 
@@ -442,7 +455,7 @@ namespace Sds.Osdr.WebApi.Controllers
             if (folderToUpdate is null)
                 return NotFound();
 
-            var folder = new UpdatedEntityData() { Id = id };
+            var folder = new UpdateEntityRequest() { Id = id };
 
             if (folderToUpdate.Contains(nameof(AccessPermissions)))
                 folder.Permissions = BsonSerializer.Deserialize<AccessPermissions>(folderToUpdate[nameof(AccessPermissions)].AsBsonDocument);
@@ -507,7 +520,7 @@ namespace Sds.Osdr.WebApi.Controllers
         [ProducesResponseType(202)]
         [ProducesResponseType(400)]
         [HttpPatch("models/{id}")]
-        public async Task<IActionResult> PatchModel(Guid id, [FromBody]JsonPatchDocument<UpdatedEntityData> request, int version)
+        public async Task<IActionResult> PatchModel(Guid id, [FromBody]JsonPatchDocument<UpdateEntityRequest> request, int version)
         {
             Log.Information($"Updating model {id}");
 
@@ -522,7 +535,7 @@ namespace Sds.Osdr.WebApi.Controllers
             if (modelToUpdate is null)
                 return NotFound();
 
-            var model = new UpdatedEntityData() { Id = id };
+            var model = new UpdateEntityRequest() { Id = id };
 
             if (modelToUpdate.Contains(nameof(AccessPermissions)))
                 model.Permissions = BsonSerializer.Deserialize<AccessPermissions>(modelToUpdate[nameof(AccessPermissions)].AsBsonDocument);

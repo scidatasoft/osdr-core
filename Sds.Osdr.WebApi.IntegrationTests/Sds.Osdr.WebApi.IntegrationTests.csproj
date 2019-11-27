@@ -31,7 +31,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0">
       <PrivateAssets>all</PrivateAssets>
@@ -40,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Leanda.Categories\Leanda.CategoryTree.csproj" />
     <ProjectReference Include="..\Sds.Osdr.IntegrationTests\Sds.Osdr.IntegrationTests.csproj" />
   </ItemGroup>
 
@@ -53,6 +54,10 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Tests\Metadata\" />
   </ItemGroup>
 
 </Project>

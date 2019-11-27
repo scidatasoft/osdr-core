@@ -50,8 +50,10 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.9" />
     <PackageReference Include="NEST" Version="6.0.2" />
     <PackageReference Include="Sds.ChemicalExport.Domain" Version="0.14.0-develop" />
+    <PackageReference Include="Sds.CqrsLite.EventStore" Version="2.0.4" />
     <PackageReference Include="Sds.EventStore.GetEventStore" Version="0.8.0" />
     <PackageReference Include="Sds.MassTransit.RabbitMq" Version="3.0.4" />
     <PackageReference Include="Sds.Reflection" Version="1.0.3" />
@@ -74,6 +76,7 @@
     <None Include="Responses\FolderContentItem.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Leanda.Categories\Leanda.CategoryTree.csproj" />
     <ProjectReference Include="..\Sds.Osdr.Domain\Sds.Osdr.Domain.csproj" />
     <ProjectReference Include="..\Sds.Osdr.MachineLearning\Sds.Osdr.MachineLearning.csproj" />
     <ProjectReference Include="..\Sds.Osdr.WebPage\Sds.Osdr.WebPage.csproj" />

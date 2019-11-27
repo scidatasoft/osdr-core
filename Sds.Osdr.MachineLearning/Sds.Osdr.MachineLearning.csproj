@@ -1,8 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageVersion>0.2.0</PackageVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Configurations>Debug;Release;Dev</Configurations>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Science Data Software</Authors>
+    <Company>Science Data SoftwareScience Data Software</Company>
+    <Product>Open Science Data Repository</Product>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <Version>0.2.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Sagas\Commands\**" />

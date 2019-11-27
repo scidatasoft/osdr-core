@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MassTransit" Version="5.1.4" />
+    <PackageReference Include="Sds.CqrsLite.MassTransit" Version="3.0.1" />
+    <PackageReference Include="Sds.Domain" Version="1.13.3" />
+    <PackageReference Include="Sds.MassTransit.MongoDb" Version="3.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sds.Osdr.Domain\Sds.Osdr.Domain.csproj" />
+    <ProjectReference Include="..\Sds.Osdr.Infrastructure\Sds.Osdr.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,7 @@
-﻿using Sds.Osdr.WebApi.IntegrationTests.EndPoints;
+﻿using MassTransit.RabbitMqTransport;
+using Microsoft.Extensions.DependencyInjection;
+using Sds.Osdr.WebApi.IntegrationTests.EndPoints;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
@@ -31,6 +34,14 @@ namespace Sds.Osdr.EndToEndTests
             JohnApi = new OsdrWebClient(JohnClient);
             JaneApi = new OsdrWebClient(JaneClient);
             UnauthorizedApi = new OsdrWebClient(UnauthorizedClient);
+        }
+
+        protected override void OnInit(IServiceCollection services)
+        {
+        }
+
+        protected override void OnBusCreation(IRabbitMqBusFactoryConfigurator config, IRabbitMqHost host, IServiceProvider container)
+        {
         }
 
         public override void Dispose()

@@ -51,8 +51,8 @@ namespace Sds.Osdr.WebApi.IntegrationTests
         public async Task FolderOperations_GetFolderWithUser2_ExpectedNotFound()
         {
             var response = await JaneApi.GetFolder(_folderId);
-            response.IsSuccessStatusCode.ShouldBeEquivalentTo(false);
-            response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.Forbidden);
+            response.IsSuccessStatusCode.Should().Be(false);
+            response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         }
     }
 }

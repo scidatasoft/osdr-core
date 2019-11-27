@@ -61,7 +61,7 @@ namespace Sds.Osdr.IntegrationTests
 			var file = await Session.Get<RecordsFile.Domain.RecordsFile>(FileId);
 
 			file.Should().NotBeNull();
-			file.ShouldBeEquivalentTo(new
+			file.Should().BeEquivalentTo(new
 			{
 				Id = FileId,
 				Type = FileType.Records,
@@ -126,7 +126,7 @@ namespace Sds.Osdr.IntegrationTests
             var record = await Session.Get<Crystal>(recordId);
 
             record.Should().NotBeNull();
-            record.ShouldBeEquivalentTo(new
+            record.Should().BeEquivalentTo(new
             {
                 Id = recordId,
                 RecordType = RecordType.Crystal,

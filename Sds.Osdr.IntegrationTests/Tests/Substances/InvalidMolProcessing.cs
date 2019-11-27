@@ -58,7 +58,7 @@ namespace Sds.Osdr.IntegrationTests
             var file = await Session.Get<RecordsFile.Domain.RecordsFile>(FileId);
 
             file.Should().NotBeNull();
-            file.ShouldBeEquivalentTo(new
+            file.Should().BeEquivalentTo(new
             {
                 Id = FileId,
                 Type = FileType.Records,
@@ -119,7 +119,7 @@ namespace Sds.Osdr.IntegrationTests
             var invalidRecord = await Session.Get<InvalidRecord>(recordId);
 
             invalidRecord.Should().NotBeNull();
-	    	invalidRecord.ShouldBeEquivalentTo(new
+	    	invalidRecord.Should().BeEquivalentTo(new
 	    	{
 	    		Id = recordId,
 	    		Error = "molfile loader: ring bond count is allowed only for queries",

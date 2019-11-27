@@ -41,7 +41,7 @@ namespace Sds.Osdr.IntegrationTests
             var user = await Session.Get<User>(NewUserId);
 
             user.Should().NotBeNull();
-            user.ShouldBeEquivalentTo(new
+            user.Should().BeEquivalentTo(new
             {
                 Id = NewUserId,
                 CreatedBy = JohnId,

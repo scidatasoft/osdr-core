@@ -48,6 +48,11 @@ using Microsoft.AspNetCore.SignalR;
 using System.Net.WebSockets;
 using System.Threading;
 using Microsoft.AspNetCore.Http.Features;
+using CQRSlite.Events;
+using CQRSlite.Domain;
+using ISession = CQRSlite.Domain.ISession;
+using Sds.CqrsLite.EventStore;
+using Microsoft.AspNetCore.Identity;
 
 namespace Sds.Osdr.WebApi
 {
@@ -145,7 +150,12 @@ namespace Sds.Osdr.WebApi
             try
             {
                 var settings = Environment.ExpandEnvironmentVariables(Configuration["EventStore:ConnectionString"]);
-                services.AddSingleton<IEventStore>(new EventStore.EventStore(settings));
+                services.AddSingleton<EventStore.IEventStore>(new EventStore.EventStore(settings));
+
+                services.AddSingleton<CQRSlite.Events.IEventStore>(y => new GetEventStore(Environment.ExpandEnvironmentVariables(Configuration["EventStore:ConnectionString"])));
+                services.AddSingleton<IEventPublisher, CqrsLite.MassTransit.MassTransitBus>();
+                services.AddTransient<ISession, Session>();
+                services.AddSingleton<IRepository, Repository>();
             }
             catch (Exception e)
             {
@@ -156,18 +166,14 @@ namespace Sds.Osdr.WebApi
             //services.AddScoped(s => s.GetService<IConnectionMultiplexer>().GetDatabase());
             try
             {
-                var connectionString = Environment.ExpandEnvironmentVariables(Configuration["OsdrConnectionSettings:ConnectionString"]);
-                services.AddTransient<IBlobStorage, GridFsStorage>(
-                    x => new GridFsStorage(connectionString, Configuration["OsdrConnectionSettings:DatabaseName"])
-                );
-                Log.Information($"Connecting to MongoDB {connectionString}");
-                var mongoClient = new MongoClient(connectionString);
-                services.AddSingleton(mongoClient);
-                var database = Configuration["OsdrConnectionSettings:DatabaseName"];
-                Log.Information($"Using to MongoDB database {database}");
-                services.AddSingleton(service => service.GetService<MongoClient>().GetDatabase(database));
-                services.AddTransient<IOrganizeDataProvider>(service => new OrganizeDataProvider(mongoClient.GetDatabase(database), service.GetService<IBlobStorage>()));
+                var mongoConnectionString = Environment.ExpandEnvironmentVariables(Configuration["OsdrConnectionSettings:ConnectionString"]);
+                var mongoUrl = new MongoUrl(mongoConnectionString);
 
+                Log.Information($"Connecting to MongoDB {mongoConnectionString}");
+                services.AddTransient<IBlobStorage, GridFsStorage>(x => new GridFsStorage(x.GetService<IMongoDatabase>()));
+                services.AddSingleton(new MongoClient(mongoUrl));
+                services.AddSingleton(service => service.GetService<MongoClient>().GetDatabase(mongoUrl.DatabaseName));
+                services.AddTransient<IOrganizeDataProvider>(service => new OrganizeDataProvider(service.GetService<IMongoDatabase>(), service.GetService<IBlobStorage>()));
             }
             catch (Exception ex)
             {
@@ -261,6 +267,7 @@ namespace Sds.Osdr.WebApi
                    }
               };
            });
+           services.AddAuthorization(options => options.AddPolicy("Administrator", policy => policy.RequireClaim("user_role", "leanda-admin")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -306,7 +313,8 @@ namespace Sds.Osdr.WebApi
             //    appBuilder.ServerFeatures.Get<IHttpMaxRequestBodySizeFeature>().MaxRequestBodySize = fvcSettings.MaxFileSize;
             //});
 
-            var routePrefixes = new[] { "/api/entities", "/api/nodes", "/api/usernotifications", "/api/public", "/api/machinelearning/predictions" };
+            var routePrefixes = new[] { "/api/entities", "/api/nodes", "/api/usernotifications", "/api/public", "/api/machinelearning/predictions",
+                    "/api/categoryentities", "/api/categorytrees"};
             var binaryDataEndpints = new[] { "/blobs/", "/images/", ".zip" };
             app.UseWhen(context =>
                     (routePrefixes.Any(context.Request.Path.Value.ToLower().Contains) && !binaryDataEndpints.Any(context.Request.Path.Value.ToLower().Contains)),

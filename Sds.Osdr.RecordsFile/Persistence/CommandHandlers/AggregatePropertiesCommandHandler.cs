@@ -28,8 +28,7 @@ namespace Sds.Osdr.RecordsFile.Persistence.CommandHandlers
                .Unwind(d => d["Properties.ChemicalProperties"])
                .Group(new BsonDocument { { "_id", "$Properties.ChemicalProperties.Name" } })
                .ToList()
-               .Select(d=> d.GetValue(0).ToString())
-               ;
+               .Select(d=> d.GetValue(0).ToString());
 
             await context.Publish<AddAggregatedProperties>(new
             {
